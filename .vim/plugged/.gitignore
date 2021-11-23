@@ -1,0 +1,5 @@
+# filter everything
+*
+
+# except this file
+!.gitignore
