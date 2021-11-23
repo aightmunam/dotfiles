@@ -2,13 +2,17 @@
 
 CWD="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 
-
 install () {
+  echo "Insalling $#: $@"
+
   rm -rf "$HOME/$2"
   mkdir -p "$(dirname "$HOME/$2")"
 
-  ln -s "$CWD/$1" "$HOME/$2"
-  
+  if ! [[ "$3" -eq 1 ]]; then
+    ln -s "$CWD/$1" "$HOME/$2"
+  else
+    cp -Ra "$CWD/$1" "$HOME/$2"
+  fi
 }
 
 uninstall () {
@@ -20,7 +24,6 @@ uninstall () {
 # dotfiles
 ###############################################################################
 
-
 declare -a files=(
   .bash_profile
   .bashrc
@@ -28,7 +31,6 @@ declare -a files=(
   .editorconfig
   .gitconfig
   .zshrc
-  .vimrc
 )
 
 for file in "${files[@]}"; do
@@ -37,19 +39,34 @@ for file in "${files[@]}"; do
   fi
 done
 
+
+###############################################################################
+# vim
+###############################################################################
+
 uninstall ".config/nvim"
 uninstall ".vim"
 uninstall ".vimrc"
-
-install ".vim" ".config/nvim"
-install ".vimrc" ".config/nvim/init.vim"
-install ".vim" ".vim"
-install ".vimrc" ".vimrc"
 
 if [ ! -f "$HOME/.vim/autoload/plug.vim" ]; then
   curl -sfLo "$HOME/.vim/autoload/plug.vim" --create-dirs 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 fi
 
+install ".vim" ".config/nvim" 1
+install ".vimrc" ".config/nvim/init.vim" 1
+install ".vim" ".vim" 1
+install ".vimrc" ".vimrc" 1
+
 vim -c ':PlugInstall! | :PlugUpdate! | :q! | :q!'
+
+
+###############################################################################
+# zinit
+###############################################################################
+
+rm -rf "$HOME/.zinit"
+mkdir "$HOME/.zinit"
+git clone --depth=1 https://github.com/zdharma-continuum/zinit.git "$HOME/.zinit/bin"
+
 
 echo -e "Installation done for the following ${#files[*]} dotfiles: ${files[*]}"
