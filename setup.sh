@@ -3,7 +3,7 @@
 CWD="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 
 install () {
-  echo "Insalling $#: $@"
+  echo "Insalling: $@"
 
   rm -rf "$HOME/$2"
   mkdir -p "$(dirname "$HOME/$2")"
@@ -31,6 +31,7 @@ declare -a files=(
   .editorconfig
   .gitconfig
   .zshrc
+  .dircolors
 )
 
 for file in "${files[@]}"; do
