@@ -42,6 +42,7 @@
 	addnw = !sh -c 'git diff -U0 -w --no-color "$@" | git apply --cached --ignore-whitespace --unidiff-zero -'
 [core]
 	excludesfile = ~/.dotfiles/.gitignore_global
+	editor = vim
 [color]
 	diff = auto
 	status = auto
