@@ -1,22 +1,30 @@
 eval "$(direnv hook zsh)"
 
+#######################################################
+# Plugins
+#######################################################
+
+plugins=( 
+    zsh-autosuggestions 
+    macos 
+    copydir
+    copyfile
+    dirhistory
+    history
+    zsh-syntax-highlighting
+    k
+    autojump
+)
+
 
 #######################################################
 # Theme
 #######################################################
 
-export ZSH="/Users/munammubashir/.oh-my-zsh"
+export ZSH="/Users/$(whoami)/.oh-my-zsh"
 ZSH_THEME="cloud"
 source $ZSH/oh-my-zsh.sh
 
-#######################################################
-# Theme
-#######################################################
-
-
-plugins=( 
-    zsh-autosuggestions macos
-)
 
 #######################################################
 # general aliases
@@ -38,6 +46,7 @@ alias ....='cd ../../..'
 alias .....='cd ../../../..'
 alias ......='cd ../../../../..'
 alias python='/usr/bin/python3'
+alias pip='python3 -m pip'
 alias g='git'
 
 
