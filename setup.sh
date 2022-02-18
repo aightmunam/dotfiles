@@ -1,4 +1,6 @@
-#!/usr/bin/env bash
+#!/usr/bin/env
+
+echo "Setting up..."
 
 CWD="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 
@@ -49,16 +51,24 @@ uninstall ".config/nvim"
 uninstall ".vim"
 uninstall ".vimrc"
 
-if [ ! -f "$HOME/.vim/autoload/plug.vim" ]; then
-  curl -sfLo "$HOME/.vim/autoload/plug.vim" --create-dirs 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-fi
-
 install ".vim" ".config/nvim" 1
 install ".vimrc" ".config/nvim/init.vim" 1
 install ".vim" ".vim" 1
 install ".vimrc" ".vimrc" 1
 
-vim -c ':PlugInstall! | :PlugUpdate! | :q! | :q!'
+
+###############################################################################
+# oh my zsh
+###############################################################################
+
+git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+git clone --depth=1 https://github.com/supercrabtree/k ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins//k
+
+git clone --depth=1 git://github.com/wting/autojump.git ~/.oh-my-zsh/autojump-setup
+$(cd ~/.oh-my-zsh/autojump-setup && ./install.py)
 
 
 ###############################################################################
@@ -69,5 +79,6 @@ rm -rf "$HOME/.zinit"
 mkdir "$HOME/.zinit"
 git clone --depth=1 https://github.com/zdharma-continuum/zinit.git "$HOME/.zinit/bin"
 
-
 echo -e "Installation done for the following ${#files[*]} dotfiles: ${files[*]}"
+
+source $HOME/.zshrc

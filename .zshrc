@@ -4,9 +4,9 @@ eval "$(direnv hook zsh)"
 # Plugins
 #######################################################
 
-plugins=( 
-    zsh-autosuggestions 
-    macos 
+plugins=(
+    zsh-autosuggestions
+    macos
     copydir
     copyfile
     dirhistory
@@ -16,15 +16,17 @@ plugins=(
     autojump
 )
 
+# Enable fzf for fuzzing searching of files and commands
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 #######################################################
 # Theme
 #######################################################
 
-export ZSH="/Users/$(whoami)/.oh-my-zsh"
+export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
-# Enable Powerlevel10k instant prompt. 
+# Enable Powerlevel10k instant prompt.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
