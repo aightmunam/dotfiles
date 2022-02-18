@@ -1,5 +1,3 @@
-eval "$(direnv hook zsh)"
-
 #######################################################
 # Plugins
 #######################################################
@@ -59,6 +57,7 @@ alias ......='cd ../../../../..'
 alias python='/usr/bin/python3'
 alias pip='python3 -m pip'
 alias g='git'
+alias vi='vim'
 
 
 for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
