@@ -5,7 +5,7 @@
 plugins=(
     zsh-autosuggestions
     macos
-    copydir
+    copypath
     copyfile
     dirhistory
     history
