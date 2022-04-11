@@ -1,5 +1,8 @@
 [include]
 	path = ~/.gitconfig.local
+[user]
+  name = Munam Mubashir
+  email = 10995414-aightmunam@users.noreply.gitlab.com
 [status]
 	relativePaths = true
 [pull]
