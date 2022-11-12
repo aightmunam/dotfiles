@@ -10,6 +10,8 @@ plugins=(
     dirhistory
     history
     zsh-syntax-highlighting
+    fast-syntax-highlighting
+    zsh-autocomplete
     k
     autojump
 )
@@ -54,7 +56,6 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....='cd ../../../..'
 alias ......='cd ../../../../..'
-alias python='/usr/bin/python3'
 alias pip='python3 -m pip'
 alias g='git'
 alias vi='vim'
@@ -83,4 +84,8 @@ if [ -f "$HOME/.dircolors" ]; then
   if hash gdircolors &>/dev/null; then
     eval $(gdircolors -b $HOME/.dircolors)
   fi
+fi
+
+if command -v pyenv 1>/dev/null 2>&1; then
+  eval "$(pyenv init -)"
 fi
