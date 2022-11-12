@@ -3,7 +3,7 @@
 My Dotfiles for git, vim, zsh and more. 
 
 ### Steps to setup these dotfiles on your machine
-1. Clone this repo in $HOME/.dotfles (~/.dotfiles) directory
+1. Clone this repo in $HOME/.dotfiles (~/.dotfiles) directory
   ```
   # if SSH has been added for the machine
   git clone git@github.com:aightmunam/dotfiles.git 
