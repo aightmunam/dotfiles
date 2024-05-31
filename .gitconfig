@@ -42,6 +42,8 @@
 	l = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit -n 15
 	la = log --graph --all
 	addnw = !sh -c 'git diff -U0 -w --no-color "$@" | git apply --cached --ignore-whitespace --unidiff-zero -'
+	res = restore --staged
+	backup = commit -m ':WIP: Backup' --no-verify
 [core]
 	excludesfile = ~/.dotfiles/.gitignore_global
 	editor = vim
