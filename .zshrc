@@ -14,6 +14,8 @@ plugins=(
     zsh-autocomplete
     k
     autojump
+    docker
+    poetry
 )
 
 # Enable fzf for fuzzing searching of files and commands
@@ -24,7 +26,7 @@ plugins=(
 #######################################################
 
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="powerlevel10k/powerlevel10k"
+ZSH_THEME="juanghurtado"
 
 # Enable Powerlevel10k instant prompt.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
@@ -35,6 +37,27 @@ fi
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 source $ZSH/oh-my-zsh.sh
+
+#######################################################
+# History
+#######################################################
+
+bindkey '^n' history-search-forward
+bindkey '^p' history-search-backward
+
+
+HISTSIZE=5000
+HISTFILE=~/.zsh_history
+SAVEHIST=$HISTSIZE
+HISTDUP=erase
+setopt appendhistory
+setopt sharehistory
+setopt hist_ignore_space
+setopt hist_ignore_dups
+setopt hist_ignore_all_dups
+setopt hist_save_no_dups
+setopt hist_find_no_dups
+
 
 
 #######################################################
@@ -57,6 +80,7 @@ alias ....='cd ../../..'
 alias .....='cd ../../../..'
 alias ......='cd ../../../../..'
 alias pip='python3 -m pip'
+alias pre-commit='python -m pre_commit'
 alias g='git'
 alias vi='vim'
 
@@ -89,3 +113,12 @@ fi
 if command -v pyenv 1>/dev/null 2>&1; then
   eval "$(pyenv init -)"
 fi
+PATH=$(pyenv root)/shims:$PATH
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/aightmunam/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/aightmunam/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/aightmunam/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/aightmunam/google-cloud-sdk/completion.zsh.inc'; fi
+export MANPATH=$HOME/tools/ripgrep/doc/man:$MANPATH
+export FPATH=$HOME/tools/ripgrep/complete:$FPATH
