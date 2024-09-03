@@ -6,7 +6,7 @@
 [status]
 	relativePaths = true
 [pull]
-	rebase = true
+	rebase = false
 [push]
 	default = current
 [clone]
@@ -45,7 +45,7 @@
 	res = restore --staged
 	backup = commit -m ':WIP: Backup' --no-verify
 [core]
-	excludesfile = ~/.dotfiles/.gitignore_global
+	excludesfile = ~/dotfiles/.gitignore_global
 	editor = vim
 [color]
 	diff = auto

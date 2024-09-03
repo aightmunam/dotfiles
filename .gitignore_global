@@ -18,6 +18,8 @@
 \#*\#
 \.#*
 .ipynb_checkpoints/
+.idea/
+pyrightconfig.json  # zed ide specific (allows adding venv/python path)
 
 # Logs and databases #
 ######################
