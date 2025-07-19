@@ -31,8 +31,9 @@ plugins=(
 #######################################################
 
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="juanghurtado"
+#ZSH_THEME="emotty"
 
+source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
 # Enable Powerlevel10k instant prompt.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
@@ -87,7 +88,7 @@ alias ......='cd ../../../../..'
 alias pip='python3 -m pip'
 alias pre-commit='python -m pre_commit'
 alias g='git'
-alias vi='vim'
+alias vi='nvim'
 
 
 for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
@@ -115,15 +116,3 @@ if [ -f "$HOME/.dircolors" ]; then
   fi
 fi
 
-if command -v pyenv 1>/dev/null 2>&1; then
-  eval "$(pyenv init -)"
-fi
-PATH=$(pyenv root)/shims:$PATH
-
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/aightmunam/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/aightmunam/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/aightmunam/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/aightmunam/google-cloud-sdk/completion.zsh.inc'; fi
-export MANPATH=$HOME/tools/ripgrep/doc/man:$MANPATH
-export FPATH=$HOME/tools/ripgrep/complete:$FPATH
