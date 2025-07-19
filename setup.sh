@@ -4,6 +4,14 @@ echo "Setting up..."
 
 CWD="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Installs a file or directory from a source path to a destination path within the user's home directory.
+# This function first removes any existing item at the destination and ensures its parent directories exist.
+#
+# Arguments:
+#   $1 (source_path):       The path to the source file or directory, relative to the current working directory ($CWD).
+#   $2 (dest_path):         The desired destination path, relative to the user's home directory ($HOME).
+#   $3 (copy_mode_flag):    Optional. If '1', performs a full recursive copy (`cp -Ra`).
+#                           Otherwise (default), creates a symbolic link (`ln -s`).
 install() {
   echo "Insalling: $@"
 
@@ -42,17 +50,23 @@ for file in "${files[@]}"; do
 done
 
 ###############################################################################
-# vim
+# vim, nvim
 ###############################################################################
 
 uninstall ".config/nvim"
 uninstall ".vim"
 uninstall ".vimrc"
 
-install "vim" ".config/nvim" 1
-install ".vimrc" ".config/nvim/init.vim" 1
+install "nvim" ".config/nvim" 1
 install "vim" ".vim" 1
 install ".vimrc" ".vimrc" 1
+
+###############################################################################
+# wezterm 
+###############################################################################
+
+uninstall ".config/wezterm"
+install "wezterm" ".config/wezterm" 1
 
 ###############################################################################
 # oh my zsh
