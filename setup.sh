@@ -2,9 +2,9 @@
 
 echo "Setting up..."
 
-CWD="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
+CWD="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-install () {
+install() {
   echo "Insalling: $@"
 
   rm -rf "$HOME/$2"
@@ -17,10 +17,9 @@ install () {
   fi
 }
 
-uninstall () {
+uninstall() {
   rm -rf "$HOME/$1"
 }
-
 
 ###############################################################################
 # dotfiles
@@ -42,7 +41,6 @@ for file in "${files[@]}"; do
   fi
 done
 
-
 ###############################################################################
 # vim
 ###############################################################################
@@ -51,11 +49,10 @@ uninstall ".config/nvim"
 uninstall ".vim"
 uninstall ".vimrc"
 
-install ".vim" ".config/nvim" 1
+install "vim" ".config/nvim" 1
 install ".vimrc" ".config/nvim/init.vim" 1
-install ".vim" ".vim" 1
+install "vim" ".vim" 1
 install ".vimrc" ".vimrc" 1
-
 
 ###############################################################################
 # oh my zsh
@@ -70,7 +67,6 @@ git clone --depth=1 https://github.com/supercrabtree/k ${ZSH_CUSTOM:-$HOME/.oh-m
 git clone --depth=1 https://github.com/marlonrichert/zsh-autocomplete.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autocomplete
 git clone --depth=1 git://github.com/wting/autojump.git ~/.oh-my-zsh/autojump-setup
 $(cd ~/.oh-my-zsh/autojump-setup && ./install.py)
-
 
 ###############################################################################
 # zinit
