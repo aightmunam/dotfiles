@@ -1,0 +1,30 @@
+return {
+  'mason-org/mason-lspconfig.nvim',
+  event = 'BufReadPost',
+  dependencies = {
+    'mason-org/mason.nvim',
+    'neovim/nvim-lspconfig',
+  },
+  opts = {
+    ensure_installed = {
+        'bash-language-server',
+        'django-template-lsp',
+        'docker-compose-language-service',
+        'dockerfile-language-server',
+        'gh-actions-language-server',
+        'goimports',
+        'gopls',
+        'html-lsp',
+        'json-lsp',
+        'lua-language-server',
+        'prettier',
+        'pyproject-fmt',
+        'ruff',
+        'shfmt',
+        'stylua',
+        'terraform',
+        'terraform-ls',
+    },
+    automatic_installation = true,
+  },
+}

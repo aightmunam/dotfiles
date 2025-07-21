@@ -28,5 +28,5 @@ require('lazy').setup {
   require 'plugins.alpha',
   require 'plugins.indent_blankline',
   require 'plugins.misc',
-  require 'plugins.mason_null_ls',
+  require 'plugins.mason_lspconfig',
 }
