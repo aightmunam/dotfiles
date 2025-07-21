@@ -18,15 +18,15 @@ config = {
   font = wezterm.font("JetBrains Mono", { weight = "Bold" }),
   enable_tab_bar = false,
   window_padding = {
-    left = 3,
-    right = 3,
-    top = 0,
-    bottom = 0,
+    left = 15,
+    right = 15,
+    top = 15,
+    bottom = 15,
   },
   background = {
     {
       source = {
-        File = "/Users/" .. os.getenv("USER") .. "/.config/wezterm/dark-desert.jpg",
+        File = "/Users/" .. os.getenv("USER") .. "/.config/wezterm/bg.png",
       },
       hsb = {
         hue = 1.0,
