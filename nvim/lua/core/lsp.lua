@@ -9,14 +9,14 @@ vim.api.nvim_create_autocmd('LspAttach', {
     ---@diagnostic disable-next-line need-check-nil
     if client.server_capabilities.completionProvider then
       vim.bo[bufnr].omnifunc = 'v:lua.vim.lsp.omnifunc'
-      -- vim.bo[bufnr].omnifunc = "v:lua.MiniCompletion.completefunc_lsp"
+      -- vim.bo[bufnr].omnifunc = 'v:lua.MiniCompletion.completefunc_lsp'
     end
     ---@diagnostic disable-next-line need-check-nil
     if client.server_capabilities.definitionProvider then
       vim.bo[bufnr].tagfunc = 'v:lua.vim.lsp.tagfunc'
     end
     -- -- nightly has inbuilt completions, this can replace all completion plugins
-    -- if client:supports_method("textDocument/completion", bufnr) then
+    -- if client:supports_method('textDocument/completion', bufnr) then
     --   -- Enable auto-completion
     --   vim.lsp.completion.enable(true, client.id, bufnr, { autotrigger = true }) end
 
@@ -30,47 +30,47 @@ vim.api.nvim_create_autocmd('LspAttach', {
     local lsp = vim.lsp
     local opts = { silent = true }
     local function opt(desc, others)
-      return vim.tbl_extend("force", opts, { desc = desc }, others or {})
+      return vim.tbl_extend('force', opts, { desc = desc }, others or {})
     end
-    keymap("n", "gd", lsp.buf.definition, opt("Go to definition"))
-    keymap("n", "gD", function()
-      local ok, diag = pcall(require, "rj.extras.definition")
+    keymap('n', 'gd', lsp.buf.definition, opt('Go to definition'))
+    keymap('n', 'gD', function()
+      local ok, diag = pcall(require, 'rj.extras.definition')
       if ok then
         diag.get_def()
       end
-    end, opt("Get the definition in a float"))
-    keymap("n", "gi", function() lsp.buf.implementation({ border = "single" })  end, opt("Go to implementation"))
-    keymap("n", "gr", lsp.buf.references, opt("Show References"))
-    keymap("n", "gl", vim.diagnostic.open_float, opt("Open diagnostic in float"))
+    end, opt('Get the definition in a float'))
+    keymap('n', 'gi', function() lsp.buf.implementation({ border = 'single' })  end, opt('Go to implementation'))
+    keymap('n', 'gr', lsp.buf.references, opt('Show References'))
+    keymap('n', 'gl', vim.diagnostic.open_float, opt('Open diagnostic in float'))
     -- disable the default binding first before using a custom one
-    pcall(vim.keymap.del, "n", "K", { buffer = ev.buf })
-    keymap("n", "K", function() lsp.buf.hover({ border = "single", max_height = 30, max_width = 120 }) end, opt("Toggle hover"))
-    keymap("n", "<Leader>lF", vim.cmd.FormatToggle, opt("Toggle AutoFormat"))
-    keymap("n", "<Leader>lI", vim.cmd.Mason, opt("Mason"))
-    keymap("n", "<Leader>lS", lsp.buf.workspace_symbol, opt("Workspace Symbols"))
-    keymap("n", "<Leader>la", lsp.buf.code_action, opt("Code Action"))
-    keymap("n", "<Leader>lh", function() lsp.inlay_hint.enable(not lsp.inlay_hint.is_enabled({})) end, opt("Toggle Inlayhints"))
-    keymap("n", "<Leader>li", vim.cmd.LspInfo, opt("LspInfo"))
-    keymap("n", "<Leader>ll", lsp.codelens.run, opt("Run CodeLens"))
-    keymap("n", "<Leader>lr", lsp.buf.rename, opt("Rename"))
-    keymap("n", "<Leader>ls", lsp.buf.document_symbol, opt("Document Symbols"))
+    pcall(vim.keymap.del, 'n', 'K', { buffer = ev.buf })
+    keymap('n', 'K', function() lsp.buf.hover({ border = 'single', max_height = 30, max_width = 120 }) end, opt('Toggle hover'))
+    keymap('n', '<Leader>lF', vim.cmd.FormatToggle, opt('Toggle AutoFormat'))
+    keymap('n', '<Leader>lI', vim.cmd.Mason, opt('Mason'))
+    keymap('n', '<Leader>lS', lsp.buf.workspace_symbol, opt('Workspace Symbols'))
+    keymap('n', '<Leader>la', lsp.buf.code_action, opt('Code Action'))
+    keymap('n', '<Leader>lh', function() lsp.inlay_hint.enable(not lsp.inlay_hint.is_enabled({})) end, opt('Toggle Inlayhints'))
+    keymap('n', '<Leader>li', vim.cmd.LspInfo, opt('LspInfo'))
+    keymap('n', '<Leader>ll', lsp.codelens.run, opt('Run CodeLens'))
+    keymap('n', '<Leader>lr', lsp.buf.rename, opt('Rename'))
+    keymap('n', '<Leader>ls', lsp.buf.document_symbol, opt('Document Symbols'))
 
     -- diagnostic mappings
-    keymap("n", "<Leader>dD", function()
-      local ok, diag = pcall(require, "rj.extras.workspace-diagnostic")
+    keymap('n', '<Leader>dD', function()
+      local ok, diag = pcall(require, 'rj.extras.workspace-diagnostic')
       if ok then
         for _, cur_client in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
           diag.populate_workspace_diagnostics(cur_client, 0)
         end
-        vim.notify("INFO: Diagnostic populated")
+        vim.notify('INFO: Diagnostic populated')
       end
-    end, opt("Popluate diagnostic for the whole workspace"))
-    keymap("n", "<Leader>dn", function() vim.diagnostic.jump({ count = 1, float = true }) end, opt("Next Diagnostic"))
-    keymap("n", "<Leader>dp", function() vim.diagnostic.jump({ count =-1, float = true }) end, opt("Prev Diagnostic"))
-    keymap("n", "<Leader>dq", vim.diagnostic.setloclist, opt("Set LocList"))
-    keymap("n", "<Leader>dv", function()
+    end, opt('Popluate diagnostic for the whole workspace'))
+    keymap('n', '<Leader>dn', function() vim.diagnostic.jump({ count = 1, float = true }) end, opt('Next Diagnostic'))
+    keymap('n', '<Leader>dp', function() vim.diagnostic.jump({ count =-1, float = true }) end, opt('Prev Diagnostic'))
+    keymap('n', '<Leader>dq', vim.diagnostic.setloclist, opt('Set LocList'))
+    keymap('n', '<Leader>dv', function()
       vim.diagnostic.config({ virtual_lines = not vim.diagnostic.config().virtual_lines })
-    end, opt("Toggle diagnostic virtual_lines"))
+    end, opt('Toggle diagnostic virtual_lines'))
     -- stylua: ignore end
   end,
 })
@@ -134,19 +134,51 @@ vim.lsp.enable 'lua_ls'
 vim.lsp.config.ruff_lsp = {
   filetypes = { 'python' },
   cmd = { 'ruff', 'server', '--preview' }, -- use `--preview` to enable LSP mode
-  settings = {
-    args = {}, -- Add any ruff CLI args if needed
-  },
-  init_options = {
+  on_attach = function(client, _)
+    client.server_capabilities.hoverProvider = false
+  end,
+  options = {
     settings = {
-      args = {}, -- e.g., { "--config", "pyproject.toml" }
+      args = {}, -- e.g., { '--config', 'pyproject.toml' }
     },
   },
 }
 vim.lsp.enable 'ruff_lsp'
 
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+vim.lsp.config.basedpyright = {
+  name = 'basedpyright',
+  cmd = { 'basedpyright-langserver', '--stdio' },
+  filetypes = { 'python' },
+  capabilities = (function()
+    local capabilities = vim.lsp.protocol.make_client_capabilities()
+    capabilities.textDocument.publishDiagnostics.tagSupport.valueSet = { 2 }
+    return capabilities
+  end)(),
+  handlers = {
+    ['textDocument/publishDiagnostics'] = function() end,
+  },
+  on_attach = function(client, _)
+    client.server_capabilities.codeActionProvider = false
+  end,
+  settings = {
+    python = {
+      analysis = {
+        autoSearchPaths = true,
+        typeCheckingMode = 'basic',
+        useLibraryCodeForTypes = true,
+      },
+    },
+    basedpyright = {
+      disableOrganizeImports = true,
+    },
+  },
+}
+vim.lsp.enable 'basedpyright'
+
 vim.api.nvim_create_autocmd('FileType', {
   pattern = 'python',
+  desc = 'Start python lsp server(s)',
   callback = function()
     local root = vim.fs.root(0, {
       'pyproject.toml',
@@ -156,16 +188,16 @@ vim.api.nvim_create_autocmd('FileType', {
       'setup.cfg',
     })
 
-    local client = vim.lsp.start(
+    vim.lsp.start(vim.tbl_extend('force', vim.lsp.config.basedpyright, {
+      root_dir = root,
+    }))
+
+    vim.lsp.start(
       vim.tbl_extend('force', vim.lsp.config.ruff_lsp, {
         root_dir = root,
       }),
       { attach = false }
     )
-
-    if client then
-      vim.lsp.buf_attach_client(0, client)
-    end
   end,
 })
 

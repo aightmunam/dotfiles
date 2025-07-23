@@ -89,7 +89,7 @@ alias pip='python3 -m pip'
 alias pre-commit='python -m pre_commit'
 alias g='git'
 alias vi='nvim'
-
+alias python='python3'
 
 for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
   alias "$method"="curl -iX '$method'"
