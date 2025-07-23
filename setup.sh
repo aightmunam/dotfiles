@@ -61,7 +61,7 @@ uninstall ".tmux.conf"
 install "nvim" ".config/nvim" 1
 install "vim" ".vim" 1
 install ".vimrc" ".vimrc" 1
-install "tmux/.tmux.conf" ".tmux.conf"
+install "tmux/.tmux.conf" ".tmux.conf" 1
 
 ###############################################################################
 # wezterm 
