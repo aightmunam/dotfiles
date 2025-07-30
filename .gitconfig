@@ -46,7 +46,7 @@
 	backup = commit -m ':WIP: Backup' --no-verify
 [core]
 	excludesfile = ~/dotfiles/.gitignore_global
-	editor = vim
+	editor = nvim
 [color]
 	diff = auto
 	status = auto

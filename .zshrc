@@ -2,6 +2,8 @@
 
 export PATH="/opt/homebrew/bin:$PATH"
 export TERM=wezterm
+export EDITOR=nvim
+export VISUAL=nvim
 
 #######################################################
 # Plugins
@@ -89,6 +91,7 @@ alias pip='python3 -m pip'
 alias pre-commit='python -m pre_commit'
 alias g='git'
 alias vi='nvim'
+alias vim='nvim'
 alias python='python3'
 
 for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
