@@ -29,4 +29,5 @@ require('lazy').setup {
   require 'plugins.indent_blankline',
   require 'plugins.misc',
   require 'plugins.auto_session',
+  require 'plugins.lazygit',
 }
