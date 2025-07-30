@@ -1,7 +1,7 @@
 # Add brew to path
 
 export PATH="/opt/homebrew/bin:$PATH"
-
+export TERM=wezterm
 
 #######################################################
 # Plugins
