@@ -33,8 +33,6 @@ plugins=(
 #######################################################
 
 export ZSH="$HOME/.oh-my-zsh"
-#ZSH_THEME="emotty"
-
 source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
 # Enable Powerlevel10k instant prompt.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
@@ -53,7 +51,6 @@ source $ZSH/oh-my-zsh.sh
 bindkey '^n' history-search-forward
 bindkey '^p' history-search-backward
 
-
 HISTSIZE=5000
 HISTFILE=~/.zsh_history
 SAVEHIST=$HISTSIZE
@@ -66,7 +63,12 @@ setopt hist_ignore_all_dups
 setopt hist_save_no_dups
 setopt hist_find_no_dups
 
+#######################################################
+# Autojump setup
+#######################################################
 
+[[ -s /Users/munammubashir/.autojump/etc/profile.d/autojump.sh ]] && source /Users/munammubashir/.autojump/etc/profile.d/autojump.sh
+autoload -U compinit && compinit -u
 
 #######################################################
 # general aliases
@@ -98,13 +100,11 @@ for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
   alias "$method"="curl -iX '$method'"
 done
 
-
 #######################################################
 # source .zshrc.local
 #######################################################
 
 if [ -f "$HOME/.zshrc.local" ]; then source "$HOME/.zshrc.local"; fi
-
 
 #######################################################
 # dircolors
@@ -118,4 +118,3 @@ if [ -f "$HOME/.dircolors" ]; then
     eval $(gdircolors -b $HOME/.dircolors)
   fi
 fi
-
