@@ -1,6 +1,6 @@
 # dotfiles
 
-My Dotfiles for git, vim, zsh and more. 
+My Dotfiles for git, vim/nvim, zsh and more. 
 
 ### Steps to setup these dotfiles on your machine
 1. Clone this repo in $HOME/.dotfiles (~/.dotfiles) directory
