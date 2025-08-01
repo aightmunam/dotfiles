@@ -39,15 +39,15 @@ uninstall() {
 #   repo_url   - The URL of the Git repository to clone.
 #
 clone_if_empty() {
-    local target_dir="$1"
-    local repo_url="$2"
+  local target_dir="$1"
+  local repo_url="$2"
 
-    if [ ! -d "$target_dir" ] || [ -z "$(ls -A "$target_dir")" ]; then
-        echo "Cloning into $target_dir..."
-        git clone --depth=1 "$repo_url" "$target_dir"
-    else
-        echo "Directory '$target_dir' exists and is not empty. Skipping clone."
-    fi
+  if [ ! -d "$target_dir" ] || [ -z "$(ls -A "$target_dir")" ]; then
+    echo "Cloning into $target_dir..."
+    git clone --depth=1 "$repo_url" "$target_dir"
+  else
+    echo "Directory '$target_dir' exists and is not empty. Skipping clone."
+  fi
 }
 
 ###############################################################################
@@ -85,7 +85,7 @@ install ".vimrc" ".vimrc" 1
 install "tmux/.tmux.conf" ".tmux.conf" 1
 
 ###############################################################################
-# wezterm 
+# wezterm
 ###############################################################################
 
 uninstall ".config/wezterm"
