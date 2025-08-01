@@ -29,6 +29,27 @@ uninstall() {
   rm -rf "$HOME/$1"
 }
 
+# clone_if_empty <target_dir> <repo_url>
+#
+# Clones a Git repository into the specified target directory,
+# but only if the directory does not exist or is empty.
+#
+# Arguments:
+#   target_dir - The directory to clone the repository into.
+#   repo_url   - The URL of the Git repository to clone.
+#
+clone_if_empty() {
+    local target_dir="$1"
+    local repo_url="$2"
+
+    if [ ! -d "$target_dir" ] || [ -z "$(ls -A "$target_dir")" ]; then
+        echo "Cloning into $target_dir..."
+        git clone --depth=1 "$repo_url" "$target_dir"
+    else
+        echo "Directory '$target_dir' exists and is not empty. Skipping clone."
+    fi
+}
+
 ###############################################################################
 # dotfiles
 ###############################################################################
@@ -74,16 +95,15 @@ install "wezterm" ".config/wezterm" 1
 # oh my zsh
 ###############################################################################
 
-git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh
-git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
-git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-git clone --depth=1 https://github.com/zdharma-continuum/fast-syntax-highlighting.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fast-syntax-highlighting
-git clone --depth=1 https://github.com/supercrabtree/k ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins//k
-git clone --depth=1 https://github.com/marlonrichert/zsh-autocomplete.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autocomplete
-git clone --depth=1 git://github.com/wting/autojump.git ~/.oh-my-zsh/autojump-setup
-$(cd ~/.oh-my-zsh/autojump-setup && ./install.py)
-
+clone_if_empty "~/.oh-my-zsh" "https://github.com/ohmyzsh/ohmyzsh.git"
+clone_if_empty "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k" "https://github.com/romkatv/powerlevel10k.git"
+clone_if_empty "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" "https://github.com/zsh-users/zsh-autosuggestions"
+clone_if_empty "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" "https://github.com/zsh-users/zsh-syntax-highlighting.git"
+clone_if_empty "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fast-syntax-highlighting" "https://github.com/zdharma-continuum/fast-syntax-highlighting.git"
+clone_if_empty "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/k" "https://github.com/supercrabtree/k"
+clone_if_empty "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autocomplete" "https://github.com/marlonrichert/zsh-autocomplete.git"
+clone_if_empty "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/autojump-setup" "https://github.com/wting/autojump.git"
+cd ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/autojump-setup && python3 install.py
 ###############################################################################
 # zinit
 ###############################################################################
