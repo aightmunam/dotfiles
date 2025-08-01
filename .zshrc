@@ -64,13 +64,6 @@ setopt hist_save_no_dups
 setopt hist_find_no_dups
 
 #######################################################
-# Autojump setup
-#######################################################
-
-[[ -s /Users/munammubashir/.autojump/etc/profile.d/autojump.sh ]] && source /Users/munammubashir/.autojump/etc/profile.d/autojump.sh
-autoload -U compinit && compinit -u
-
-#######################################################
 # general aliases
 #######################################################
 
@@ -78,7 +71,8 @@ alias cp='cp -v -R'
 alias find='noglob find'
 alias ftp='noglob ftp'
 alias history='fc -il 1'
-alias lsa='ls -a'
+alias ls='ls --color=auto'
+alias lsa='ls -lathr'
 alias map="xargs -n1"
 alias mkdir='mkdir -p'
 alias path='echo -e ${PATH//:/\\n}'
@@ -92,9 +86,11 @@ alias ......='cd ../../../../..'
 alias pip='python3 -m pip'
 alias pre-commit='python -m pre_commit'
 alias g='git'
+alias v='nvim'
 alias vi='nvim'
 alias vim='nvim'
 alias python='python3'
+alias c='clear'
 
 for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
   alias "$method"="curl -iX '$method'"
@@ -105,6 +101,7 @@ done
 #######################################################
 
 if [ -f "$HOME/.zshrc.local" ]; then source "$HOME/.zshrc.local"; fi
+typeset -U path
 
 #######################################################
 # dircolors
