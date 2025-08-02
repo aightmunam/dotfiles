@@ -5,6 +5,12 @@ export TERM=wezterm
 export EDITOR=nvim
 export VISUAL=nvim
 
+# Add pyenv specific
+
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init --path)"
+
 #######################################################
 # Plugins
 #######################################################
@@ -23,6 +29,7 @@ plugins=(
     autojump
     docker
     poetry
+    pyenv
 )
 
 # Enable fzf for fuzzing searching of files and commands
@@ -91,6 +98,7 @@ alias vi='nvim'
 alias vim='nvim'
 alias python='python3'
 alias c='clear'
+alias t='tmux'
 
 for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
   alias "$method"="curl -iX '$method'"
