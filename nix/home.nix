@@ -29,31 +29,33 @@ let
                     wezterm = {
                         source = "${dotfilesDir}/wezterm";
                     };
+                    "Applications/Raycast.app".source = "${pkgs.raycast}/Applications/Raycast.app";
                 };
-                packages = [
-                    pkgs.neovim
-                    pkgs.tree-sitter
-                    pkgs.tmux
-                    pkgs.reattach-to-user-namespace
-                    pkgs.wezterm
-                    pkgs.lua
-                    pkgs.freetype
-                    pkgs.go
-                    pkgs.git
-                    pkgs.fzf
-                    pkgs.htop
-                    pkgs.ripgrep
-                    pkgs.fd
-                    pkgs.curl
-                    pkgs.wget
-                    pkgs.bat
-                    pkgs.autojump
-                    pkgs.pyenv
-                    pkgs.lazygit
-                    pkgs.nerd-fonts.hack
-                    pkgs.nerd-fonts._0xproto
-                    pkgs.meslo-lgs-nf
-                    pkgs.nerd-fonts.meslo-lg
+                packages = with pkgs; [
+                    neovim
+                    tree-sitter
+                    tmux
+                    reattach-to-user-namespace
+                    wezterm
+                    lua
+                    freetype
+                    go
+                    git
+                    fzf
+                    htop
+                    ripgrep
+                    fd
+                    curl
+                    wget
+                    bat
+                    autojump
+                    pyenv
+                    lazygit
+                    nerd-fonts.hack
+                    nerd-fonts._0xproto
+                    meslo-lgs-nf
+                    nerd-fonts.meslo-lg
+                    raycast
                 ];
                 stateVersion = "25.11";
                 username = "aightmunam";
@@ -70,6 +72,10 @@ let
                     enable = true;
                 };
             };
+            home.activation.refreshLaunchServices = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+                /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
+                    -f ${pkgs.raycast}/Applications/Raycast.app
+            '';
         };
     };
     nixosModule = { ... }: {
