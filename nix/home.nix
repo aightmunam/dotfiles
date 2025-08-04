@@ -1,4 +1,4 @@
-{ inputs, ... }@flakeContext:
+{ inputs, username, ... }@flakeContext:
 let
     dotfilesDir = builtins.path { path = ../.; };
     homeModule = { config, lib, pkgs, ... }: {
@@ -32,34 +32,60 @@ let
                     "Applications/Raycast.app".source = "${pkgs.raycast}/Applications/Raycast.app";
                 };
                 packages = with pkgs; [
-                    neovim
-                    tree-sitter
+                    # Core CLI tools
+                    autojump
+                    bat
+                    coreutils
+                    du-dust
+                    eza
+                    fd
+                    findutils
+                    fzf
+                    gawk
+                    gnugrep
+                    gzip
+                    ripgrep
+                    tree
+                    zoxide
+
+                    # System utilities and networking
+                    curl
+                    htop
+                    mosh
+                    netcat
+                    nmap
+                    wget
+
+                    # Development tools
+                    difftastic
+                    git
+                    go
+                    jq
+                    lazygit
+                    lua
+                    pyenv
                     tmux
                     reattach-to-user-namespace
+                    tree-sitter
+                    yq
+
+                    # Terminal and shell
+                    zsh
                     wezterm
-                    lua
-                    freetype
-                    go
-                    git
-                    fzf
-                    htop
-                    ripgrep
-                    fd
-                    curl
-                    wget
-                    bat
-                    autojump
-                    pyenv
-                    lazygit
-                    nerd-fonts.hack
+                    neovim
+
+                    # Fonts
                     nerd-fonts._0xproto
-                    meslo-lgs-nf
+                    nerd-fonts.hack
                     nerd-fonts.meslo-lg
+
+                    # GUI applications
+                    firefox
                     raycast
                 ];
                 stateVersion = "25.11";
-                username = "aightmunam";
-                homeDirectory = "/Users/aightmunam/";
+                username = username;
+                homeDirectory = "/Users/${username}/";
             };
             programs = {
                 autojump = {

@@ -9,8 +9,9 @@
   };
   outputs = inputs:
     let
+      username = "aightmunam";
       flakeContext = {
-        inherit inputs;
+        inherit inputs username;
       };
     in
     {
