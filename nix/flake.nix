@@ -9,7 +9,7 @@
   };
   outputs = inputs:
     let
-      username = "aightmunam";
+      username = builtins.getEnv "USER"; 
       flakeContext = {
         inherit inputs username;
       };
