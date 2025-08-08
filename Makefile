@@ -1,15 +1,20 @@
-.PHONY: setup build
+PHONY: setup build
 
 setup:
-	curl --proto '=https' --tlsv1.2 -sSfL https://nixos.org/nix/install -o /tmp/install-nix.sh; \
-	echo "-> Running installer script (it will prompt for confirmation and your sudo password)..."; \
-	sh /tmp/install-nix.sh; \
-	rm /tmp/install-nix.sh; \
-	echo "\n✅ Nix installation script finished."; \
-	@mkdir -p ~/.config/nix
-	@grep -qxF 'experimental-features = nix-command flakes' ~/.config/nix/nix.conf || \
-		echo 'experimental-features = nix-command flakes' >> ~/.config/nix/nix.conf
-	@echo "✅ Nix configured with flakes support."
+	@if command -v nix >/dev/null 2>&1; then \
+		echo "✅ Nix is already installed."; \
+	else \
+		echo "Nix not found. Proceeding with installation..."; \
+		curl --proto '=https' --tlsv1.2 -sSfL https://nixos.org/nix/install -o /tmp/install-nix.sh; \
+		echo "-> Running installer script (it will prompt for confirmation and your sudo password)..."; \
+		sh /tmp/install-nix.sh; \
+		rm /tmp/install-nix.sh; \
+		echo "\n✅ Nix installation script finished."; \
+		mkdir -p ~/.config/nix; \
+		grep -qxF 'experimental-features = nix-command flakes' ~/.config/nix/nix.conf || \
+			echo 'experimental-features = nix-command flakes' >> ~/.config/nix/nix.conf; \
+		echo "✅ Nix configured with flakes support."; \
+	fi
 
 build:
 	@command -v nix >/dev/null 2>&1 || { \
