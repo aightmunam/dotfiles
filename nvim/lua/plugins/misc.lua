@@ -41,4 +41,30 @@ return {
       require('colorizer').setup()
     end,
   },
+  {
+    -- Shows function name up top when scrolling
+    'nvim-treesitter/nvim-treesitter-context',
+  },
+  {
+    -- figure out tab/space number automatically
+    'tpope/vim-sleuth',
+  },
+  {
+    -- Start up screen
+    'nvimdev/dashboard-nvim',
+    event = 'VimEnter',
+    config = function()
+      require('dashboard').setup {
+        theme = 'hyper',
+        config = {
+          week_header = {
+            enable = true,
+          },
+          shortcut = {},
+        },
+      }
+    end,
+    dependencies = { { 'nvim-tree/nvim-web-devicons' } },
+  },
 }
+

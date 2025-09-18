@@ -25,7 +25,6 @@ require('lazy').setup {
   require 'plugins.harpoon',
   require 'plugins.autocomplete',
   require 'plugins.gitsigns',
-  require 'plugins.alpha',
   require 'plugins.indent_blankline',
   require 'plugins.misc',
   require 'plugins.auto_session',
