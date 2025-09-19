@@ -23,10 +23,10 @@ let
                     ".zshrc" = {
                         source = "${dotfilesDir}/.zshrc";
                     };
-                    nvim = {
+                    ".config/nvim" = {
                         source = "${dotfilesDir}/nvim";
                     };
-                    wezterm = {
+                    ".config/wezterm" = {
                         source = "${dotfilesDir}/wezterm";
                     };
                     "Applications/Raycast.app".source = "${pkgs.raycast}/Applications/Raycast.app";
