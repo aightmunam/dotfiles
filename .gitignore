@@ -1,0 +1,67 @@
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Icon files
+Icon?
+
+# Files that might appear on external drives
+.Spotlight-V100
+.Trashes
+.VolumeIcon.icns
+
+# Linux
+*~
+.nfs*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.swp
+*.swo
+
+# Backup files
+*.bak
+*.tmp
+*.old
+
+# Node.js dependencies (if you use Node tools in your dotfiles)
+node_modules/
+
+# Python virtual environments (if you use Python tools)
+venv/
+.env
+__pycache__/
+
+# Logs
+*.log
+
+# Ignore system-specific shells history files
+*.history
+*.zcompdump
+*.zsh_history
+*.bash_history
+
+# Ignore compiled files
+*.pyc
+*.o
+*.out
+
+# Ignore personal secrets if accidentally added
+*.key
+*.pem
+*.crt
+*.enc

@@ -29,4 +29,5 @@ require('lazy').setup {
   require 'plugins.misc',
   require 'plugins.auto_session',
   require 'plugins.lazygit',
+  require 'plugins.floaty',
 }

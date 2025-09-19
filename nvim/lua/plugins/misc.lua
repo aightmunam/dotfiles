@@ -66,5 +66,8 @@ return {
     end,
     dependencies = { { 'nvim-tree/nvim-web-devicons' } },
   },
+  {
+    -- manually select python interpreter without restarting LSP
+    'neolooong/whichpy.nvim',
+  },
 }
-
