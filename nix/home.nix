@@ -25,9 +25,11 @@ let
                     };
                     ".config/nvim" = {
                         source = "${dotfilesDir}/nvim";
+                        recursive = true;
                     };
                     ".config/wezterm" = {
                         source = "${dotfilesDir}/wezterm";
+                        recursive = true;
                     };
                     "Applications/Raycast.app".source = "${pkgs.raycast}/Applications/Raycast.app";
                 };
