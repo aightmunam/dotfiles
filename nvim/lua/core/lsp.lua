@@ -15,10 +15,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
     if client.server_capabilities.definitionProvider then
       vim.bo[bufnr].tagfunc = 'v:lua.vim.lsp.tagfunc'
     end
-    -- -- nightly has inbuilt completions, this can replace all completion plugins
-    -- if client:supports_method('textDocument/completion', bufnr) then
-    --   -- Enable auto-completion
-    --   vim.lsp.completion.enable(true, client.id, bufnr, { autotrigger = true }) end
 
     --- Disable semantic tokens
     ---@diagnostic disable-next-line need-check-nil
@@ -54,19 +50,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
     keymap('n', '<Leader>ll', lsp.codelens.run, opt('Run CodeLens'))
     keymap('n', '<Leader>lr', lsp.buf.rename, opt('Rename'))
     keymap('n', '<Leader>ls', lsp.buf.document_symbol, opt('Document Symbols'))
-
-    -- Auto-close location list or quickfix list after picking a result
-    vim.api.nvim_create_autocmd("FileType", {
-      pattern = "qf",
-      callback = function(ev)
-        -- Remap <CR> only in the quickfix/location list buffer
-        vim.keymap.set("n", "<CR>", function()
-          local action = vim.fn.getwininfo(vim.fn.win_getid())[1].loclist == 1 and "lclose" or "cclose"
-          vim.cmd("exe 'normal! <CR>'") -- do the default jump
-          vim.cmd(action)               -- close the list
-        end, { buffer = ev.buf, silent = true })
-      end,
-    })
 
     -- diagnostic mappings
     keymap('n', '<Leader>dD', function()
@@ -168,9 +151,9 @@ vim.lsp.config.basedpyright = {
     capabilities.textDocument.publishDiagnostics.tagSupport.valueSet = { 2 }
     return capabilities
   end)(),
-  -- handlers = {
-  --   ['textDocument/publishDiagnostics'] = function() end,
-  -- },
+  handlers = {
+    ['textDocument/publishDiagnostics'] = function() end,
+  },
   on_attach = function(client, _)
     client.server_capabilities.codeActionProvider = false
   end,
@@ -180,11 +163,6 @@ vim.lsp.config.basedpyright = {
         autoSearchPaths = true,
         typeCheckingMode = 'basic',
         useLibraryCodeForTypes = true,
-        diagnosticSeverityOverrides = {
-          reportUnusedVariable = 'none',
-          reportUnusedImport = 'none',
-          reportUnreachableCode = 'none',
-        },
       },
     },
     basedpyright = {

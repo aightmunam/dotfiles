@@ -14,7 +14,6 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup {
-  require 'plugins.neotree',
   require 'plugins.colorscheme',
   require 'plugins.bufferline',
   require 'plugins.lualine',
@@ -23,11 +22,11 @@ require('lazy').setup {
   require 'plugins.mason',
   require 'plugins.conform',
   require 'plugins.harpoon',
-  require 'plugins.autocomplete',
   require 'plugins.gitsigns',
   require 'plugins.indent_blankline',
   require 'plugins.misc',
   require 'plugins.auto_session',
   require 'plugins.lazygit',
   require 'plugins.floaty',
+  require 'plugins.blink',
 }

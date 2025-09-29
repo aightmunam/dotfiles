@@ -21,15 +21,14 @@ return {
         theme = { wave = {}, lotus = {}, dragon = {}, all = {} },
       },
       overrides = function(colors) -- add/modify highlights
-        return {}
+        return {
+          LineNr = { bg = 'none' },
+          CursorLine = { bg = colors.palette.waveBlue0, bold = false }, -- highlight current line
+        }
       end,
-      theme = 'wave', -- Load "wave" theme
-      background = { -- map the value of 'background' option to a theme
-        dark = 'wave', -- try "dragon" !
-        light = 'lotus',
-      },
+      theme = 'dragon', -- Load "wave" theme
     }
 
-    require('kanagawa').load 'wave'
+    require('kanagawa').load 'dragon'
   end,
 }

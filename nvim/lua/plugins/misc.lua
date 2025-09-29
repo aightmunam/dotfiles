@@ -70,4 +70,46 @@ return {
     -- manually select python interpreter without restarting LSP
     'neolooong/whichpy.nvim',
   },
+  { 'nvim-mini/mini.bracketed', version = false },
+  {
+    'nvim-mini/mini.files',
+    opts = {
+      windows = {
+        preview = true,
+        width_focus = 30,
+        width_preview = 60,
+      },
+      options = {
+        -- Whether to use for editing directories
+        -- Disabled by default in LazyVim because neo-tree is used for that
+        use_as_default_explorer = false,
+      },
+    },
+    keys = {
+      {
+        '<leader>ff',
+        function()
+          local buf_name = vim.api.nvim_buf_get_name(0)
+          local path = vim.fn.filereadable(buf_name) == 1 and buf_name or vim.fn.getcwd()
+          local mini = require 'mini.files'
+          mini.open(path)
+          mini.reveal_cwd()
+        end,
+        desc = 'Open mini.files (Directory of Current File)',
+      },
+      {
+        '\\',
+        function()
+          require('mini.files').open(vim.uv.cwd(), true)
+        end,
+        desc = 'Open mini.files (cwd)',
+      },
+    },
+  },
+  {
+    'chrisgrieser/nvim-early-retirement',
+    config = true,
+    event = 'VeryLazy',
+  },
+  { 'nvim-mini/mini.pick', version = false },
 }
