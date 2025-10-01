@@ -83,7 +83,6 @@ let
 
                     # GUI applications
                     firefox
-                    raycast
                 ];
                 stateVersion = "25.11";
                 username = username;
@@ -100,10 +99,10 @@ let
                     enable = true;
                 };
             };
-            home.activation.refreshLaunchServices = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-                /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
-                    -f ${pkgs.raycast}/Applications/Raycast.app
-            '';
+            # home.activation.refreshLaunchServices = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+            #     /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
+            #         -f ${pkgs.raycast}/Applications/Raycast.app
+            # '';
         };
     };
     nixosModule = { ... }: {
