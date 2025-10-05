@@ -22,7 +22,6 @@ require('lazy').setup {
   require 'plugins.mason',
   require 'plugins.conform',
   require 'plugins.gitsigns',
-  require 'plugins.indent_blankline',
   require 'plugins.misc',
   require 'plugins.mini',
   require 'plugins.auto_session',

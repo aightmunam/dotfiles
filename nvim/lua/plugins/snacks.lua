@@ -28,6 +28,10 @@ return {
         wo = { wrap = true }, -- Wrap notifications
       },
     },
+    picker = { enabled = true, matcher = {
+      cwd_bonus = true,
+      frecency = true,
+    } },
   },
   keys = {
     -- Top Pickers & Explorer
