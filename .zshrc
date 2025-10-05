@@ -99,6 +99,7 @@ alias vim='nvim'
 alias python='python3'
 alias c='clear'
 alias t='tmux'
+alias ts='tmux new -s $(pwd | sed "s/.*\///g")'
 
 for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
   alias "$method"="curl -iX '$method'"
