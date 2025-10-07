@@ -66,7 +66,7 @@ return {
     {
       '<leader>sf',
       function()
-        Snacks.picker.files()
+        Snacks.picker.files { hidden = true }
       end,
       desc = 'Find Files',
     },
