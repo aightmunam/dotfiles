@@ -4,6 +4,10 @@ let
     homeModule = { config, lib, pkgs, ... }: {
         config = {
             home = {
+                sessionPath = [
+                    "/run/current-system/sw/bin"
+                    "$HOME/.nix-profile/bin"
+                ];
                 file = {
                     ".dircolors" = {
                         source = "${dotfilesDir}/.dircolors";
@@ -31,6 +35,12 @@ let
                         source = "${dotfilesDir}/wezterm";
                         recursive = true;
                     };
+                    ".config/nix" = {
+                        source = "${dotfilesDir}/nix";
+                    };
+                    ".config/home-manager" = {
+                        source = "${dotfilesDir}/home-manager";
+                    };
                     "Applications/Raycast.app".source = "${pkgs.raycast}/Applications/Raycast.app";
                 };
                 packages = with pkgs; [
@@ -49,6 +59,7 @@ let
                     ripgrep
                     tree
                     zoxide
+                    aerospace
 
                     # System utilities and networking
                     curl
@@ -80,9 +91,9 @@ let
                     nerd-fonts._0xproto
                     nerd-fonts.hack
                     nerd-fonts.meslo-lg
+                    nerd-fonts.monaspace
+                    nerd-fonts.mononoki
 
-                    # GUI applications
-                    firefox
                 ];
                 stateVersion = "25.11";
                 username = username;
@@ -98,11 +109,17 @@ let
                 home-manager = {
                     enable = true;
                 };
+                zsh = {
+                    enable = true;
+                    initContent = ''
+                      # Add any additional configurations here
+                      export PATH=/run/current-system/sw/bin:$HOME/.nix-profile/bin:$PATH
+                      if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
+                        . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+                      fi
+                    '';
+                };
             };
-            # home.activation.refreshLaunchServices = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-            #     /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
-            #         -f ${pkgs.raycast}/Applications/Raycast.app
-            # '';
         };
     };
     nixosModule = { ... }: {

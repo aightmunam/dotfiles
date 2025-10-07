@@ -80,6 +80,7 @@ alias ftp='noglob ftp'
 alias history='fc -il 1'
 alias ls='ls --color=auto'
 alias lsa='ls -lathr'
+alias la=tree
 alias map="xargs -n1"
 alias mkdir='mkdir -p'
 alias path='echo -e ${PATH//:/\\n}'
@@ -104,6 +105,16 @@ alias ts='tmux new -s $(pwd | sed "s/.*\///g")'
 for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
   alias "$method"="curl -iX '$method'"
 done
+
+#######################################################
+# Nix 
+#######################################################
+
+export NIX_CONF_DIR=$HOME/.config/nix
+
+if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
+   . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+fi
 
 #######################################################
 # source .zshrc.local
