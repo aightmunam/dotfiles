@@ -8,6 +8,8 @@ let
                     "/run/current-system/sw/bin"
                     "$HOME/.nix-profile/bin"
                 ];
+                sessionVariables = {
+                };
                 file = {
                     ".dircolors" = {
                         source = "${dotfilesDir}/.dircolors";
@@ -26,6 +28,9 @@ let
                     };
                     ".zshrc" = {
                         source = "${dotfilesDir}/.zshrc";
+                    };
+                    ".zshenv" = {
+                        source = "${dotfilesDir}/.zshenv";
                     };
                     ".config/nvim" = {
                         source = "${dotfilesDir}/nvim";
