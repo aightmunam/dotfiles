@@ -1,0 +1,44 @@
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  setup-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🛠 Install Nix
+        uses: cachix/install-nix-action@v25
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: 🏗 Build and apply Home Manager config
+        env:
+          NIXPKGS_ALLOW_UNFREE: "1"
+        run: |
+          echo "🔎 Checking Nix installation and flake support"
+          nix --version
+          grep -qxF 'experimental-features = nix-command flakes' ~/.config/nix/nix.conf || \
+            echo 'experimental-features = nix-command flakes' >> ~/.config/nix/nix.conf
+          echo "🌱 Running flake build (home-manager switch)"
+          nix run home-manager -- switch --flake ./home-manager#mynixos --impure -b backup
+
+      - name: 🧪 Validate dotfile presence (optional)
+        run: |
+          test -f ~/.config/nvim/init.lua || echo "Missing Neovim config"
+          test -f ~/.wezterm.lua || echo "Missing Wezterm config"
+          test -f ~/.zshrc || echo "Missing Zsh config"
+          test -f ~/.gitconfig || echo "Missing Git config"
+          test -f ~/.config/tmux/tmux.conf || echo "Missing Tmux config"
+          # Add more presence/health checks as desired
+
+      - name: 💡 Show Home Manager generations (optional)
+        run: home-manager generations || true
