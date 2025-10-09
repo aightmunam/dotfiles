@@ -16,7 +16,7 @@ config = {
 	use_fancy_tab_bar = false,
 	tab_bar_at_bottom = false,
 	line_height = 1.15,
-	font_size = 14.5,
+	font_size = 14,
 	font = wezterm.font("Mononoki", { weight = "Bold" }),
 	enable_tab_bar = false,
 	window_padding = {
