@@ -1,4 +1,4 @@
-name: Dotfiles CI
+name: CI
 
 on:
   push:
@@ -8,70 +8,65 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint:
-    name: Lint Dotfiles
+  pre-commit:
+    name: Pre-commit Checks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Lint shell scripts
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y shellcheck
-          find . -name '*.sh' -type f -print0 | xargs -0 shellcheck || true
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
 
-      - name: Check YAML syntax
+      - name: Install pre-commit
         run: |
-          sudo apt-get install -y yamllint
-          find . -name '*.yml' -o -name '*.yaml' | xargs yamllint || true
+          python -m pip install --upgrade pip
+          pip install pre-commit
 
-  nix-build:
-    name: Nix Build
+      - name: Run pre-commit hooks
+        run: pre-commit run --all-files
+
+  setup-and-build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v26
+        uses: cachix/install-nix-action@v25
         with:
-          nix_path: nixpkgs=channel:nixos-unstable
+          extra_nix_config: |
+            experimental-features = nix-command flakes
 
-      - name: Build Nix configuration
+      - name: Build and apply Home Manager config
+        env:
+          NIXPKGS_ALLOW_UNFREE: "1"
         run: |
-          if [ -f "flake.nix" ]; then
-            nix build .#homeConfigurations.$(whoami).activationPackage --show-trace || echo "Nix build attempted"
-          else
-            echo "No flake.nix found, skipping Nix build"
-          fi
+          echo "Checking Nix installation and flake support"
+          nix --version
+          grep -qxF 'experimental-features = nix-command flakes' ~/.config/nix/nix.conf || \
+            echo 'experimental-features = nix-command flakes' >> ~/.config/nix/nix.conf
+          echo "Running flake build (home-manager switch)"
+          nix run home-manager -- switch --flake ./home-manager#mynixos --impure -b backup
 
-  home-manager-check:
-    name: Home Manager Configuration Check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install Nix
-        uses: cachix/install-nix-action@v26
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-
-      - name: Check Home Manager configuration
+      - name: Validate dotfile presence
         run: |
-          if [ -f "home.nix" ] || [ -f "flake.nix" ]; then
-            nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
-            nix-channel --update
-            echo "Home Manager configuration found"
-          else
-            echo "No Home Manager configuration found, skipping"
-          fi
+          test -f ~/.config/nvim/init.lua || echo "Missing Neovim config"
+          test -f ~/.config/aerospace/aerospace.toml || echo "Missing aerospace config"
+          test -f ~/.config/wezterm/config.lua || echo "Missing Wezterm config"
+          test -f ~/.zshrc || echo "Missing Zsh config"
+          test -f ~/.gitconfig || echo "Missing Git config"
+          test -f ~/.tmux.conf || echo "Missing Tmux config"
+
+      - name: Show Home Manager generations
+        run: home-manager generations || true
 
   validation:
     name: Validation Summary
     runs-on: ubuntu-latest
-    needs: [lint, nix-build, home-manager-check]
+    needs: [pre-commit, setup-and-build]
     steps:
       - name: All checks passed
         run: echo "All validation checks completed successfully!"

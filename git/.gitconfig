@@ -2,7 +2,7 @@
 	path = ~/.gitconfig.local
 [user]
   name = Munam Mubashir
-  email = 38868658+aightmunam@users.noreply.github.com 
+  email = 38868658+aightmunam@users.noreply.github.com
 [status]
 	relativePaths = true
 [pull]
@@ -70,4 +70,3 @@
 	current = yellow reverse
 	local = yellow
   remote = green
-

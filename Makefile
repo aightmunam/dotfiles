@@ -23,4 +23,3 @@ build:
 		exit 1; \
 	}
 	NIXPKGS_ALLOW_UNFREE=1 nix run home-manager -- switch --flake ./home-manager#mynixos --impure -b backup
-

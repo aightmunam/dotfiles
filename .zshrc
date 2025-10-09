@@ -107,7 +107,7 @@ for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
 done
 
 #######################################################
-# Nix 
+# Nix
 #######################################################
 
 export NIX_CONF_DIR=$HOME/.config/nix
