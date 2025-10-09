@@ -17,11 +17,11 @@ return {
     'tpope/vim-rhubarb',
   },
   {
-    -- Hints keybinds
+    -- Hints key binds
     'folke/which-key.nvim',
   },
   {
-    -- Autoclose parentheses, brackets, quotes, etc.
+    -- Auto-close parentheses, brackets, quotes, etc.
     'windwp/nvim-autopairs',
     event = 'InsertEnter',
     config = true,
@@ -76,6 +76,20 @@ return {
     dependencies = { { 'nvim-tree/nvim-web-devicons' } },
   },
   {
+    'sontungexpt/url-open',
+    branch = 'mini',
+    cmd = 'URLOpenUnderCursor',
+    opts = {},
+    keys = {
+      {
+        '<leader>o',
+        '<cmd>URLOpenUnderCursor<cr>',
+        desc = 'Open url under cursor',
+        mode = 'n',
+      },
+    },
+  },
+  {
     -- manually select python interpreter without restarting LSP
     'neolooong/whichpy.nvim',
   },
@@ -88,6 +102,14 @@ return {
     'declancm/cinnamon.nvim',
     version = '*',
     opts = {},
+  },
+  {
+    'iamcco/markdown-preview.nvim',
+    cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
+    ft = { 'markdown' },
+    build = function()
+      vim.fn['mkdp#util#install']()
+    end,
   },
   {
     'alexghergh/nvim-tmux-navigation',
