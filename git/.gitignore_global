@@ -36,4 +36,3 @@ pyrightconfig.json  # zed ide specific (allows adding venv/python path)
 Icon?
 ehthumbs.db
 Thumbs.db
-

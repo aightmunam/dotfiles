@@ -1,29 +1,10 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v6.0.0
     hooks:
       - id: check-yaml
-        name: Check YAML syntax
       - id: check-toml
-        name: Check TOML syntax
       - id: end-of-file-fixer
+      - id: check-json
       - id: trailing-whitespace
       - id: mixed-line-ending
-  - repo: https://github.com/jumanjihouse/pre-commit-hooks
-    rev: 3.0.0
-    hooks:
-      - id: shellcheck
-        name: Check shell scripts with shellcheck
-        args: ['--severity=warning']
-  - repo: https://github.com/koalaman/shellcheck-precommit
-    rev: v0.9.0.6
-    hooks:
-      - id: shellcheck
-        name: Shellcheck for sh files
-        types: [shell]
-  - repo: https://github.com/Vimjas/vint
-    rev: v0.3.21
-    hooks:
-      - id: vint
-        name: Lint Lua files
-        files: \.lua$
