@@ -16,13 +16,4 @@ My Dotfiles for git, vim/nvim, zsh and more.
 make setup
 make build 
 ```
-#### Using script:
-2. Navigate into the newly created .dotfiles directory
-  ```
-  cd $HOME/.dotfiles
-  ```
-3. Run the setup.sh script to automatically set all the symlinks.
-  ```
-  chmod +x setup.sh
-  ./setup.sh
-  ```
+
