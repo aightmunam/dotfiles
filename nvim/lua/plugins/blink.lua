@@ -3,132 +3,93 @@ return {
   lazy = false, -- lazy loading handled internally
   dependencies = {
     'rafamadriz/friendly-snippets',
+
     'zbirenbaum/copilot.lua',
     'giuxtaposition/blink-cmp-copilot',
     'mikavilpas/blink-ripgrep.nvim',
-    'xzbdmw/colorful-menu.nvim',
+    'nvim-mini/mini.icons',
   },
 
   version = 'v0.*',
   opts = {
-    -- 'default' for mappings similar to built-in completion
-    -- 'super-tab' for mappings similar to vscode (tab to accept, arrow keys to navigate)
-    -- 'enter' for mappings similar to 'super-tab' but with 'enter' to accept
     keymap = {
-      preset = 'super-tab',
-      ['<A-1>'] = {
-        function(cmp)
-          cmp.accept { index = 1 }
-        end,
-      },
-      ['<A-2>'] = {
-        function(cmp)
-          cmp.accept { index = 2 }
-        end,
-      },
-      ['<A-3>'] = {
-        function(cmp)
-          cmp.accept { index = 3 }
-        end,
-      },
-      ['<A-4>'] = {
-        function(cmp)
-          cmp.accept { index = 4 }
-        end,
-      },
-      ['<A-5>'] = {
-        function(cmp)
-          cmp.accept { index = 5 }
-        end,
-      },
-      ['<A-6>'] = {
-        function(cmp)
-          cmp.accept { index = 6 }
-        end,
-      },
-      ['<A-7>'] = {
-        function(cmp)
-          cmp.accept { index = 7 }
-        end,
-      },
-      ['<A-8>'] = {
-        function(cmp)
-          cmp.accept { index = 8 }
-        end,
-      },
-      ['<A-9>'] = {
-        function(cmp)
-          cmp.accept { index = 9 }
-        end,
-      },
-      ['<A-0>'] = {
-        function(cmp)
-          cmp.accept { index = 10 }
-        end,
-      },
+      preset = 'none',
+      ['<Esc>'] = { 'hide', 'fallback' },
+      ['<C-space>'] = { 'show', 'show_documentation', 'hide_documentation' },
+      ['<CR>'] = { 'accept', 'fallback' },
+      ['<Tab>'] = { 'select_next', 'fallback' },
+      ['<S-Tab>'] = { 'select_prev', 'fallback' },
+
+      ['<Up>'] = { 'select_prev', 'fallback' },
+      ['<Down>'] = { 'select_next', 'fallback' },
+      ['<C-p>'] = { 'snippet_backward', 'fallback_to_mappings' },
+      ['<C-n>'] = { 'snippet_forward', 'fallback_to_mappings' },
+
+      ['<C-b>'] = { 'scroll_documentation_up', 'fallback' },
+      ['<C-f>'] = { 'scroll_documentation_down', 'fallback' },
+
+      ['<C-k>'] = { 'show_signature', 'hide_signature', 'fallback' },
     },
     appearance = {
       use_nvim_cmp_as_default = true,
       nerd_font_variant = 'mono',
-      kind_icons = {
-        Copilot = '',
-        Text = '󰉿',
-        Method = '󰊕',
-        Function = '󰊕',
-        Constructor = '󰒓',
-
-        Field = '󰜢',
-        Variable = '󰆦',
-        Property = '󰖷',
-
-        Class = '󱡠',
-        Interface = '󱡠',
-        Struct = '󱡠',
-        Module = '󰅩',
-
-        Unit = '󰪚',
-        Value = '󰦨',
-        Enum = '󰦨',
-        EnumMember = '󰦨',
-
-        Keyword = '󰻾',
-        Constant = '󰏿',
-
-        Snippet = '󱄽',
-        Color = '󰏘',
-        File = '󰈔',
-        Reference = '󰬲',
-        Folder = '󰉋',
-        Event = '󱐋',
-        Operator = '󰪚',
-        TypeParameter = '󰬛',
-      },
     },
     completion = {
       menu = {
-        border = 'single',
-        -- highlight = 'VertSplit',
         draw = {
-          -- columns = { { 'item_idx' }, { 'kind_icon' }, { 'label', 'label_description', gap = 1 } },
-          -- components = {
-          --   item_idx = {
-          --     text = function(ctx) return ctx.idx == 10 and '0' or ctx.idx >= 10 and ' ' or tostring(ctx.idx) end,
-          --     highlight = 'Constant' -- optional, only if you want to change its color
-          --   }
-          -- }
-          columns = { { 'kind_icon' }, { 'label', gap = 1 } },
+          columns = { { 'kind_icon' }, { 'label', 'label_description', gap = 1 } },
+          components = {
+            kind_icon = {
+              text = function(ctx)
+                local kind_icon, _, _ = require('mini.icons').get('lsp', ctx.kind)
+                return kind_icon
+              end,
+              -- (optional) use highlights from mini.icons
+              highlight = function(ctx)
+                local _, hl, _ = require('mini.icons').get('lsp', ctx.kind)
+                return hl
+              end,
+            },
+            kind = {
+              -- (optional) use highlights from mini.icons
+              highlight = function(ctx)
+                local _, hl, _ = require('mini.icons').get('lsp', ctx.kind)
+                return hl
+              end,
+            },
+          },
         },
+      },
+      trigger = {
+        show_on_keyword = true,
+      },
+      list = {
+        selection = {
+          preselect = true,
+          auto_insert = false,
+        },
+      },
+      ghost_text = {
+        enabled = false,
+        -- Show the ghost text when an item has been selected
+        show_with_selection = true,
+        -- Show the ghost text when no item has been selected, defaulting to the first item
+        show_without_selection = false,
+        -- Show the ghost text when the menu is open
+        show_with_menu = true,
+        -- Show the ghost text when the menu is closed
+        show_without_menu = true,
       },
       documentation = {
         window = {
-          border = 'single',
+          border = 'rounded',
         },
       },
     },
-    signature = { window = { border = 'single' } },
+    signature = { enabled = true, window = { border = 'rounded' } },
     cmdline = { enabled = true },
     sources = {
-      default = { 'snippets', 'lsp', 'path', 'buffer', 'copilot', 'ripgrep' },
+      default = { 'lsp', 'path', 'buffer', 'snippets', 'copilot', 'ripgrep' },
       providers = {
         copilot = {
           name = 'copilot',

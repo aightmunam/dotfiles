@@ -22,8 +22,9 @@ return {
       },
       overrides = function(colors) -- add/modify highlights
         return {
-          LineNr = { bg = 'none' },
-          CursorLine = { bg = colors.palette.waveBlue0, bold = false }, -- highlight current line
+          BlinkCmpMenu = { bg = colors.palette.dragonBlack3 },
+          BlinkCmpLabelDetail = { bg = colors.palette.dragonBlack3 },
+          BlinkCmpMenuSelection = { bg = colors.palette.waveBlue1 },
         }
       end,
       theme = 'dragon', -- Load "wave" theme
