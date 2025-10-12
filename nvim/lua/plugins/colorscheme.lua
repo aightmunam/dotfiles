@@ -17,17 +17,33 @@ return {
       dimInactive = false, -- dim inactive window `:h hl-NormalNC`
       terminalColors = true, -- define vim.g.terminal_color_{0,17}
       colors = { -- add/modify theme and palette colors
-        palette = {},
-        theme = { wave = {}, lotus = {}, dragon = {}, all = {} },
+        theme = {
+          all = {
+            ui = {
+              bg_gutter = 'none',
+            },
+          },
+        },
       },
       overrides = function(colors) -- add/modify highlights
+        local theme = colors.theme
         return {
-          BlinkCmpMenu = { bg = colors.palette.dragonBlack3 },
-          BlinkCmpLabelDetail = { bg = colors.palette.dragonBlack3 },
-          BlinkCmpMenuSelection = { bg = colors.palette.waveBlue1 },
+          NormalFloat = { bg = 'none' },
+          FloatBorder = { bg = 'none' },
+          FloatTitle = { bg = 'none' },
+
+          NormalDark = { fg = theme.ui.fg_dim, bg = theme.ui.bg_m3 },
+
+          LazyNormal = { bg = theme.ui.bg_m3, fg = theme.ui.fg_dim },
+          MasonNormal = { bg = theme.ui.bg_m3, fg = theme.ui.fg_dim },
+
+          Pmenu = { fg = theme.ui.shade0, bg = theme.ui.bg_p1 }, -- add `blend = vim.o.pumblend` to enable transparency
+          PmenuSel = { fg = 'NONE', bg = theme.ui.bg_p2 },
+          PmenuSbar = { bg = theme.ui.bg_m1 },
+          PmenuThumb = { bg = theme.ui.bg_p2 },
         }
       end,
-      theme = 'dragon', -- Load "wave" theme
+      theme = 'dragon',
     }
 
     require('kanagawa').load 'dragon'

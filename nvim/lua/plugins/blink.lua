@@ -36,6 +36,8 @@ return {
     },
     completion = {
       menu = {
+        border = 'rounded',
+        winhighlight = 'Normal:BlinkCmpDoc,FloatBorder:BlinkCmpDocBorder,CursorLine:BlinkCmpDocCursorLine,Search:None',
         draw = {
           columns = { { 'kind_icon' }, { 'label', 'label_description', gap = 1 } },
           components = {

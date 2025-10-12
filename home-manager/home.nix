@@ -34,6 +34,7 @@ let
                     };
                     ".config/nvim" = {
                         source = "${dotfilesDir}/nvim";
+                        recursive = true;
                     };
                     ".config/wezterm" = {
                         source = "${dotfilesDir}/wezterm";
@@ -66,7 +67,6 @@ let
                     tree
                     zoxide
                     aerospace
-                    jankyborders
 
                     # System utilities and networking
                     curl

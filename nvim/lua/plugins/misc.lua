@@ -127,4 +127,8 @@ return {
       }
     end,
   },
+  {
+    'dnlhc/glance.nvim',
+    cmd = 'Glance',
+  },
 }
