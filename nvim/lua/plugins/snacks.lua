@@ -207,13 +207,6 @@ return {
       desc = 'Keymaps',
     },
     {
-      '<leader>sm',
-      function()
-        Snacks.picker.marks()
-      end,
-      desc = 'Marks',
-    },
-    {
       '<leader>sq',
       function()
         Snacks.picker.qflist()

@@ -26,4 +26,5 @@ require('lazy').setup {
   require 'plugins.mini',
   require 'plugins.auto_session',
   require 'plugins.blink',
+  require 'plugins.harpoon',
 }
