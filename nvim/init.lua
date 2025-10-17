@@ -27,4 +27,5 @@ require('lazy').setup {
   require 'plugins.auto_session',
   require 'plugins.blink',
   require 'plugins.harpoon',
+  require 'plugins.copilot',
 }
