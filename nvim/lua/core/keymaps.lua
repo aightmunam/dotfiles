@@ -39,7 +39,6 @@ keymap('n', '<Right>', ':vertical resize +5<CR>', opts)
 -- Buffers
 keymap('n', '<Tab>', ':bnext<CR>', opts)
 keymap('n', '<S-Tab>', ':bprevious<CR>', opts)
-keymap('n', '<leader>x', ':bdelete!<CR>', opts) -- close buffer
 keymap('n', '<leader>b', '<cmd> enew <CR>', opts) -- new buffer
 
 -- Window management
@@ -47,12 +46,6 @@ keymap('n', '<leader>=', '<C-w>v', opts) -- split window vertically
 keymap('n', '<leader>-', '<C-w>s', opts) -- split window horizontally
 keymap('n', '<leader>se', '<C-w>=', opts) -- make split windows equal width & height
 keymap('n', '<leader>xs', ':close<CR>', opts) -- close current split window
-
--- Navigate between splits
---keymap('n', '<C-k>', ':wincmd k<CR>', opts)
---keymap('n', '<C-j>', ':wincmd j<CR>', opts)
---keymap('n', '<C-h>', ':wincmd h<CR>', opts)
---keymap('n', '<C-l>', ':wincmd l<CR>', opts)
 
 -- Tabs
 keymap('n', '<leader>to', ':tabnew<CR>', opts) -- open new tab
@@ -71,13 +64,10 @@ keymap('v', '>', '>gv', opts)
 keymap('v', 'p', '"_dP', opts)
 
 -- Diagnostic keymaps
-keymap('n', '[d', function()
-  vim.diagnostic.jump { count = -1, float = true }
-end, { desc = 'Go to previous diagnostic message' })
-
-keymap('n', ']d', function()
+keymap('n', '<Leader>dn', function()
   vim.diagnostic.jump { count = 1, float = true }
-end, { desc = 'Go to next diagnostic message' })
+end, { desc = 'Go to next diagnostic message' , unpack(opts) })
 
-keymap('n', '<leader>d', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
-keymap('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
+keymap('n', '<Leader>dp', function()
+  vim.diagnostic.jump { count = -1, float = true }
+end, { desc = 'Go to next diagnostic message', unpack(opts) })
