@@ -7,7 +7,7 @@ return {
       auto_trigger = true,
       hide_during_completion = false,
       keymap = {
-        accept = '<C-CR>',
+        accept = '<C-y>',
         accept_word = '<C-w>',
         accept_line = '<C-l>',
         next = '<C-j>',
