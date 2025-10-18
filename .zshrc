@@ -74,6 +74,7 @@ setopt hist_find_no_dups
 # general aliases
 #######################################################
 
+# CLI aliases
 alias cp='cp -v -R'
 alias find='noglob find'
 alias ftp='noglob ftp'
@@ -91,16 +92,25 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....='cd ../../../..'
 alias ......='cd ../../../../..'
-alias pip='python3 -m pip'
+alias c='clear'
+
+# Language/tool specific aliases
 alias pre-commit='python -m pre_commit'
 alias g='git'
+alias pip='python3 -m pip'
+alias python='python3'
+
+# Editor aliases
 alias v='nvim'
 alias vi='nvim'
 alias vim='nvim'
-alias python='python3'
-alias c='clear'
+
+# Tmux aliases
 alias t='tmux'
 alias ts='tmux new -s $(pwd | sed "s/.*\///g")'
+alias ta='tmux attach-session -t'
+alias tk='tmux kill-session -t'
+alias tl='tmux list-sessions'
 
 for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
   alias "$method"="curl -iX '$method'"
