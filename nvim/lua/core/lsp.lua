@@ -1,5 +1,28 @@
--- Create keybindings, commands, inlay hints and autocommands on LSP attach {{{
+-- INFO: read filenames on lsp/ directory and enable those
+-- Copied from https://github.com/edr3x/nvim/blob/main/plugin/lsp.lua
+
+local lsp_files = {}
+local lsp_dir = vim.fn.stdpath 'config' .. '/lsp/'
+
+for _, file in ipairs(vim.fn.globpath(lsp_dir, '*.lua', false, true)) do
+  -- Read the first line of the file
+  local f = io.open(file, 'r')
+  local first_line = f and f:read '*l' or ''
+  if f then
+    f:close()
+  end
+  -- Only include the file if it doesn't start with "-- disable"
+  if not first_line:match '^%-%- disable' then
+    local name = vim.fn.fnamemodify(file, ':t:r') -- `:t` gets filename, `:r` removes extension
+    table.insert(lsp_files, name)
+  end
+end
+
+vim.lsp.enable(lsp_files)
+
+-- Create keybindings, commands, inlay hints and autocommands on LSP attach
 vim.api.nvim_create_autocmd('LspAttach', {
+  desc = 'LSP actions',
   callback = function(ev)
     local bufnr = ev.buf
     local client = vim.lsp.get_client_by_id(ev.data.client_id)
@@ -9,7 +32,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
     ---@diagnostic disable-next-line need-check-nil
     if client.server_capabilities.completionProvider then
       vim.bo[bufnr].omnifunc = 'v:lua.vim.lsp.omnifunc'
-      -- vim.bo[bufnr].omnifunc = 'v:lua.MiniCompletion.completefunc_lsp'
     end
     ---@diagnostic disable-next-line need-check-nil
     if client.server_capabilities.definitionProvider then
@@ -35,215 +57,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
     keymap('n', '<Leader>ll', lsp.codelens.run, opt('Run CodeLens'))
     keymap('n', '<Leader>lr', lsp.buf.rename, opt('Rename'))
   end,
-})
--- }}}
-
--- Language Servers
-
--- Go
-vim.lsp.config.gopls = {
-  cmd = { 'gopls' },
-  filetypes = { 'go', 'gotempl', 'gowork', 'gomod' },
-  root_markers = { '.git', 'go.mod', 'go.work', vim.uv.cwd() },
-  settings = {
-    gopls = {
-      completeUnimported = true,
-      usePlaceholders = true,
-      analyses = {
-        unusedparams = true,
-      },
-      ['ui.inlayhint.hints'] = {
-        compositeLiteralFields = true,
-        constantValues = true,
-        parameterNames = true,
-        rangeVariableTypes = true,
-      },
-    },
-  },
-}
-vim.lsp.enable 'gopls'
---
-
--- Lua
-vim.lsp.config.lua_ls = {
-  cmd = { 'lua-language-server' },
-  filetypes = { 'lua' },
-  root_markers = { '.luarc.json', '.git', vim.uv.cwd() },
-  settings = {
-    Lua = {
-      telemetry = {
-        enable = false,
-      },
-      completion = {
-        callSnippet = 'Replace',
-      },
-      runtime = { version = 'LuaJIT' },
-      workspace = {
-        checkThirdParty = false,
-        library = vim.api.nvim_get_runtime_file('', true),
-      },
-      diagnostics = {
-        globals = { 'vim' },
-        disable = { 'missing-fields' },
-      },
-    },
-  },
-}
-vim.lsp.enable 'lua_ls'
---
-
--- Ruff
-vim.lsp.config.ruff_lsp = {
-  filetypes = { 'python' },
-  cmd = { 'ruff', 'server', '--preview' }, -- use `--preview` to enable LSP mode
-  on_attach = function(client, _)
-    client.server_capabilities.hoverProvider = false
-  end,
-  options = {
-    settings = {
-      args = {}, -- e.g., { '--config', 'pyproject.toml' }
-    },
-  },
-}
-vim.lsp.enable 'ruff_lsp'
-
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-vim.lsp.config.basedpyright = {
-  name = 'basedpyright',
-  cmd = { 'basedpyright-langserver', '--stdio' },
-  filetypes = { 'python' },
-  capabilities = (function()
-    local capabilities = vim.lsp.protocol.make_client_capabilities()
-    capabilities.textDocument.publishDiagnostics.tagSupport.valueSet = { 2 }
-    return capabilities
-  end)(),
-  handlers = {
-    ['textDocument/publishDiagnostics'] = function() end,
-  },
-  on_attach = function(client, _)
-    client.server_capabilities.codeActionProvider = false
-  end,
-  settings = {
-    python = {
-      analysis = {
-        autoSearchPaths = true,
-        typeCheckingMode = 'basic',
-        useLibraryCodeForTypes = true,
-      },
-    },
-    basedpyright = {
-      disableOrganizeImports = true,
-    },
-  },
-}
-vim.lsp.enable 'basedpyright'
-
-vim.api.nvim_create_autocmd('FileType', {
-  pattern = 'python',
-  desc = 'Start python lsp server(s)',
-  callback = function()
-    local root = vim.fs.root(0, {
-      'pyproject.toml',
-      'ruff.toml',
-      '.git',
-      'requirements.txt',
-      'setup.cfg',
-    })
-
-    vim.lsp.start(
-      vim.tbl_extend('force', vim.lsp.config.basedpyright, {
-        root_dir = root,
-      }),
-      { attach = false }
-    )
-
-    vim.lsp.start(
-      vim.tbl_extend('force', vim.lsp.config.ruff_lsp, {
-        root_dir = root,
-      }),
-      { attach = false }
-    )
-  end,
-})
-
--- Bash
-vim.lsp.config.bashls = {
-  cmd = { 'bash-language-server', 'start' },
-  filetypes = { 'bash', 'sh', 'zsh' },
-  root_markers = { '.git', vim.uv.cwd() },
-  settings = {
-    bashIde = {
-      globPattern = vim.env.GLOB_PATTERN or '*@(.sh|.inc|.bash|.command)',
-    },
-  },
-}
-vim.lsp.enable 'bashls'
---
-
--- Start, Stop, Restart, Log commands
-vim.api.nvim_create_user_command('LspStart', function()
-  vim.cmd.e()
-end, { desc = 'Starts LSP clients in the current buffer' })
-
-vim.api.nvim_create_user_command('LspStop', function(opts)
-  for _, client in ipairs(vim.lsp.get_clients { bufnr = 0 }) do
-    if opts.args == '' or opts.args == client.name then
-      client:stop(true)
-      vim.notify(client.name .. ': stopped')
-    end
-  end
-end, {
-  desc = 'Stop all LSP clients or a specific client attached to the current buffer.',
-  nargs = '?',
-  complete = function(_, _, _)
-    local clients = vim.lsp.get_clients { bufnr = 0 }
-    local client_names = {}
-    for _, client in ipairs(clients) do
-      table.insert(client_names, client.name)
-    end
-    return client_names
-  end,
-})
-
-vim.api.nvim_create_user_command('LspRestart', function()
-  local detach_clients = {}
-  for _, client in ipairs(vim.lsp.get_clients { bufnr = 0 }) do
-    client:stop(true)
-    if vim.tbl_count(client.attached_buffers) > 0 then
-      detach_clients[client.name] = { client, vim.lsp.get_buffers_by_client_id(client.id) }
-    end
-  end
-  local timer = vim.uv.new_timer()
-  if not timer then
-    return vim.notify 'Servers are stopped but havent been restarted'
-  end
-  timer:start(
-    100,
-    50,
-    vim.schedule_wrap(function()
-      for name, client in pairs(detach_clients) do
-        local client_id = vim.lsp.start(client[1].config, { attach = false })
-        if client_id then
-          for _, buf in ipairs(client[2]) do
-            vim.lsp.buf_attach_client(buf, client_id)
-          end
-          vim.notify(name .. ': restarted')
-        end
-        detach_clients[name] = nil
-      end
-      if next(detach_clients) == nil and not timer:is_closing() then
-        timer:close()
-      end
-    end)
-  )
-end, {
-  desc = 'Restart all the language client(s) attached to the current buffer',
-})
-
-vim.api.nvim_create_user_command('LspLog', function()
-  vim.cmd.vsplit(vim.lsp.log.get_filename())
-end, {
-  desc = 'Get all the lsp logs',
 })
 
 vim.api.nvim_create_user_command('LspInfo', function()
