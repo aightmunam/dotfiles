@@ -111,6 +111,7 @@ alias ts='tmux new -s $(pwd | sed "s/.*\///g")'
 alias ta='tmux attach-session -t'
 alias tk='tmux kill-session -t'
 alias tl='tmux list-sessions'
+alias td='tmux detach'
 
 for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
   alias "$method"="curl -iX '$method'"

@@ -70,7 +70,7 @@ let
 
                     # System utilities and networking
                     curl
-                    htop
+                    btop
                     mosh
                     netcat
                     nmap
@@ -88,6 +88,7 @@ let
                     reattach-to-user-namespace
                     tree-sitter
                     yq
+                    jankyborders 
 
                     # Terminal and shell
                     zsh

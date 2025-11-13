@@ -55,7 +55,7 @@ run = 'layout floating'
 # Give mail its dedicated workspace as well
 [[on-window-detected]]
 if.app-name-regex-substring = 'mail'
-run = ['layout floating', 'move-node-to-workspace Mail']
+run = 'move-node-to-workspace Mail'
 
 # work browser 🤮
 [[on-window-detected]]
