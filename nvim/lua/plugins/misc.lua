@@ -104,11 +104,15 @@ return {
     opts = {},
   },
   {
-    'iamcco/markdown-preview.nvim',
-    cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
-    ft = { 'markdown' },
-    build = function()
-      vim.fn['mkdp#util#install']()
+    'MeanderingProgrammer/render-markdown.nvim',
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-mini/mini.nvim' },
+    ---@module 'render-markdown'
+    ---@type render.md.UserConfig
+    opts = {},
+    config = function()
+      vim.keymap.set('n', '<leader>mp', function()
+        require('render-markdown').toggle()
+      end)
     end,
   },
   {

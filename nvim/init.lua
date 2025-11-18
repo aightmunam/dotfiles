@@ -2,6 +2,7 @@ require 'core.options'
 require 'core.keymaps'
 require 'core.lsp'
 require 'core.diagnostics'
+require 'core.autocmd'
 
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
@@ -27,5 +28,5 @@ require('lazy').setup {
   require 'plugins.auto_session',
   require 'plugins.blink',
   require 'plugins.harpoon',
-  require 'plugins.copilot',
+  -- require 'plugins.copilot',
 }

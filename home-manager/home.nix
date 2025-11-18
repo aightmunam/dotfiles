@@ -94,6 +94,7 @@ let
                     zsh
                     wezterm
                     neovim
+                    opencode
 
                     # Fonts
                     nerd-fonts._0xproto
