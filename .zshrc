@@ -128,6 +128,12 @@ if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
 fi
 
 #######################################################
+# source .zsh_functions
+#######################################################
+
+if [ -f "$HOME/.zsh_functions" ]; then source "$HOME/.zsh_functions"; fi
+
+#######################################################
 # source .zshrc.local
 #######################################################
 

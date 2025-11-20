@@ -32,6 +32,9 @@ let
                     ".zshenv" = {
                         source = "${dotfilesDir}/.zshenv";
                     };
+                    ".zsh_functions" = {
+                        source = "${dotfilesDir}/.zsh_functions";
+                    };
                     ".config/nvim" = {
                         source = "${dotfilesDir}/nvim";
                         recursive = true;
