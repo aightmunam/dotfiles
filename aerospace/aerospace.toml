@@ -64,7 +64,7 @@ run = "move-node-to-workspace Browser"
 
 # personal computer browser -> ever-changing
 [[on-window-detected]]
-if.app-name-regex-substring = 'comet'
+if.app-name-regex-substring = 'firefox'
 run = "move-node-to-workspace Browser"
 
 # Slack always goes to slack so I can easily find it
