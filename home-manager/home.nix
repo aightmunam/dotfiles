@@ -70,7 +70,7 @@ let
                     tree
                     zoxide
                     aerospace
-
+                    
                     # System utilities and networking
                     curl
                     btop
@@ -80,6 +80,11 @@ let
                     wget
 
                     # Development tools
+                    gh          # GitHub CLI
+                    delta       # Better git diff
+                    direnv      # Per-directory env
+                    tldr        # Better man pages
+                    duf         # Better df
                     difftastic
                     git
                     go
@@ -123,7 +128,7 @@ let
                 };
                 zsh = {
                     enable = true;
-                    initContent = ''
+                    initExtra = ''
                       # Add any additional configurations here
                       export PATH=/run/current-system/sw/bin:$HOME/.nix-profile/bin:$PATH
                       if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 echo "Setting up..."
 
@@ -95,7 +95,7 @@ install "wezterm" ".config/wezterm" 1
 # oh my zsh
 ###############################################################################
 
-clone_if_empty "~/.oh-my-zsh" "https://github.com/ohmyzsh/ohmyzsh.git"
+clone_if_empty "$HOME/.oh-my-zsh" "https://github.com/ohmyzsh/ohmyzsh.git"
 clone_if_empty "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k" "https://github.com/romkatv/powerlevel10k.git"
 clone_if_empty "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" "https://github.com/zsh-users/zsh-autosuggestions"
 clone_if_empty "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" "https://github.com/zsh-users/zsh-syntax-highlighting.git"

@@ -2,7 +2,7 @@
 	path = ~/.gitconfig.local
 [user]
   name = Munam Mubashir
-  email = 38868658+aightmunam@users.noreply.github.com 
+  email = 38868658+aightmunam@users.noreply.github.com
 [status]
 	relativePaths = true
 [pull]
@@ -11,6 +11,22 @@
 	default = current
 [clone]
 	defaultRemoteName = origin
+[transfer]
+	fsckObjects = true
+[fetch]
+	fsckObjects = true
+	prune = true
+[merge]
+	conflictStyle = zdiff3
+[diff]
+	algorithm = histogram
+	colorMoved = default
+[branch]
+	sort = -committerdate
+[rebase]
+	autoStash = true
+[commit]
+	verbose = true
 [init]
 	defaultBranch = master
 [help]
@@ -35,7 +51,7 @@
 	r = pull --rebase
 	m = merge
 	p = push -u
-	fp = push --force
+	fp = push --force-with-lease
 	rs = reset --soft HEAD~1
 	s = status
 	cl = clone --depth=1
@@ -45,7 +61,7 @@
 	res = restore --staged
 	backup = commit -m ':WIP: Backup' --no-verify
 [core]
-	excludesfile = ~/dotfiles/.gitignore_global
+	excludesfile = ~/.gitignore_global
 	editor = nvim
 [color]
 	diff = auto

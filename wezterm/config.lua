@@ -25,6 +25,8 @@ config = {
 		top = 15,
 		bottom = 15,
 	},
+	front_end = "WebGpu",
+	max_fps = 120,
 	background = {
 		{
 			source = {

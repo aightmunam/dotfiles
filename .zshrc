@@ -1,19 +1,34 @@
-# Add brew to path
+# Enable Powerlevel10k instant prompt (must be at the very top)
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
 
+#######################################################
+# Environment
+#######################################################
+
+typeset -U path PATH
 export PATH="/opt/homebrew/bin:$PATH"
 export TERM=wezterm
 export EDITOR=nvim
 export VISUAL=nvim
 
-# Add pyenv specific
-
+# Pyenv
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init --path)"
 
 #######################################################
-# Plugins
+# Oh-my-zsh & Plugins
 #######################################################
+
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="powerlevel10k/powerlevel10k"
+
+setopt auto_cd
+setopt auto_pushd
+setopt extended_glob
+setopt glob_dots
 
 plugins=(
     zsh-autosuggestions
@@ -22,9 +37,7 @@ plugins=(
     copyfile
     dirhistory
     history
-    zsh-syntax-highlighting
     fast-syntax-highlighting
-    zsh-autocomplete
     k
     autojump
     docker
@@ -32,24 +45,16 @@ plugins=(
     pyenv
 )
 
-# Enable fzf for fuzzing searching of files and commands
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-#######################################################
-# Theme
-#######################################################
-
-export ZSH="$HOME/.oh-my-zsh"
-source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
-# Enable Powerlevel10k instant prompt.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
+source $ZSH/oh-my-zsh.sh
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-source $ZSH/oh-my-zsh.sh
+# Enable fzf for fuzzy searching of files and commands
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# Initialize zoxide
+eval "$(zoxide init zsh)"
 
 #######################################################
 # History
@@ -58,7 +63,7 @@ source $ZSH/oh-my-zsh.sh
 bindkey '^n' history-search-forward
 bindkey '^p' history-search-backward
 
-HISTSIZE=5000
+HISTSIZE=50000
 HISTFILE=~/.zsh_history
 SAVEHIST=$HISTSIZE
 HISTDUP=erase
@@ -79,9 +84,8 @@ alias cp='cp -v -R'
 alias find='noglob find'
 alias ftp='noglob ftp'
 alias history='fc -il 1'
-alias ls='ls --color=auto'
-alias lsa='ls -lathr'
-alias la=tree
+alias ls='eza --icons'
+alias la='eza -la --icons'
 alias map="xargs -n1"
 alias mkdir='mkdir -p'
 alias path='echo -e ${PATH//:/\\n}'
@@ -138,7 +142,6 @@ if [ -f "$HOME/.zsh_functions" ]; then source "$HOME/.zsh_functions"; fi
 #######################################################
 
 if [ -f "$HOME/.zshrc.local" ]; then source "$HOME/.zshrc.local"; fi
-typeset -U path
 
 #######################################################
 # dircolors
