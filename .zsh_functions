@@ -18,9 +18,8 @@ cport() {
   echo "Process on port $port (PID: $pid) killed"
 }
 
-# Fuzzy find thoughts with preview (searches global ~/thoughts repo)
-# Usage: thought          - browse all thoughts
-#        thought <query>  - search content, then fuzzy filter
+# Fuzzy find thoughts - instant results with live preview
+# Enter = view with glow, ctrl-e = edit in nvim
 thought() {
   local query="${1:-}"
   local searchdir="$HOME/thoughts"
@@ -30,19 +29,26 @@ thought() {
     return 1
   fi
 
-  local result
+  # If query provided, start with ripgrep results; otherwise show all files
+  local initial_cmd
   if [[ -n "$query" ]]; then
-    # Content search mode
-    result=$(rg --files-with-matches --no-messages "$query" "$searchdir" | \
-      fzf --query="$query" \
-          --preview "bat --style=numbers --color=always {} 2>/dev/null || head -50 {}" \
-          --preview-window=right:60%)
+    initial_cmd="rg --files-with-matches --no-messages '$query' $searchdir 2>/dev/null | sed 's|^$searchdir/||'"
   else
-    # File browse mode
-    result=$(find "$searchdir" -type f -name "*.md" -not -path "*/.git/*" 2>/dev/null | \
-      fzf --preview "bat --style=numbers --color=always {} 2>/dev/null || head -50 {}" \
-          --preview-window=right:60%)
+    initial_cmd="find $searchdir -type f -name '*.md' -not -path '*/.git/*' | sed 's|^$searchdir/||'"
   fi
 
-  [[ -n "$result" ]] && echo "$result"
+  local result
+  result=$(eval "$initial_cmd" | \
+    fzf --query="$query" \
+        --preview "glow -s dark $searchdir/{} 2>/dev/null || head -50 $searchdir/{}" \
+        --preview-window=right:60% \
+        --prompt="Search: " \
+        --phony \
+        --bind "change:reload:rg --files-with-matches --no-messages {q} $searchdir 2>/dev/null | sed 's|^$searchdir/||' || find $searchdir -type f -name '*.md' -not -path '*/.git/*' | sed 's|^$searchdir/||'" \
+        --bind "ctrl-e:execute(nvim $searchdir/{})")
+
+  # Enter = view with glow, ctrl-e = edit in nvim
+  if [[ -n "$result" ]]; then
+    glow -p "$searchdir/$result"
+  fi
 }
