@@ -17,3 +17,32 @@ cport() {
   kill -9 "$pid"
   echo "Process on port $port (PID: $pid) killed"
 }
+
+# Fuzzy find thoughts with preview
+# Usage: thought          - browse all thoughts
+#        thought <query>  - search content, then fuzzy filter
+thought() {
+  local query="${1:-}"
+  local searchdir="thoughts/searchable"
+
+  if [[ ! -d "$searchdir" ]]; then
+    echo "No thoughts/searchable directory found in current repo"
+    return 1
+  fi
+
+  local result
+  if [[ -n "$query" ]]; then
+    # Content search mode
+    result=$(rg --files-with-matches --no-messages "$query" "$searchdir" | \
+      fzf --query="$query" \
+          --preview "bat --style=numbers --color=always {} 2>/dev/null || head -50 {}" \
+          --preview-window=right:60%)
+  else
+    # File browse mode
+    result=$(find "$searchdir" -type f -name "*.md" 2>/dev/null | \
+      fzf --preview "bat --style=numbers --color=always {} 2>/dev/null || head -50 {}" \
+          --preview-window=right:60%)
+  fi
+
+  [[ -n "$result" ]] && echo "${result/searchable\//}"
+}

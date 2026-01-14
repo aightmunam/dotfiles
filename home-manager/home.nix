@@ -51,6 +51,10 @@ let
                     ".config/home-manager" = {
                         source = "${dotfilesDir}/home-manager";
                     };
+                    "raycast-scripts" = {
+                        source = "${dotfilesDir}/raycast-scripts";
+                        recursive = true;
+                    };
                     "Applications/Raycast.app".source = "${pkgs.raycast}/Applications/Raycast.app";
                 };
                 packages = with pkgs; [
