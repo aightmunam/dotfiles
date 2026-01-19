@@ -65,20 +65,44 @@
 ---
 --- It is recommended to use the same version of TypeScript in all packages, and therefore have it available in your workspace root. The location of the TypeScript binary will be determined automatically, but only once.
 
+-- Find Vue language server dynamically
+local function get_vue_language_server_path()
+  local path = vim.fn.exepath('vue-language-server')
+  if path == '' then
+    return nil
+  end
+  -- vue-language-server binary is in node_modules/.bin, we need the actual package
+  -- Resolve: .../node_modules/.bin/vue-language-server -> .../node_modules/@vue/language-server
+  local resolved = vim.fn.resolve(path)
+  return vim.fn.fnamemodify(resolved, ':h:h') .. '/@vue/language-server'
+end
+
+local vue_language_server_path = get_vue_language_server_path()
+
 ---@type vim.lsp.Config
 return {
   cmd = { 'vtsls', '--stdio' },
   init_options = {
     hostInfo = 'neovim',
   },
-  filetypes = {
-    'javascript',
-    'javascriptreact',
-    'javascript.jsx',
-    'typescript',
-    'typescriptreact',
-    'typescript.tsx',
-  },
+  filetypes = vim.list_extend(
+    { 'javascript', 'javascriptreact', 'javascript.jsx', 'typescript', 'typescriptreact', 'typescript.tsx' },
+    vue_language_server_path and { 'vue' } or {}
+  ),
+  settings = vue_language_server_path and {
+    vtsls = {
+      tsserver = {
+        globalPlugins = {
+          {
+            name = '@vue/typescript-plugin',
+            location = vue_language_server_path,
+            languages = { 'vue' },
+            configNamespace = 'typescript',
+          },
+        },
+      },
+    },
+  } or {},
   root_dir = function(bufnr, on_dir)
     -- The project root is where the LSP can be started from
     -- As stated in the documentation above, this LSP supports monorepos and simple projects.
