@@ -10,8 +10,6 @@ fi
 typeset -U path PATH
 export PATH="/opt/homebrew/bin:$PATH"
 export TERM=wezterm
-export EDITOR=nvim
-export VISUAL=nvim
 
 # Pyenv
 export PYENV_ROOT="$HOME/.pyenv"
