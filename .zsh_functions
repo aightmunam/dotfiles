@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-# Clear port
+# Clear port - kills all processes on a given port
 cport() {
   local port=$1
   if [ -z "$port" ]; then
@@ -8,14 +8,15 @@ cport() {
     return 1
   fi
 
-  local pid=$(lsof -t -i :"$port")
-  if [ -z "$pid" ]; then
+  local pids=$(lsof -t -i :"$port" 2>/dev/null)
+  if [ -z "$pids" ]; then
     echo "No process found on port $port"
     return 1
   fi
 
-  kill -9 "$pid"
-  echo "Process on port $port (PID: $pid) killed"
+  local count=$(echo "$pids" | wc -l | tr -d ' ')
+  echo "$pids" | xargs kill -9 2>/dev/null
+  echo "Killed $count process(es) on port $port: $(echo $pids | tr '\n' ' ')"
 }
 
 # Fuzzy find thoughts - instant results with live preview
