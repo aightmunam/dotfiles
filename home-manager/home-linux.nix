@@ -108,6 +108,8 @@ let
                 username = username;
                 homeDirectory = "/home/${username}";
             };
+            fonts.fontconfig.enable = true;
+
             programs = {
                 autojump.enable = true;
                 fzf.enable = true;
