@@ -8,13 +8,20 @@ fi
 #######################################################
 
 typeset -U path PATH
-export PATH="/opt/homebrew/bin:$PATH"
+
+# OS-specific paths
+if [[ "$(uname)" == "Darwin" ]]; then
+  export PATH="/opt/homebrew/bin:$PATH"
+fi
+
 export TERM=wezterm
 
 # Pyenv
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init --path)"
+if command -v pyenv &>/dev/null; then
+  eval "$(pyenv init --path)"
+fi
 
 #######################################################
 # Oh-my-zsh & Plugins
@@ -28,9 +35,9 @@ setopt auto_pushd
 setopt extended_glob
 setopt glob_dots
 
+# Base plugins (cross-platform)
 plugins=(
     zsh-autosuggestions
-    macos
     copypath
     copyfile
     dirhistory
@@ -42,6 +49,11 @@ plugins=(
     poetry
     pyenv
 )
+
+# Add macOS-specific plugins
+if [[ "$(uname)" == "Darwin" ]]; then
+  plugins+=(macos)
+fi
 
 source $ZSH/oh-my-zsh.sh
 

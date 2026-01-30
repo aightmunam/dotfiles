@@ -1,5 +1,5 @@
 {
-  description = "";
+  description = "Cross-platform dotfiles";
   inputs = {
     nixpkgs.url = "flake:nixpkgs/nixpkgs-unstable";
     nix-darwin.url = "flake:nix-darwin";
@@ -9,9 +9,10 @@
   };
   outputs = inputs:
     let
-      username = builtins.getEnv "USER"; 
+      macUsername = builtins.getEnv "USER";
       flakeContext = {
-        inherit inputs username;
+        inherit inputs;
+        username = macUsername;
       };
     in
     {
@@ -19,7 +20,10 @@
         mbp-nixos = import ./darwin.nix flakeContext;
       };
       homeConfigurations = {
+        # macOS (Apple Silicon)
         mynixos = import ./home.nix flakeContext;
+        # Linux (x86_64) - for CachyOS
+        mylinux = import ./home-linux.nix { inherit inputs; username = "ruin"; };
       };
     };
 }
