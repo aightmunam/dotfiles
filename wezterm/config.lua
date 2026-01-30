@@ -17,7 +17,7 @@ config = {
 	tab_bar_at_bottom = false,
 	line_height = 1.15,
 	font_size = 14,
-	font = wezterm.font("Mononoki", { weight = "Bold" }),
+	font = wezterm.font("Mononoki Nerd Font Mono", { weight = "Bold" }),
 	enable_tab_bar = false,
 	window_padding = {
 		left = 15,
@@ -30,7 +30,7 @@ config = {
 	background = {
 		{
 			source = {
-				File = "/Users/" .. os.getenv("USER") .. "/.config/wezterm/bg.png",
+				File = os.getenv("HOME") .. "/.config/wezterm/bg.png",
 			},
 			hsb = {
 				hue = 1.0,
