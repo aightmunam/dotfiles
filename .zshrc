@@ -132,14 +132,10 @@ for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
 done
 
 #######################################################
-# Nix 
+# Nix
 #######################################################
 
 export NIX_CONF_DIR=$HOME/.config/nix
-
-if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
-   . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
-fi
 
 #######################################################
 # source .zsh_functions
