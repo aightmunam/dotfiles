@@ -42,6 +42,9 @@ let
                     ".config/wezterm" = {
                         source = "${dotfilesDir}/wezterm";
                     };
+                    ".config/kitty" = {
+                        source = "${dotfilesDir}/kitty";
+                    };
                     ".config/aerospace" = {
                         source = "${dotfilesDir}/aerospace";
                     };
@@ -105,6 +108,7 @@ let
                     # Terminal and shell
                     zsh
                     wezterm
+                    kitty
                     neovim
                     opencode
 

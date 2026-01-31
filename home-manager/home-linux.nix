@@ -42,6 +42,9 @@ let
                     ".config/wezterm" = {
                         source = "${dotfilesDir}/wezterm";
                     };
+                    ".config/kitty" = {
+                        source = "${dotfilesDir}/kitty";
+                    };
                     ".config/nix" = {
                         source = "${dotfilesDir}/nix";
                     };
@@ -94,6 +97,7 @@ let
                     # Terminal and shell
                     zsh
                     wezterm
+                    kitty
                     neovim
 
                     # Fonts
