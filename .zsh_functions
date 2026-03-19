@@ -21,7 +21,7 @@ cport() {
 
 # Fuzzy find thoughts - instant results with live preview
 # Enter = view with glow, ctrl-e = edit in nvim
-thought() {
+th() {
   local query="${1:-}"
   local searchdir="$HOME/thoughts"
 
@@ -52,4 +52,34 @@ thought() {
   if [[ -n "$result" ]]; then
     glow -p "$searchdir/$result"
   fi
+}
+
+# Full-text search across all thoughts (shows matching lines, not just files)
+ths() {
+  local query="${1:-}"
+  local searchdir="$HOME/thoughts"
+
+  if [[ ! -d "$searchdir" ]]; then
+    echo "No thoughts repository found at $searchdir"
+    return 1
+  fi
+
+  (
+    cd "$searchdir" || return 1
+    local result
+    result=$(rg --type md --line-number --color=always "${query:-.}" . |
+      fzf --ansi --phony --query="$query" \
+          --delimiter=: \
+          --with-nth=1,2 \
+          --preview 'bat --color=always --style=numbers --highlight-line {2} {1} 2>/dev/null || cat -n {1}' \
+          --preview-window='right:60%:+{2}-10' \
+          --prompt="Full-text: " \
+          --bind 'ctrl-e:execute(nvim {1} +{2})' \
+          --bind 'change:reload:rg --type md --line-number --color=always {q} . 2>/dev/null || true')
+
+    if [[ -n "$result" ]]; then
+      local file="${result%%:*}"
+      glow -p "$file"
+    fi
+  )
 }

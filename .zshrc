@@ -8,13 +8,16 @@ fi
 #######################################################
 
 typeset -U path PATH
-export PATH="/opt/homebrew/bin:$PATH"
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:$PATH"
 export TERM=wezterm
 
 # Pyenv
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init --path)"
+
+# Work trunk
+if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
 
 #######################################################
 # Oh-my-zsh & Plugins
