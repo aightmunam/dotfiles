@@ -210,4 +210,4 @@ Slack = 'main'
 Mail = 'main'
 Code = ['secondary', 'main']
 Browser = ['main', 'secondary']
-Obsidian = ['main', 'secondary']
+Obsidian = ['secondary', 'main']
