@@ -169,6 +169,7 @@ alt-c = 'workspace Code'
 alt-b = 'workspace Browser'
 alt-s = 'workspace Slack'
 alt-m = 'workspace Mail'
+alt-o = 'workspace Obsidian'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
 alt-shift-1 = 'move-node-to-workspace 1 --focus-follows-window'
