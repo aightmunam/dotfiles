@@ -180,6 +180,7 @@ alt-shift-c = 'move-node-to-workspace Code --focus-follows-window'
 alt-shift-b = 'move-node-to-workspace Browser --focus-follows-window'
 alt-shift-s = 'move-node-to-workspace Slack --focus-follows-window'
 alt-shift-m = 'move-node-to-workspace Mail --focus-follows-window'
+alt-shift-o = 'move-node-to-workspace Obsidian --focus-follows-window'
 
 alt-tab = 'workspace-back-and-forth'
 alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
