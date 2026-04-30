@@ -76,6 +76,10 @@ run = "move-node-to-workspace Slack"
 if.app-id = 'com.github.wez.wezterm'
 run = "move-node-to-workspace Code"
 
+[[on-window-detected]]
+if.app-name-regex-substring = 'obsidian'
+run = "move-node-to-workspace Obsidian"
+
 # Gaps between windows (inner-*) and between monitor edges (outer-*).
 # Possible values:
 # - Constant:     gaps.outer.top = 8
