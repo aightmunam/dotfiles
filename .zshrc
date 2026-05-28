@@ -16,6 +16,9 @@ export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init --path)"
 
+# Rust / Cargo
+export PATH="$HOME/.cargo/bin:$PATH"
+
 # Work trunk
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
 
@@ -43,7 +46,6 @@ plugins=(
     autojump
     docker
     poetry
-    pyenv
 )
 
 source $ZSH/oh-my-zsh.sh
