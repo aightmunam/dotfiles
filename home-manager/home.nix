@@ -86,7 +86,6 @@ let
                     # Development tools
                     gh          # GitHub CLI
                     delta       # Better git diff
-                    direnv      # Per-directory env
                     tldr        # Better man pages
                     duf         # Better df
                     difftastic
@@ -126,6 +125,10 @@ let
                 };
                 fzf = {
                     enable = true;
+                };
+                direnv = {
+                    enable = true;          # hooks zsh automatically; replaces autoenv
+                    # nix-direnv.enable = true;  # opt-in: caches `use flake`/`use nix` dev shells
                 };
                 home-manager = {
                     enable = true;

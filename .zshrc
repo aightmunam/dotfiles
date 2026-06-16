@@ -159,3 +159,11 @@ if [ -f "$HOME/.dircolors" ]; then
     eval $(gdircolors -b $HOME/.dircolors)
   fi
 fi
+
+#######################################################
+# direnv (per-directory env; replaces autoenv)
+#######################################################
+
+if hash direnv &>/dev/null; then
+  eval "$(direnv hook zsh)"
+fi
