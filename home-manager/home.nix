@@ -62,7 +62,7 @@ let
                     autojump
                     bat
                     coreutils
-                    du-dust
+                    dust
                     eza
                     fd
                     findutils
