@@ -11,6 +11,15 @@
 skills/*
 !skills/subagent-orchestrator/
 
+# Tool-managed hooks: created/overwritten by their own tools, so not versioned
+# (they'd churn on every tool update). Restored by ./install-hooks.sh:
+#   - rtk-rewrite.sh + .rtk-hook.sha256  <- `rtk init -g --hook-only --no-patch`
+#   - herdr-agent-state.sh               <- `herdr integration install claude`
+# Custom, user-authored hooks in hooks/ stay tracked.
+hooks/rtk-rewrite.sh
+hooks/.rtk-hook.sha256
+hooks/herdr-agent-state.sh
+
 # Claude Code runtime buckets (written into the symlinked config dirs).
 synced/
 **/.claude/

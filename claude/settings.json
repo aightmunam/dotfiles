@@ -25,14 +25,6 @@
             "timeout": 10
           }
         ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/notification.mjs\""
-          }
-        ]
       }
     ],
     "PermissionRequest": [
@@ -117,34 +109,6 @@
             "type": "command",
             "command": "node \"$(npm root -g)/rins_hooks/hooks/code-formatter/index.js\"",
             "timeout": 30
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/post-tool-use.mjs\""
-          }
-        ]
-      }
-    ],
-    "PostToolUseFailure": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/post-tool-failure.mjs\""
-          }
-        ]
-      }
-    ],
-    "PreCompact": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/pre-compact.mjs\""
           }
         ]
       }
@@ -260,36 +224,9 @@
             "command": "bash $HOME/.claude/hooks/memory-write-guard.sh"
           }
         ]
-      },
-      {
-        "matcher": "Edit|Write|Read|Glob|Grep",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/pre-tool-use.mjs\""
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/session-end.mjs\""
-          }
-        ]
       }
     ],
     "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/session-start.mjs\""
-          }
-        ]
-      },
       {
         "matcher": "*",
         "hooks": [
@@ -319,44 +256,6 @@
             "command": "$HOME/.claude/hooks/proof-log-session.sh"
           }
         ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/stop.mjs\""
-          }
-        ]
-      }
-    ],
-    "SubagentStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/subagent-start.mjs\""
-          }
-        ]
-      }
-    ],
-    "SubagentStop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/subagent-stop.mjs\""
-          }
-        ]
-      }
-    ],
-    "TaskCompleted": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/task-completed.mjs\""
-          }
-        ]
       }
     ],
     "UserPromptSubmit": [
@@ -366,14 +265,6 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/prompt-injection-detector.sh"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/prompt-submit.mjs\""
           }
         ]
       }
@@ -419,13 +310,6 @@
     ]
   },
   "mcpServers": {
-    "agentmemory": {
-      "args": [
-        "@agentmemory/mcp"
-      ],
-      "command": "npx",
-      "type": "stdio"
-    },
     "approvals": {
       "args": [
         "mcp",
