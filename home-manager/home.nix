@@ -1,163 +1,153 @@
-{ inputs, username, ... }@flakeContext:
+# Portable home-manager module (macOS + Linux).
+#
+# This is a pure module: the per-system `pkgs` and the `homeManagerConfiguration`
+# wiring live in flake.nix (see `mkHome`). `inputs` and `username` are passed via
+# extraSpecialArgs.
+#
+# Config files are linked with `mkOutOfStoreSymlink`, i.e. they point at the LIVE
+# repo checkout (~/dotfiles), not a read-only copy in the Nix store. Editing any
+# linked file (nvim, wezterm, tmux, zsh, Claude skills/hooks, herdr, ...) takes
+# effect immediately with NO rebuild. `home-manager switch` is only needed to
+# change which paths are linked or which packages/programs are installed.
+{ inputs, username, config, lib, pkgs, ... }:
 let
-    dotfilesDir = builtins.path { path = ../.; };
-    homeModule = { config, lib, pkgs, ... }: {
-        config = {
-            home = {
-                sessionPath = [
-                    "/run/current-system/sw/bin"
-                    "$HOME/.nix-profile/bin"
-                ];
-                sessionVariables = {
-                };
-                file = {
-                    ".dircolors" = {
-                        source = "${dotfilesDir}/.dircolors";
-                    };
-                    ".gitconfig" = {
-                        source = "${dotfilesDir}/git/.gitconfig";
-                    };
-                    ".gitignore_global" = {
-                        source = "${dotfilesDir}/git/.gitignore_global";
-                    };
-                    ".tmux.conf" = {
-                        source = "${dotfilesDir}/tmux/.tmux.conf";
-                    };
-                    ".vimrc" = {
-                        source = "${dotfilesDir}/.vimrc";
-                    };
-                    ".zshrc" = {
-                        source = "${dotfilesDir}/.zshrc";
-                    };
-                    ".zshenv" = {
-                        source = "${dotfilesDir}/.zshenv";
-                    };
-                    ".zsh_functions" = {
-                        source = "${dotfilesDir}/.zsh_functions";
-                    };
-                    ".config/nvim" = {
-                        source = "${dotfilesDir}/nvim";
-                        recursive = true;
-                    };
-                    ".config/wezterm" = {
-                        source = "${dotfilesDir}/wezterm";
-                    };
-                    ".config/aerospace" = {
-                        source = "${dotfilesDir}/aerospace";
-                    };
-                    ".config/nix" = {
-                        source = "${dotfilesDir}/nix";
-                    };
-                    ".config/home-manager" = {
-                        source = "${dotfilesDir}/home-manager";
-                    };
-                    "raycast-scripts" = {
-                        source = "${dotfilesDir}/raycast-scripts";
-                        recursive = true;
-                    };
-                    "Applications/Raycast.app".source = "${pkgs.raycast}/Applications/Raycast.app";
-                };
-                packages = with pkgs; [
-                    # Core CLI tools
-                    autojump
-                    bat
-                    coreutils
-                    dust
-                    eza
-                    fd
-                    findutils
-                    fzf
-                    gawk
-                    gnugrep
-                    gzip
-                    ripgrep
-                    tree
-                    zoxide
-                    aerospace
-                    
-                    # System utilities and networking
-                    curl
-                    btop
-                    mosh
-                    netcat
-                    nmap
-                    wget
-
-                    # Development tools
-                    gh          # GitHub CLI
-                    delta       # Better git diff
-                    tldr        # Better man pages
-                    duf         # Better df
-                    difftastic
-                    git
-                    go
-                    jq
-                    lazygit
-                    lua
-                    pyenv
-                    tmux
-                    reattach-to-user-namespace
-                    tree-sitter
-                    yq
-                    jankyborders 
-
-                    # Terminal and shell
-                    zsh
-                    wezterm
-                    neovim
-                    opencode
-
-                    # Fonts
-                    nerd-fonts._0xproto
-                    nerd-fonts.hack
-                    nerd-fonts.meslo-lg
-                    nerd-fonts.monaspace
-                    nerd-fonts.mononoki
-
-                ];
-                stateVersion = "25.11";
-                username = username;
-                homeDirectory = "/Users/${username}/";
-            };
-            programs = {
-                autojump = {
-                    enable = true;
-                };
-                fzf = {
-                    enable = true;
-                };
-                direnv = {
-                    enable = true;          # hooks zsh automatically; replaces autoenv
-                    # nix-direnv.enable = true;  # opt-in: caches `use flake`/`use nix` dev shells
-                };
-                home-manager = {
-                    enable = true;
-                };
-                zsh = {
-                    enable = true;
-                    initExtra = ''
-                      # Add any additional configurations here
-                      export PATH=/run/current-system/sw/bin:$HOME/.nix-profile/bin:$PATH
-                      if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
-                        . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
-                      fi
-                    '';
-                };
-            };
-        };
-    };
-    nixosModule = { ... }: {
-        home-manager.users.mynixos = homeModule;
-    };
+  isDarwin = pkgs.stdenv.isDarwin;
+  # Absolute path to the live checkout. Assumes the repo is cloned to ~/dotfiles.
+  repoRoot = "${config.home.homeDirectory}/dotfiles";
+  # Link a repo-relative path into $HOME as a writable, out-of-store symlink.
+  link = path: config.lib.file.mkOutOfStoreSymlink "${repoRoot}/${path}";
 in
-    (
-    (
-        inputs.home-manager.lib.homeManagerConfiguration {
-            modules = [
-                homeModule
-            ];
-            pkgs = inputs.nixpkgs.legacyPackages.aarch64-darwin;
-        }
-    ) // { inherit nixosModule;
-    }
-)
+{
+  home = {
+    username = username;
+    homeDirectory = if isDarwin then "/Users/${username}" else "/home/${username}";
+    stateVersion = "25.11";
+
+    sessionPath = [
+      "/run/current-system/sw/bin"
+      "$HOME/.nix-profile/bin"
+    ];
+    sessionVariables = { };
+
+    packages = with pkgs; [
+      # Core CLI tools
+      autojump
+      bat
+      coreutils
+      dust
+      eza
+      fd
+      findutils
+      fzf
+      gawk
+      gnugrep
+      gzip
+      ripgrep
+      tree
+      zoxide
+
+      # System utilities and networking
+      curl
+      btop
+      mosh
+      netcat
+      nmap
+      wget
+
+      # Development tools
+      gh          # GitHub CLI
+      delta       # Better git diff
+      tldr        # Better man pages
+      duf         # Better df
+      difftastic
+      git
+      go
+      jq
+      lazygit
+      lua
+      pyenv
+      tmux
+      tree-sitter
+      yq
+
+      # Terminal and shell
+      zsh
+      wezterm
+      neovim
+      opencode
+
+      # AI coding toolchain
+      herdr       # terminal agent multiplexer (from inputs.herdr overlay)
+      nodejs      # npx-based MCP servers + npx skills (install-skills.sh)
+      uv          # uvx-based MCP servers (ast-editor)
+      pipx        # installs `headroom` (headroom MCP) in the post-install step
+      python3
+      gnupg
+
+      # Fonts
+      nerd-fonts._0xproto
+      nerd-fonts.hack
+      nerd-fonts.meslo-lg
+      nerd-fonts.monaspace
+      nerd-fonts.mononoki
+    ] ++ lib.optionals isDarwin [
+      # macOS-only packages (would fail to evaluate on Linux)
+      aerospace
+      jankyborders
+      reattach-to-user-namespace
+    ];
+
+    file = {
+      # --- Existing dotfiles (now live/out-of-store symlinks) ---
+      ".dircolors".source = link ".dircolors";
+      ".gitconfig".source = link "git/.gitconfig";
+      ".gitignore_global".source = link "git/.gitignore_global";
+      ".tmux.conf".source = link "tmux/.tmux.conf";
+      ".vimrc".source = link ".vimrc";
+      ".zshrc".source = link ".zshrc";
+      ".zshenv".source = link ".zshenv";
+      ".zsh_functions".source = link ".zsh_functions";
+      ".config/nvim".source = link "nvim";
+      ".config/wezterm".source = link "wezterm";
+      ".config/nix".source = link "nix";
+      ".config/home-manager".source = link "home-manager";
+
+      # --- Claude Code (new) ---
+      ".claude/skills".source = link "claude/skills";
+      ".claude/agents".source = link "claude/agents";
+      ".claude/commands".source = link "claude/commands";
+      ".claude/hooks".source = link "claude/hooks";
+      ".claude/output-styles".source = link "claude/output-styles";
+      ".claude/rules".source = link "claude/rules";
+      ".claude/CLAUDE.md".source = link "claude/CLAUDE.md";
+      ".claude/RTK.md".source = link "claude/RTK.md";
+      ".claude/settings.json".source = link "claude/settings.json";
+      ".claude/statusline-command.sh".source = link "claude/statusline-command.sh";
+
+      # --- herdr (new) ---
+      ".config/herdr/config.toml".source = link "herdr/config.toml";
+    } // lib.optionalAttrs isDarwin {
+      # macOS-only files
+      ".config/aerospace".source = link "aerospace";
+      "raycast-scripts".source = link "raycast-scripts";
+      "Applications/Raycast.app".source = "${pkgs.raycast}/Applications/Raycast.app";
+    };
+  };
+
+  programs = {
+    autojump.enable = true;
+    fzf.enable = true;
+    direnv.enable = true;      # hooks zsh automatically; replaces autoenv
+    home-manager.enable = true;
+    zsh = {
+      enable = true;
+      initExtra = ''
+        # Add any additional configurations here
+        export PATH=/run/current-system/sw/bin:$HOME/.nix-profile/bin:$PATH
+        if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
+          . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+        fi
+      '';
+    };
+  };
+}

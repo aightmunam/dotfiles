@@ -1,0 +1,445 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
+  },
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "allow": [],
+    "deny": [],
+    "defaultMode": "auto"
+  },
+  "model": "claude-opus-4-8",
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(npm root -g)/rins_hooks/hooks/notification/index.js\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/notification.mjs\""
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/auto-approve-compound-git.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/prefer-builtin-tools.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/syntax-check.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/context-monitor.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/max-session-duration.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/activity-logger.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/auto-git-checkpoint.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/decision-warn.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(npm root -g)/rins_hooks/hooks/code-formatter/index.js\"",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/post-tool-use.mjs\""
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/post-tool-failure.mjs\""
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/pre-compact.mjs\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/rtk-rewrite.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/auto-approve-readonly.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/auto-approve-test.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/no-sudo-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/protect-claudemd.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/scope-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/skill-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/auto-approve-docker.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/auto-approve-python.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/env-source-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/guard-thoughts.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/guard-test-required.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/destructive-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/branch-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/comment-strip.sh"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/cd-git-allow.sh"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/secret-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/no-ask-human.sh"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/verify-before-done.sh"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/test-before-commit.sh"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/verify-before-commit.sh"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/backup-before-refactor.sh"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/no-claude-attribution.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/memory-write-guard.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|Read|Glob|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/pre-tool-use.mjs\""
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/session-end.mjs\""
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/session-start.mjs\""
+          }
+        ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/herdr-agent-state.sh\" session",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/api-error-alert.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/proof-log-session.sh"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/stop.mjs\""
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/subagent-start.mjs\""
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/subagent-stop.mjs\""
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/task-completed.mjs\""
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/prompt-injection-detector.sh"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(npm root -g)/@agentmemory/agentmemory/plugin/scripts/prompt-submit.mjs\""
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash $HOME/.claude/statusline-command.sh"
+  },
+  "enabledPlugins": {
+    "agent-skills@addy-agent-skills": true,
+    "claude-md-management@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "explanatory-output-style@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "lua-lsp@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "addy-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "addyosmani/agent-skills"
+      }
+    }
+  },
+  "effortLevel": "xhigh",
+  "tui": "fullscreen",
+  "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
+  "skipAutoPermissionPrompt": true,
+  "autoMode": {
+    "allow": [
+      "$defaults"
+    ],
+    "soft_deny": [
+      "$defaults"
+    ]
+  },
+  "mcpServers": {
+    "agentmemory": {
+      "args": [
+        "@agentmemory/mcp"
+      ],
+      "command": "npx",
+      "type": "stdio"
+    },
+    "approvals": {
+      "args": [
+        "mcp",
+        "claude_approvals"
+      ],
+      "command": "humanlayer"
+    },
+    "sentry": {
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.sentry.dev/mcp"
+      ],
+      "command": "npx"
+    }
+  }
+}

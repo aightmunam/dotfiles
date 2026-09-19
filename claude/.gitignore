@@ -1,0 +1,23 @@
+# ---------------------------------------------------------------------------
+# Only CUSTOM (user-authored) config is versioned here. This repo is PUBLIC.
+# ---------------------------------------------------------------------------
+
+# Skills: keep only custom, user-authored skills. Everything else under skills/
+# is one of:
+#   - publicly installable  -> restored by ./install-skills.sh (`npx skills add`)
+#   - Claude runtime state  -> synced/ buckets, etc.
+#   - employer/personal-confidential -> must not be published (public repo)
+# So ignore all skills except the custom ones re-included below.
+skills/*
+!skills/subagent-orchestrator/
+
+# Claude Code runtime buckets (written into the symlinked config dirs).
+synced/
+**/.claude/
+
+# Dependencies / build output (reinstalled).
+**/node_modules/
+
+# Local/runtime noise.
+*.log
+.DS_Store
