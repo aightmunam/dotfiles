@@ -75,7 +75,9 @@ missing).
 - **Excluded skills**: some skills are work-specific or personal-confidential and
   are gitignored (this repo is public). They stay in your live `~/.claude`; keep
   them in a private repo if you want them reproduced across machines.
-- **Hooks**: your custom hooks in `claude/hooks/` are versioned. Tool-managed
-  hooks are not (their tools overwrite them on update): `rtk-rewrite.sh` and
-  `herdr-agent-state.sh` are (re)installed by `claude/install-hooks.sh`
-  (`rtk init` / `herdr integration install claude`), run by `make install`.
+- **Hooks**: your custom hooks in `claude/hooks/` are versioned. Hooks that come
+  from elsewhere are not — `claude/install-hooks.sh` (run by `make install`)
+  restores them: `rtk-rewrite.sh` / `herdr-agent-state.sh` from their own tools
+  (`rtk init` / `herdr integration install claude`), and 12 upstream safety hooks
+  from [`yurukusa/claude-code-hooks`](https://github.com/yurukusa/claude-code-hooks)
+  (fetched pinned; used verbatim).

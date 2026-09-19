@@ -20,6 +20,21 @@ hooks/rtk-rewrite.sh
 hooks/.rtk-hook.sha256
 hooks/herdr-agent-state.sh
 
+# Upstream safety hooks from yurukusa/claude-code-hooks. Fetched (pinned) by
+# install-hooks.sh and used verbatim, so not vendored. Custom hooks stay tracked.
+hooks/activity-logger.sh
+hooks/auto-approve-readonly.sh
+hooks/branch-guard.sh
+hooks/cd-git-allow.sh
+hooks/comment-strip.sh
+hooks/context-monitor.sh
+hooks/decision-warn.sh
+hooks/destructive-guard.sh
+hooks/no-ask-human.sh
+hooks/proof-log-session.sh
+hooks/secret-guard.sh
+hooks/syntax-check.sh
+
 # Claude Code runtime buckets (written into the symlinked config dirs).
 synced/
 **/.claude/
