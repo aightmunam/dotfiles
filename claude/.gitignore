@@ -2,14 +2,10 @@
 # Only CUSTOM (user-authored) config is versioned here. This repo is PUBLIC.
 # ---------------------------------------------------------------------------
 
-# Skills: keep only custom, user-authored skills. Everything else under skills/
-# is one of:
-#   - publicly installable  -> restored by ./install-skills.sh (`npx skills add`)
-#   - Claude runtime state  -> synced/ buckets, etc.
-#   - employer/personal-confidential -> must not be published (public repo)
-# So ignore all skills except the custom ones re-included below.
+# Skills: none are versioned. All are restored by ./install-skills.sh
+# (`npx skills add`), or are Claude runtime/confidential state. A custom,
+# user-authored skill would be re-included here with a `!skills/<name>/` line.
 skills/*
-!skills/subagent-orchestrator/
 
 # Tool-managed hooks: created/overwritten by their own tools, so not versioned
 # (they'd churn on every tool update). Restored by ./install-hooks.sh:

@@ -68,10 +68,9 @@ missing).
 - **MCP servers** are defined in `claude/settings.json` (generic tools only:
   `agentmemory`, `approvals`, `sentry`). Work-specific servers are kept out of
   this public repo; re-add any you need locally with `claude mcp add`.
-- **Skills**: only custom, user-authored skills are versioned (currently
-  `subagent-orchestrator`). Publicly available skills are not vendored — they are
-  installed by `claude/install-skills.sh` (via `npx skills`), which `make install`
-  runs automatically.
+- **Skills**: none are vendored — all are installed by `claude/install-skills.sh`
+  (via `npx skills`), which `make install` runs automatically. Edit that script's
+  list to add or remove skills.
 - **Excluded skills**: some skills are work-specific or personal-confidential and
   are gitignored (this repo is public). They stay in your live `~/.claude`; keep
   them in a private repo if you want them reproduced across machines.
