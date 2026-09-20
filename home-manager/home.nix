@@ -16,6 +16,9 @@ let
   repoRoot = "${config.home.homeDirectory}/dotfiles";
   # Link a repo-relative path into $HOME as a writable, out-of-store symlink.
   link = path: config.lib.file.mkOutOfStoreSymlink "${repoRoot}/${path}";
+  # Store-copy a repo-relative file (needs `make build` to pick up edits). Used
+  # only for files that home-manager's own modules co-manage (see zsh note).
+  copy = relpath: name: builtins.path { path = "${repoRoot}/${relpath}"; inherit name; };
 in
 {
   home = {
@@ -104,8 +107,13 @@ in
       ".gitignore_global".source = link "git/.gitignore_global";
       ".tmux.conf".source = link "tmux/.tmux.conf";
       ".vimrc".source = link ".vimrc";
-      ".zshrc".source = link ".zshrc";
-      ".zshenv".source = link ".zshenv";
+      # .zshrc/.zshenv are store-copied, NOT out-of-store symlinked: home-manager's
+      # programs.zsh co-manages them, and an out-of-store symlink fails the build
+      # ("Error installing file outside $HOME"). Editing these two needs
+      # `make build`. .zsh_functions is your own file (not touched by the zsh
+      # module), so it stays live-editable.
+      ".zshrc".source = copy ".zshrc" "zshrc";
+      ".zshenv".source = copy ".zshenv" "zshenv";
       ".zsh_functions".source = link ".zsh_functions";
       ".config/nvim".source = link "nvim";
       ".config/wezterm".source = link "wezterm";
