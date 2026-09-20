@@ -4,31 +4,77 @@ Cross-platform (macOS + Linux) dev environment, managed with Nix + home-manager.
 Covers the shell, editors, terminal, window manager **and** the AI-coding
 toolchain (Claude Code, herdr, rtk).
 
-## One-command setup
+## Setup
 
-On a fresh machine:
+The whole environment installs with **one command** on a fresh machine. Clone to
+`~/dotfiles` — the path matters, because every config file is symlinked out of
+this checkout:
 
 ```sh
-# 1. Prerequisites: git, and on macOS the Xcode command line tools
-#    (macOS)  xcode-select --install
-# 2. Clone to ~/dotfiles (the path matters — config is symlinked from here)
 git clone https://github.com/aightmunam/dotfiles.git ~/dotfiles
 cd ~/dotfiles
-# 3. Stand everything up
 make install
 ```
 
-`make install` will:
+`make install` runs three steps (each also available on its own):
 
-1. Install Nix (with flakes) if it is missing.
-2. Apply the home-manager config for this machine — it auto-selects the right
-   system (`aarch64-darwin`, `x86_64-linux`, `aarch64-linux`, ...) from `uname`.
-3. Run the non-Nix post-install: `rtk` (its official installer), the global npm
-   packages the Claude hooks need (`rins_hooks`, `@agentmemory/agentmemory`),
-   `headroom` (via `pipx`), and scaffold `~/.zshenv.local` for secrets.
+1. **`make setup`** — installs Nix with flakes enabled, if it is missing.
+2. **`make build`** — applies the home-manager config, auto-selecting the system
+   (`aarch64-darwin`, `x86_64-darwin`, `x86_64-linux`, `aarch64-linux`) from
+   `uname`.
+3. **`make post-install`** — the non-Nix bits: `rtk` (its official installer),
+   the global npm package the Claude hooks need (`rins_hooks`), `headroom` (via
+   `pipx`), the installable Claude skills (`npx skills`), the tool-managed and
+   upstream Claude hooks, and a scaffolded `~/.zshenv.local` for secrets.
 
-Then: fill in `~/.zshenv.local`, restart your shell, and launch Claude Code once
-(it auto-installs its plugins from `settings.json`).
+### macOS
+
+```sh
+# 1. Command line tools (gives you git + a compiler toolchain)
+xcode-select --install
+
+# 2. Clone and install
+git clone https://github.com/aightmunam/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+make install
+```
+
+- Nix installs multi-user via a launchd-managed daemon; the installer prompts for
+  confirmation and your password.
+- Nerd Fonts land in `~/Library/Fonts` automatically.
+- The macOS-only pieces (AeroSpace, JankyBorders, Raycast scripts) are linked
+  only on Darwin.
+- Homebrew is **not** required — everything here is managed by Nix. `.zshrc`
+  picks up an existing Homebrew if you have one, but nothing depends on it.
+
+### Linux
+
+```sh
+# 1. Prerequisites (Debian/Ubuntu shown; use your distro's package manager)
+sudo apt-get update && sudo apt-get install -y git curl xz-utils
+
+# 2. Clone and install
+git clone https://github.com/aightmunam/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+make install
+```
+
+- Nix installs multi-user, which needs **systemd** (present on all mainstream
+  desktop distros). A minimal/container environment without an init system needs
+  a single-user install instead:
+  `sh <(curl -L https://nixos.org/nix/install) --no-daemon`.
+- The macOS-only packages are skipped automatically.
+- The first build compiles **herdr** from source (its vendored Zig
+  `libghostty-vt`), which is memory-hungry: give the machine or VM **at least
+  ~4 GB of free RAM (8 GB is comfortable)**. A 2 GB environment OOM-kills the Zig
+  build. Everything else comes prebuilt from the binary cache and is cheap.
+
+### After setup (both platforms)
+
+1. Fill in `~/.zshenv.local` with any machine-local secrets/overrides.
+2. Restart your shell (`exec zsh`). To make zsh your login shell:
+   `chsh -s "$(command -v zsh)"`.
+3. Launch Claude Code once — it auto-installs its plugins from `settings.json`.
 
 Other targets: `make setup`, `make build`, `make post-install`, `make help`.
 
@@ -66,8 +112,8 @@ missing).
 - **rtk** has no Nix flake, so it is installed by its own cross-platform script in
   `make post-install`. Re-running the script updates it.
 - **MCP servers** are defined in `claude/settings.json` (generic tools only:
-  `agentmemory`, `approvals`, `sentry`). Work-specific servers are kept out of
-  this public repo; re-add any you need locally with `claude mcp add`.
+  `approvals`, `sentry`). Work-specific servers are kept out of this public repo;
+  re-add any you need locally with `claude mcp add`.
 - **Skills**: none are vendored — all are installed by `claude/install-skills.sh`
   (via `npx skills`), which `make install` runs automatically. Edit that script's
   list to add or remove skills.
