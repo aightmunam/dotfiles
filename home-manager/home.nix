@@ -16,9 +16,6 @@ let
   repoRoot = "${config.home.homeDirectory}/dotfiles";
   # Link a repo-relative path into $HOME as a writable, out-of-store symlink.
   link = path: config.lib.file.mkOutOfStoreSymlink "${repoRoot}/${path}";
-  # Store-copy a repo-relative file (needs `make build` to pick up edits). Used
-  # only for files that home-manager's own modules co-manage (see zsh note).
-  copy = relpath: name: builtins.path { path = "${repoRoot}/${relpath}"; inherit name; };
 in
 {
   home = {
@@ -63,6 +60,7 @@ in
       tldr        # Better man pages
       duf         # Better df
       difftastic
+      direnv      # per-directory env (hooked directly in .zshrc)
       git
       go
       jq
@@ -107,13 +105,11 @@ in
       ".gitignore_global".source = link "git/.gitignore_global";
       ".tmux.conf".source = link "tmux/.tmux.conf";
       ".vimrc".source = link ".vimrc";
-      # .zshrc/.zshenv are store-copied, NOT out-of-store symlinked: home-manager's
-      # programs.zsh co-manages them, and an out-of-store symlink fails the build
-      # ("Error installing file outside $HOME"). Editing these two needs
-      # `make build`. .zsh_functions is your own file (not touched by the zsh
-      # module), so it stays live-editable.
-      ".zshrc".source = copy ".zshrc" "zshrc";
-      ".zshenv".source = copy ".zshenv" "zshenv";
+      # zsh files are live symlinks like everything else: the .zshrc self-manages
+      # all shell integration (p10k, oh-my-zsh, fzf, zoxide, direnv, nix PATH), so
+      # home-manager's programs.zsh is not used and there is no ownership conflict.
+      ".zshrc".source = link ".zshrc";
+      ".zshenv".source = link ".zshenv";
       ".zsh_functions".source = link ".zsh_functions";
       ".config/nvim".source = link "nvim";
       ".config/wezterm".source = link "wezterm";
@@ -142,20 +138,9 @@ in
     };
   };
 
-  programs = {
-    autojump.enable = true;
-    fzf.enable = true;
-    direnv.enable = true;      # hooks zsh automatically; replaces autoenv
-    home-manager.enable = true;
-    zsh = {
-      enable = true;
-      initExtra = ''
-        # Add any additional configurations here
-        export PATH=/run/current-system/sw/bin:$HOME/.nix-profile/bin:$PATH
-        if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
-          . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
-        fi
-      '';
-    };
-  };
+  # home-manager manages itself. All shell integration (zsh, fzf, direnv, autojump,
+  # zoxide, nix PATH) is handled directly in the live .zshrc, so no program modules
+  # are used for it — they only generated init that .zshrc already overrides. Their
+  # binaries come from home.packages above.
+  programs.home-manager.enable = true;
 }
