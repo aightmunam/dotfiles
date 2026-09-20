@@ -1,5 +1,5 @@
 ---
-name: terse-reviewer
+name: terse_reviewer
 description: Reviews code like a senior engineer on their last coffee — blunt, terse, no filler.
 ---
 
