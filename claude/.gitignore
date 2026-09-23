@@ -1,0 +1,65 @@
+# ---------------------------------------------------------------------------
+# Only CUSTOM (user-authored) config is versioned here. This repo is PUBLIC.
+# ---------------------------------------------------------------------------
+
+# Skills: none are versioned. All are restored by ./install-skills.sh
+# (`npx skills add`), or are Claude runtime/confidential state. A custom,
+# user-authored skill would be re-included here with a `!skills/<name>/` line.
+skills/*
+
+# Tool-managed hooks: created/overwritten by their own tools, so not versioned
+# (they'd churn on every tool update). Restored by ./install-hooks.sh:
+#   - rtk-rewrite.sh + .rtk-hook.sha256  <- `rtk init -g --hook-only --no-patch`
+#   - herdr-agent-state.sh               <- `herdr integration install claude`
+# Custom, user-authored hooks in hooks/ stay tracked.
+hooks/rtk-rewrite.sh
+hooks/.rtk-hook.sha256
+hooks/herdr-agent-state.sh
+
+# Upstream safety hooks, fetched (pinned) by install-hooks.sh and used verbatim,
+# so not vendored. Custom, user-authored hooks stay tracked.
+# From yurukusa/claude-code-hooks:
+hooks/activity-logger.sh
+hooks/auto-approve-readonly.sh
+hooks/branch-guard.sh
+hooks/cd-git-allow.sh
+hooks/comment-strip.sh
+hooks/context-monitor.sh
+hooks/decision-warn.sh
+hooks/destructive-guard.sh
+hooks/no-ask-human.sh
+hooks/proof-log-session.sh
+hooks/secret-guard.sh
+hooks/syntax-check.sh
+# From yurukusa/cc-safe-setup:
+hooks/auto-approve-compound-git.sh
+hooks/auto-approve-docker.sh
+hooks/auto-approve-python.sh
+hooks/auto-approve-test.sh
+hooks/auto-git-checkpoint.sh
+hooks/backup-before-refactor.sh
+hooks/env-source-guard.sh
+hooks/loop-detector.sh
+hooks/max-session-duration.sh
+hooks/memory-write-guard.sh
+hooks/no-sudo-guard.sh
+hooks/notify-waiting.sh
+hooks/prefer-builtin-tools.sh
+hooks/prompt-injection-detector.sh
+hooks/protect-claudemd.sh
+hooks/scope-guard.sh
+hooks/skill-gate.sh
+hooks/test-before-commit.sh
+hooks/verify-before-commit.sh
+hooks/verify-before-done.sh
+
+# Claude Code runtime buckets (written into the symlinked config dirs).
+synced/
+**/.claude/
+
+# Dependencies / build output (reinstalled).
+**/node_modules/
+
+# Local/runtime noise.
+*.log
+.DS_Store
