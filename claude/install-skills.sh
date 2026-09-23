@@ -14,6 +14,12 @@ if ! command -v npx >/dev/null 2>&1; then
   exit 1
 fi
 
+# The repo's skills dir must exist so ~/.claude/skills (an out-of-store symlink to
+# it) resolves to a real directory: `npx skills add` mkdir's entries into it, and a
+# dangling symlink fails with ENOTDIR. `mkdir -p` is a no-op when the directory
+# already exists, so this never clobbers already-installed skills.
+mkdir -p "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/skills"
+
 # "owner/repo:skill" — sources verified on https://skills.sh. Curated to the
 # skills actually in use (unused ones pruned; re-add a line to bring one back).
 SKILLS=(

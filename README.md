@@ -68,6 +68,10 @@ make install
   `libghostty-vt`), which is memory-hungry: give the machine or VM **at least
   ~4 GB of free RAM (8 GB is comfortable)**. A 2 GB environment OOM-kills the Zig
   build. Everything else comes prebuilt from the binary cache and is cheap.
+- **rtk** ships a prebuilt Linux binary that needs **glibc ≥ 2.39** (Ubuntu
+  24.04+, Debian 13+, Fedora 39+). On older distros it fails with a
+  `GLIBC_2.39 not found` error; post-install keeps going (rtk is best-effort), but
+  rtk's command-rewrite hook is skipped until you upgrade or build rtk from source.
 
 ### After setup (both platforms)
 

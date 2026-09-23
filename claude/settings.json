@@ -21,7 +21,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$(npm root -g)/rins_hooks/hooks/notification/index.js\"",
+            "command": "rh=\"$HOME/.claude/npm/lib/node_modules/rins_hooks\"; [ -f \"$rh/hooks/notification/index.js\" ] || rh=\"$(npm root -g)/rins_hooks\"; node \"$rh/hooks/notification/index.js\"",
             "timeout": 10
           }
         ]
@@ -107,7 +107,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$(npm root -g)/rins_hooks/hooks/code-formatter/index.js\"",
+            "command": "rh=\"$HOME/.claude/npm/lib/node_modules/rins_hooks\"; [ -f \"$rh/hooks/code-formatter/index.js\" ] || rh=\"$(npm root -g)/rins_hooks\"; node \"$rh/hooks/code-formatter/index.js\"",
             "timeout": 30
           }
         ]

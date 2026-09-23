@@ -63,7 +63,8 @@ post-install:
 	echo "-> rtk (no Nix flake; official installer)"; \
 	command -v rtk >/dev/null 2>&1 || curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/master/install.sh | sh || echo "⚠️  rtk install failed — see https://www.rtk-ai.app/"; \
 	echo "-> global npm packages used by Claude hooks"; \
-	npm install -g rins_hooks >/dev/null 2>&1 || echo "⚠️  'npm install -g rins_hooks' failed — run manually"; \
+	mkdir -p "$$HOME/.claude/npm"; \
+	npm install -g rins_hooks --prefix "$$HOME/.claude/npm" >/dev/null 2>&1 || echo "⚠️  'npm install -g rins_hooks' failed — run manually"; \
 	echo "-> headroom MCP (pipx)"; \
 	command -v headroom >/dev/null 2>&1 || pipx install headroom >/dev/null 2>&1 || echo "⚠️  'pipx install headroom' failed — confirm the package name and install manually"; \
 	echo "-> installable Claude skills (npx skills)"; \
