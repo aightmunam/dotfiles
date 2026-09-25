@@ -1,4 +1,4 @@
-.PHONY: setup build install post-install help
+.PHONY: setup build install post-install verify-ai help
 
 # --- Select the home-manager configuration for this machine --------------------
 UNAME_S := $(shell uname -s)
@@ -22,6 +22,7 @@ help:
 	@echo "make setup     - install Nix with flakes support (if missing)"
 	@echo "make build     - apply the home-manager config for this machine ($(HM_CONFIG))"
 	@echo "make post-install - install non-Nix bits (rtk, headroom, npm hook deps) + scaffold secrets"
+	@echo "make verify-ai - check Gemini/Codex instruction+skills symlinks and MCP wiring"
 
 # One command to stand the whole environment up on a fresh machine.
 install: setup build post-install
@@ -71,6 +72,8 @@ post-install:
 	bash ai/install-skills.sh || echo "⚠️  some skills failed — re-run: bash ai/install-skills.sh"; \
 	echo "-> tool-managed hooks (rtk / herdr)"; \
 	bash ai/install-hooks.sh || echo "⚠️  some hooks failed — re-run: bash ai/install-hooks.sh"; \
+	echo "-> cross-tool wiring (Gemini/Codex symlinks + MCP fan-out)"; \
+	bash ai/generate.sh || echo "⚠️  cross-tool wiring failed — re-run: bash ai/generate.sh"; \
 	echo "-> secrets scaffold"; \
 	if [ -f "$$HOME/.zshenv.local" ]; then \
 		echo "   ~/.zshenv.local already exists — leaving it untouched."; \
@@ -78,3 +81,7 @@ post-install:
 		cp zshenv.local.example "$$HOME/.zshenv.local"; \
 		echo "   created ~/.zshenv.local from template — fill in your real secrets."; \
 	fi
+
+# Drift check: confirm cross-tool config reaches Gemini and Codex.
+verify-ai:
+	@bash ai/verify.sh
