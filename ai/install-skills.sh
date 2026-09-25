@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 #
-# Install the third-party Claude Code skills that are NOT versioned in this repo.
-# They are publicly available via the `npx skills` CLI (https://skills.sh) and
-# install into ~/.claude/skills (which this repo symlinks). Nothing under
-# claude/skills/ is git-tracked; this script is the source of truth for skills.
+# Install the third-party agent skills that are NOT versioned in this repo. They
+# are publicly available via the `npx skills` CLI (https://skills.sh) and install
+# into the shared ~/.agents/skills store, which Claude Code, Gemini CLI, and Codex
+# CLI all symlink to (see ai/generate.sh + home-manager). Nothing installed here
+# is git-tracked; this script is the source of truth for third-party skills.
 #
 # Idempotent: re-running installs/updates. Run standalone or via `make install`.
 # Requires Node (npx) — provided by home-manager (`make build`).
@@ -14,11 +15,11 @@ if ! command -v npx >/dev/null 2>&1; then
   exit 1
 fi
 
-# The repo's skills dir must exist so ~/.claude/skills (an out-of-store symlink to
-# it) resolves to a real directory: `npx skills add` mkdir's entries into it, and a
-# dangling symlink fails with ENOTDIR. `mkdir -p` is a no-op when the directory
-# already exists, so this never clobbers already-installed skills.
-mkdir -p "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/skills"
+# The shared cross-tool store must exist so each tool's skills dir (a whole-dir
+# symlink to it) resolves: `npx skills add -g` installs the canonical copy here,
+# and a dangling target fails with ENOTDIR. `mkdir -p` is a no-op when it already
+# exists, so this never clobbers already-installed skills.
+mkdir -p "$HOME/.agents/skills"
 
 # "owner/repo:skill" — sources verified on https://skills.sh. Curated to the
 # skills actually in use (unused ones pruned; re-add a line to bring one back).
@@ -43,6 +44,6 @@ for entry in "${SKILLS[@]}"; do
 done
 
 if [ "$fail" -ne 0 ]; then
-  echo "Some skills failed to install. Re-run: ./claude/install-skills.sh" >&2
+  echo "Some skills failed to install. Re-run: ./ai/install-skills.sh" >&2
   exit 1
 fi
