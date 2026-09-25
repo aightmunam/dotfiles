@@ -123,10 +123,8 @@ in
       ".claude/agents".source = link "ai/agents";
       ".claude/hooks".source = link "ai/claude/hooks";
       ".claude/output-styles".source = link "ai/claude/output-styles";
-      ".claude/rules".source = link "ai/claude/rules";
       ".claude/CLAUDE.md".source = link "ai/claude/CLAUDE.md";
       ".claude/AGENTS.md".source = link "ai/AGENTS.md";
-      ".claude/RTK.md".source = link "ai/claude/RTK.md";
       ".claude/settings.json".source = link "ai/claude/settings.json";
       ".claude/statusline-command.sh".source = link "ai/claude/statusline-command.sh";
 
