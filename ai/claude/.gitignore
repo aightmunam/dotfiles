@@ -2,11 +2,6 @@
 # Only CUSTOM (user-authored) config is versioned here. This repo is PUBLIC.
 # ---------------------------------------------------------------------------
 
-# Skills: none are versioned. All are restored by ./install-skills.sh
-# (`npx skills add`), or are Claude runtime/confidential state. A custom,
-# user-authored skill would be re-included here with a `!skills/<name>/` line.
-skills/*
-
 # Tool-managed hooks: created/overwritten by their own tools, so not versioned
 # (they'd churn on every tool update). Restored by ./install-hooks.sh:
 #   - rtk-rewrite.sh + .rtk-hook.sha256  <- `rtk init -g --hook-only --no-patch`

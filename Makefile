@@ -68,9 +68,9 @@ post-install:
 	echo "-> headroom MCP (pipx)"; \
 	command -v headroom >/dev/null 2>&1 || pipx install headroom >/dev/null 2>&1 || echo "⚠️  'pipx install headroom' failed — confirm the package name and install manually"; \
 	echo "-> installable Claude skills (npx skills)"; \
-	bash claude/install-skills.sh || echo "⚠️  some skills failed — re-run: bash claude/install-skills.sh"; \
+	bash ai/install-skills.sh || echo "⚠️  some skills failed — re-run: bash ai/install-skills.sh"; \
 	echo "-> tool-managed hooks (rtk / herdr)"; \
-	bash claude/install-hooks.sh || echo "⚠️  some hooks failed — re-run: bash claude/install-hooks.sh"; \
+	bash ai/install-hooks.sh || echo "⚠️  some hooks failed — re-run: bash ai/install-hooks.sh"; \
 	echo "-> secrets scaffold"; \
 	if [ -f "$$HOME/.zshenv.local" ]; then \
 		echo "   ~/.zshenv.local already exists — leaving it untouched."; \
