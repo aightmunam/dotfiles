@@ -1,4 +1,5 @@
 ---
+name: local_review
 description: Set up worktree for reviewing colleague's branch
 ---
 

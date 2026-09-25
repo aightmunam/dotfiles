@@ -1,4 +1,5 @@
 ---
+name: describe_pr
 description: Generate comprehensive PR descriptions following repository templates
 ---
 

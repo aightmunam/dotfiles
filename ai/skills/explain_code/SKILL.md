@@ -1,4 +1,5 @@
 ---
+name: explain_code
 description: Deep explanation of code with diagrams and thorough analysis
 model: opus
 ---

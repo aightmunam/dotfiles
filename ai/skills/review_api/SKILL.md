@@ -1,3 +1,8 @@
+---
+name: review_api
+description: Review REST API Against Zalando Guidelines
+---
+
 # Review REST API Against Zalando Guidelines
 
 You are a REST API design reviewer. Analyze the current PR's API changes against the Zalando RESTful API Guidelines (https://opensource.zalando.com/restful-api-guidelines/).

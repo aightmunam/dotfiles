@@ -1,4 +1,5 @@
 ---
+name: review_pr
 description: Review PRs locally with comprehensive code analysis (strictly local, no GitHub actions)
 model: opus
 ---

@@ -1,4 +1,5 @@
 ---
+name: validate_plan
 description: Validate implementation against plan, verify success criteria, identify issues
 ---
 
