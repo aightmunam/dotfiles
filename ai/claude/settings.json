@@ -303,22 +303,5 @@
     "soft_deny": [
       "$defaults"
     ]
-  },
-  "mcpServers": {
-    "approvals": {
-      "args": [
-        "mcp",
-        "claude_approvals"
-      ],
-      "command": "humanlayer"
-    },
-    "sentry": {
-      "args": [
-        "-y",
-        "mcp-remote",
-        "https://mcp.sentry.dev/mcp"
-      ],
-      "command": "npx"
-    }
   }
 }
