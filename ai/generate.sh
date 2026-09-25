@@ -50,7 +50,9 @@ if [ -d "$AI/skills" ]; then
     body="$(awk 'f{print} /^---[[:space:]]*$/{c++; if(c==2) f=1}' "$skill")"
     {
       printf 'description = "%s"\n' "${desc:-$name}"
-      printf 'prompt = """\n%s\n"""\n' "$body"
+      # TOML literal (''') multiline: no escape processing, so backslashes in
+      # prompt bodies (e.g. regex \d) stay literal instead of breaking the parse.
+      printf "prompt = '''\n%s\n'''\n" "$body"
     } > "$HOME/.gemini/commands/$name.toml"
   done
 fi

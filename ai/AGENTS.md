@@ -33,10 +33,10 @@ Steps:
 A token-optimizing CLI proxy (60-90% savings on dev operations).
 
 Meta commands, run directly:
-- `rtk gain` — token-savings analytics
-- `rtk gain --history` — command usage history with savings
-- `rtk discover` — analyze history for missed opportunities
-- `rtk proxy <cmd>` — run a raw command without filtering (debugging)
+- `rtk gain`: token-savings analytics
+- `rtk gain --history`: command usage history with savings
+- `rtk discover`: analyze history for missed opportunities
+- `rtk proxy <cmd>`: run a raw command without filtering (debugging)
 
 Verify install: `rtk --version`, `rtk gain`, `which rtk`. Name collision: if
 `rtk gain` fails you may have reachingforthejack/rtk (Rust Type Kit) installed
