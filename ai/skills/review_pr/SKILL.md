@@ -74,31 +74,69 @@ Before diving into code quality, always establish **what** the feature does befo
 
 1. **Capture the diff ONCE (orchestrator step — the command has Bash; the analyst agents do not).** Run `gh pr diff [PR_NUMBER] --repo [owner/repo]` and save it to a temp file OUTSIDE the repo (your scratchpad) as `[DIFF_PATH]`. Do NOT use `git diff main...HEAD` — the worktree's local `main` may be stale and over-report. You already have the changed-file list and PR body from Step 1.
 
-2. Spawn **2 parallel Task agents** using **`codebase-analyzer`** (keep it — it Reads/Greps the code, which is exactly the job; do NOT downgrade to a generic agent), each with `Working directory: [worktree_path]`. Pass each agent the `[DIFF_PATH]`, the changed-file list, and (for the What-analyst) the PR body text — the agent **Reads** those and the source files; it never runs `git`/`gh`. If an agent returns empty or does no work (0 tool uses), re-dispatch it before continuing:
+2. Spawn **2 parallel Task agents** using **`codebase-analyzer`** (keep it — it Reads/Greps the code, which is exactly the job; do NOT downgrade to a generic agent), each with `Working directory: [worktree_path]`. Pass each agent the `[DIFF_PATH]`, the changed-file list, (for the What-analyst) the PR body text, AND the **Mermaid rules block** below verbatim — the agent **Reads** those and the source files; it never runs `git`/`gh`. If an agent returns empty or does no work (0 tool uses), re-dispatch it before continuing.
+
+   **Mermaid rules block (include verbatim in BOTH analyst prompts):**
+   ```
+   MERMAID RULES (the review viewer renders ```mermaid fences with mermaid 10.9.1):
+   - Allowed diagram types: flowchart, sequenceDiagram, stateDiagram-v2, erDiagram, classDiagram.
+     Do not use architecture-beta, block-beta, packet, kanban, or any v11-only type — they will
+     render as an error box.
+   - Wrap every node label containing ( ) { } [ ] : ; or quotes in double quotes: A["fetch(url)"].
+   - Keep each diagram ≤ 15 nodes / ≤ 12 sequence messages. Two small diagrams beat one huge one.
+   - Label every edge that carries meaning: A -->|"on save"| B.
+   - In sequenceDiagram, participant IDs must not be mermaid keywords (matched case-insensitively):
+     links, link, properties, details, box, note, loop, alt, opt, par, and, rect, activate,
+     deactivate, autonumber, participant, actor. E.g. `participant Links` breaks the parser —
+     use `participant Permalink as data/links.py` instead.
+   - Diagrams must reflect the ACTUAL code you read — real module/function/file names, not
+     generic boxes like "Frontend" → "Backend".
+   ```
 
    **What-analyst:**
    ```
    Determine WHAT this PR does from a product / user-facing perspective.
    1. The PR title and body are provided here: [PR_BODY]. Read them fully.
    2. Read the authoritative PR diff at [DIFF_PATH], then Read the changed files AND their tests (listed in [CHANGED_FILES]). Do NOT run git/gh — everything you need is on disk.
-   3. Explain in plain language: what can a user now do that they couldn't before?
-   4. Identify before → after behavior, entry points, and any UI/API surface changes.
-   5. Note any screenshots, mockups, or examples referenced in the PR body.
-   Return a structured narrative of the feature's behavior and intent (NO implementation detail).
+   3. Note any screenshots, mockups, or examples referenced in the PR body.
+
+   [MERMAID RULES BLOCK HERE]
+
+   Return EXACTLY these four parts, in order (NO implementation detail anywhere):
+   a) TL;DR — 2-4 sentences in plain language: what can a user now do that they couldn't before?
+   b) Before / After table — one row per behavior that changed:
+      | Scenario | Before this PR | After this PR |
+   c) User-flow diagram — a ```mermaid flowchart of the primary user/consumer journey through
+      the NEW behavior: entry point (UI action, API call, CLI command, event) → key decision
+      points → outcome. Mark new/changed steps visually (e.g. suffix the label with " (new)").
+      If the PR changes a request/response lifecycle, use a sequenceDiagram instead.
+   d) Surface changes — bullets ONLY for UI/API/CLI/config surface changes and anything
+      referenced in the PR body (screenshots, examples). Max 6 bullets.
    ```
 
    **How-analyst:**
    ```
    Determine HOW this PR is implemented.
    1. Read the authoritative PR diff at [DIFF_PATH] (do NOT run git/gh). The changed files are listed in [CHANGED_FILES]; Read them from the worktree for full context.
-   2. Map the architecture: which layers/modules changed and how they connect.
-   3. Trace the primary data/control flow through the changed code.
-   4. List the key files and functions in the order a reader should follow them.
-   5. Note new dependencies, data-model / API-contract changes, and notable design choices.
-   Return a structured implementation walkthrough.
+   2. Map the architecture, trace the primary data/control flow, and note dependencies,
+      data-model / API-contract changes, and notable design choices.
+
+   [MERMAID RULES BLOCK HERE]
+
+   Return EXACTLY these five parts, in order:
+   a) Architecture diagram — a ```mermaid flowchart of the modules/layers this PR touches and
+      how they connect. Use subgraphs for layers (e.g. api / service / db). Distinguish
+      changed vs merely-touched nodes (suffix labels: " (new)", " (modified)").
+   b) Primary flow — a ```mermaid sequenceDiagram tracing the main data/control flow through
+      the changed code, using real function/module names from the diff.
+   c) Reading order table — the order a reviewer should read the code:
+      | # | File | What to look at |
+   d) Data-model / contract changes — a ```mermaid erDiagram if the PR changes models,
+      schemas, or API contracts; the single line "No data-model or contract changes." if not.
+   e) Design notes — max 8 bullets: new dependencies, notable design choices, trade-offs.
    ```
 
-3. **Keep both narratives** — the What-analyst's return value becomes the review document's `# What was done` section; the How-analyst's return value becomes `# How it was done` (Step 6 writes them in verbatim, lightly edited for markdown flow).
+3. **Keep both returns intact** — the What-analyst's four parts become the review document's `# What was done` section; the How-analyst's five parts become `# How it was done` (Step 6 writes them in verbatim, lightly edited for markdown flow — diagrams and tables are the substance of these sections, prose is the connective tissue).
 
 ### Step 4: Comprehensive Code Review
 
@@ -245,11 +283,41 @@ status: review_complete
 
 # What was done
 
-[What-analyst narrative from Step 3 — product/user-facing. Markdown prose, tables, lists; mermaid diagrams are OK.]
+[2-4 sentence TL;DR from the What-analyst.]
+
+## Before / After
+
+[Before/After table from the What-analyst.]
+
+## User flow
+
+[```mermaid user-flow diagram from the What-analyst.]
+
+## Surface changes
+
+[Surface-change bullets from the What-analyst, if any.]
 
 # How it was done
 
-[How-analyst narrative from Step 3 — implementation walkthrough + "read the code in this order" list.]
+## Architecture
+
+[```mermaid architecture flowchart from the How-analyst.]
+
+## Primary flow
+
+[```mermaid sequenceDiagram from the How-analyst.]
+
+## Read the code in this order
+
+[Reading-order table from the How-analyst.]
+
+## Data model / contracts
+
+[```mermaid erDiagram from the How-analyst, or "No data-model or contract changes."]
+
+## Design notes
+
+[Design-note bullets from the How-analyst.]
 
 # Review findings
 
@@ -305,6 +373,8 @@ side: RIGHT
 - `# Automated checks` and `# Questions for author` are H1 sections (NOT `##`) so the viewer's H1 section-splitter captures them. Same for `# Summary`, `# What was done`, `# How it was done`, `# Review findings`.
 - Every finding field the GitHub pending-comment needs — `file`, `line`, `side` — must be accurate to the diff.
 - Set `verdict` in the frontmatter to `approve`, `request_changes`, or `comment` based on the consolidated findings (Critical/High present → `request_changes`; otherwise `approve` or `comment` as appropriate).
+- **Mermaid**: the viewer renders ```` ```mermaid ```` fences with **mermaid 10.9.1** (vendored, works inside finding bodies too). `# What was done` MUST contain the Before/After table and the user-flow diagram; `# How it was done` MUST contain the architecture flowchart, the sequenceDiagram, and the reading-order table. The `##` sub-headings inside these two sections are fine — the viewer splits sections on H1 only.
+- **Before writing the document**, sanity-check every mermaid block against the Step 3 Mermaid rules: allowed type (flowchart / sequenceDiagram / stateDiagram-v2 / erDiagram / classDiagram), special characters in labels quoted, ≤ 15 nodes. A diagram that fails to parse renders as an error box in the viewer — fix it, never delete the slot. If `mmdc` is on PATH, you may validate with `mmdc -i block.mmd -o /dev/null` from the scratchpad.
 
 ### Step 7: Sync and Present Review
 
@@ -359,7 +429,7 @@ If the user has follow-up questions or wants additional analysis:
 - User must manually share feedback with PR author (or use the review-viewer's staging flow)
 - Always remind user that no GitHub actions were taken
 - Run all 5 review agents in parallel for efficiency
-- **PR feature walkthrough (Step 3)**: always runs, no opt-in gate; the What-analyst and How-analyst narratives feed the review document's `# What was done` / `# How it was done` sections directly
+- **PR feature walkthrough (Step 3)**: always runs, no opt-in gate; the What-analyst and How-analyst returns feed the review document's `# What was done` / `# How it was done` sections directly. These sections are **diagram-first**: mermaid diagrams and tables carry the content, prose only connects them
 - Always sync thoughts directory after writing the review document
 - **File reading**: When reviewing PR details or related files, read them FULLY (no limit/offset parameters)
 - **Critical ordering**: Follow the numbered steps exactly
