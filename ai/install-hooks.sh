@@ -86,6 +86,75 @@ fetch_hooks "yurukusa/cc-safe-setup @ ${CCS_REF:0:7}" \
   prompt-injection-detector.sh protect-claudemd.sh scope-guard.sh skill-gate.sh \
   test-before-commit.sh verify-before-commit.sh verify-before-done.sh
 
+# --- portability patches -----------------------------------------------------
+# The pinned upstreams use GNU-only `stat -c %Y`; macOS ships BSD stat, which
+# rejects -c, and the `|| echo 0` fallback then silently yields mtime 0. In
+# verify-before-commit.sh that makes every test marker look epoch-old, so the
+# guard fail-closes and blocks EVERY commit; in proof-log-session.sh it just
+# logs an absurd session duration. Rewrite the call to try BSD `stat -f %m`
+# first with the GNU form as fallback. Idempotent: files already containing the
+# BSD form are skipped. Drop this once fixed upstream and the *_REF pins move.
+echo "-> portability patches (BSD/GNU stat)"
+for f in verify-before-commit.sh proof-log-session.sh; do
+  if [ ! -f "$dest/$f" ]; then
+    warn "$f missing — fetch failed above?"
+  elif grep -q 'stat -f %m' "$dest/$f"; then
+    skip "$f already portable"
+  elif sed -i.bak -E 's/stat -c %Y ("[^"]+") 2>\/dev\/null/stat -f %m \1 2>\/dev\/null || &/' "$dest/$f" \
+       && grep -q 'stat -f %m' "$dest/$f"; then
+    rm -f "$dest/$f.bak"; ok "$f: stat mtime lookup made BSD+GNU portable"
+  else
+    rm -f "$dest/$f.bak" 2>/dev/null
+    warn "$f: expected GNU stat pattern not found — upstream changed? review manually"; fail_total=$((fail_total + 1))
+  fi
+done
+
+# destructive-guard.sh needs two more fixes (multi-line, so a pinned diff via
+# `patch` instead of sed):
+#   (a) Check 1's regex has no word boundary, so `rm\s+~/` matches INSIDE words
+#       ("wezterm ~/x" blocks any innocent command mentioning a ~/ path);
+#   (b) GNU-only `grep -oP ...\K` errors on BSD grep, printing usage noise and
+#       silently disabling the NFS-mount check (GitHub #36640 protection).
+# Applied to a temp copy so a failed hunk never leaves a half-patched guard.
+f="destructive-guard.sh"
+if [ ! -f "$dest/$f" ]; then
+  warn "$f missing — fetch failed above?"
+elif ! grep -q 'grep -oP' "$dest/$f"; then
+  skip "$f already portable"
+elif ! command -v patch >/dev/null 2>&1; then
+  warn "$f: 'patch' not found — guard left with GNU-only regexes"; fail_total=$((fail_total + 1))
+elif cp "$dest/$f" "$dest/$f.tmp" && patch -s "$dest/$f.tmp" <<'GUARD_EOF'
+--- destructive-guard.sh
++++ destructive-guard.sh
+@@ -60,7 +60,8 @@
+ SAFE_DIRS="${CC_SAFE_DELETE_DIRS:-node_modules:dist:build:.cache:__pycache__:coverage:.next:.nuxt:tmp}"
+
+ # --- Check 1: rm -rf on dangerous paths ---
+-if echo "$COMMAND" | grep -qE 'rm\s+(-[rf]+\s+)*(\/$|\/\s|\/[^a-z]|\/home|\/etc|\/usr|\/var|~\/|~\s*$|\.\.\/|\.\.\s*$)'; then
++# Word boundary: a bare `rm\s+` also matched inside words ("wezterm ~/x").
++if echo "$COMMAND" | grep -qE '(^|[;&|[:space:]])rm\s+(-[rf]+\s+)*(\/$|\/\s|\/[^a-z]|\/home|\/etc|\/usr|\/var|~\/|~\s*$|\.\.\/|\.\.\s*$)'; then
+     # Exception: safe directories
+     SAFE=0
+     IFS=':' read -ra DIRS <<< "$SAFE_DIRS"
+@@ -75,7 +76,8 @@
+     # Why: GitHub #36640 — rm -rf on a dir with NFS mount deleted production data
+     if (( SAFE == 0 )); then
+         # Extract the target path from the rm command
+-        TARGET_PATH=$(echo "$COMMAND" | grep -oP 'rm\s+(-[rf]+\s+)*\K\S+')
++        # BSD grep has no -P/\K; extract the rm target with portable sed.
++        TARGET_PATH=$(echo "$COMMAND" | sed -nE 's/.*(^|[;&|[:space:]])rm[[:space:]]+(-[rf]+[[:space:]]+)*([^[:space:];&|]+).*/\3/p')
+         if [ -n "$TARGET_PATH" ] && command -v findmnt &>/dev/null; then
+             if findmnt -n -o TARGET --submounts "$TARGET_PATH" 2>/dev/null | grep -q .; then
+GUARD_EOF
+then
+  mv "$dest/$f.tmp" "$dest/$f" && chmod +x "$dest/$f"
+  rm -f "$dest/$f.tmp.orig" 2>/dev/null  # BSD patch leaves a backup of the tmp copy
+  ok "$f: word-boundary + BSD grep fixes applied"
+else
+  rm -f "$dest/$f.tmp" "$dest/$f.tmp.orig" "$dest/$f.tmp.rej" 2>/dev/null
+  warn "$f: patch did not apply — upstream changed? review manually"; fail_total=$((fail_total + 1))
+fi
+
 if [ "$fail_total" -ne 0 ]; then
   echo "==> hooks: $fail_total item(s) failed — see warnings above; re-run: bash ai/install-hooks.sh" >&2
   exit 1
