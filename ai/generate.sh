@@ -22,23 +22,42 @@ safe_link() { # $1=target $2=linkpath
   ln -sfn "$target" "$link"
 }
 
+# Point a tool's skills dir at the shared store. Whole-dir symlink when the dir
+# is absent or already a symlink; when it is a real dir with content (e.g. Codex
+# pre-creates ~/.codex/skills/.system), per-skill symlink each store skill in so
+# the tool's own entries are preserved.
+link_skills_dir() { # $1=tool skills dir
+  local dir="$1"
+  if [ -L "$dir" ] || [ ! -e "$dir" ]; then
+    ln -sfn "$STORE" "$dir"
+  elif [ -d "$dir" ]; then
+    log "note: $dir is a real dir; per-skill linking store into it"
+    local s
+    for s in "$STORE"/*/; do
+      [ -d "$s" ] || continue
+      ln -sfn "${s%/}" "$dir/$(basename "${s%/}")"
+    done
+  fi
+}
+
 mkdir -p "$STORE" "$HOME/.gemini" "$HOME/.codex"
 
 # --- Instructions: AGENTS.md into Gemini + Codex (Claude via home-manager) ---
 safe_link "$AI/AGENTS.md" "$HOME/.gemini/GEMINI.md"
 safe_link "$AI/AGENTS.md" "$HOME/.codex/AGENTS.md"
 
-# --- Skills store: whole-dir symlink for Gemini + Codex ---
-safe_link "$STORE" "$HOME/.gemini/skills"
-safe_link "$STORE" "$HOME/.codex/skills"
-
-# --- Custom tracked skills: link ai/skills/* into the shared store ---
+# --- Custom tracked skills: link ai/skills/* into the shared store FIRST, so the
+#     store is complete before tools link from it (matters for per-skill linking) ---
 if [ -d "$AI/skills" ]; then
   for s in "$AI/skills"/*/; do
     [ -d "$s" ] || continue
     safe_link "${s%/}" "$STORE/$(basename "${s%/}")"
   done
 fi
+
+# --- Skills store: link into Gemini + Codex (whole-dir, or per-skill if real) ---
+link_skills_dir "$HOME/.gemini/skills"
+link_skills_dir "$HOME/.codex/skills"
 
 # --- Gemini /name parity: render each custom skill as a TOML slash-command ---
 if [ -d "$AI/skills" ]; then
