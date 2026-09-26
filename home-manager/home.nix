@@ -125,7 +125,11 @@ in
       ".claude/output-styles".source = link "ai/claude/output-styles";
       ".claude/CLAUDE.md".source = link "ai/claude/CLAUDE.md";
       ".claude/AGENTS.md".source = link "ai/AGENTS.md";
-      ".claude/settings.json".source = link "ai/claude/settings.json";
+      # NOTE: settings.json is intentionally NOT symlinked. It holds machine-local
+      # and confidential content (org context, env) and Claude Code writes to it at
+      # runtime; a symlink would drop those on activation and leak runtime writes
+      # into this public repo. `make post-install` copies the sanitized template
+      # (ai/claude/settings.json) only when ~/.claude/settings.json is missing.
       ".claude/statusline-command.sh".source = link "ai/claude/statusline-command.sh";
 
       # --- herdr (new) ---

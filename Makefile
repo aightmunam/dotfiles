@@ -74,6 +74,13 @@ post-install:
 	bash ai/install-hooks.sh || echo "⚠️  some hooks failed — re-run: bash ai/install-hooks.sh"; \
 	echo "-> cross-tool wiring (Gemini/Codex symlinks + MCP fan-out)"; \
 	bash ai/generate.sh || echo "⚠️  cross-tool wiring failed — re-run: bash ai/generate.sh"; \
+	echo "-> Claude settings.json scaffold (machine-local; template only if missing)"; \
+	if [ -f "$$HOME/.claude/settings.json" ]; then \
+		echo "   ~/.claude/settings.json exists — leaving it (machine-local; may hold confidential/env config)."; \
+	else \
+		mkdir -p "$$HOME/.claude"; cp ai/claude/settings.json "$$HOME/.claude/settings.json"; \
+		echo "   created ~/.claude/settings.json from sanitized template."; \
+	fi; \
 	echo "-> secrets scaffold"; \
 	if [ -f "$$HOME/.zshenv.local" ]; then \
 		echo "   ~/.zshenv.local already exists — leaving it untouched."; \
