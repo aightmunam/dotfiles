@@ -16,6 +16,8 @@ let
   repoRoot = "${config.home.homeDirectory}/dotfiles";
   # Link a repo-relative path into $HOME as a writable, out-of-store symlink.
   link = path: config.lib.file.mkOutOfStoreSymlink "${repoRoot}/${path}";
+  # Link a $HOME-relative path (e.g. the shared ~/.agents skills store) live.
+  homeLink = path: config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/${path}";
 in
 {
   home = {
@@ -116,17 +118,19 @@ in
       ".config/nix".source = link "nix";
       ".config/home-manager".source = link "home-manager";
 
-      # --- Claude Code (new) ---
-      ".claude/skills".source = link "claude/skills";
-      ".claude/agents".source = link "claude/agents";
-      ".claude/commands".source = link "claude/commands";
-      ".claude/hooks".source = link "claude/hooks";
-      ".claude/output-styles".source = link "claude/output-styles";
-      ".claude/rules".source = link "claude/rules";
-      ".claude/CLAUDE.md".source = link "claude/CLAUDE.md";
-      ".claude/RTK.md".source = link "claude/RTK.md";
-      ".claude/settings.json".source = link "claude/settings.json";
-      ".claude/statusline-command.sh".source = link "claude/statusline-command.sh";
+      # --- Claude Code (canonical ai/ source; shared skills store in ~/.agents) ---
+      ".claude/skills".source = homeLink ".agents/skills";
+      ".claude/agents".source = link "ai/agents";
+      ".claude/hooks".source = link "ai/claude/hooks";
+      ".claude/output-styles".source = link "ai/claude/output-styles";
+      ".claude/CLAUDE.md".source = link "ai/claude/CLAUDE.md";
+      ".claude/AGENTS.md".source = link "ai/AGENTS.md";
+      # NOTE: settings.json is intentionally NOT symlinked. It holds machine-local
+      # and confidential content (org context, env) and Claude Code writes to it at
+      # runtime; a symlink would drop those on activation and leak runtime writes
+      # into this public repo. `make post-install` copies the sanitized template
+      # (ai/claude/settings.json) only when ~/.claude/settings.json is missing.
+      ".claude/statusline-command.sh".source = link "ai/claude/statusline-command.sh";
 
       # --- herdr (new) ---
       ".config/herdr/config.toml".source = link "herdr/config.toml";
