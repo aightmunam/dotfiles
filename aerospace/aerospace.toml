@@ -62,6 +62,11 @@ run = 'move-node-to-workspace Mail'
 if.app-name-regex-substring = 'chrome'
 run = "move-node-to-workspace Browser"
 
+# work browser (Helium, daily driver replacing Chrome)
+[[on-window-detected]]
+if.app-name-regex-substring = 'helium'
+run = "move-node-to-workspace Browser"
+
 # personal computer browser -> ever-changing
 [[on-window-detected]]
 if.app-name-regex-substring = 'firefox'
