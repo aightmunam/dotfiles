@@ -21,7 +21,7 @@ help:
 	@echo "make install   - one-shot: Nix + home-manager + post-install (recommended)"
 	@echo "make setup     - install Nix with flakes support (if missing)"
 	@echo "make build     - apply the home-manager config for this machine ($(HM_CONFIG))"
-	@echo "make post-install - install non-Nix bits (rtk, headroom, npm hook deps) + scaffold secrets"
+	@echo "make post-install - install non-Nix bits (rtk, headroom, gemini, codex, npm hook deps) + scaffold secrets"
 	@echo "make verify-ai - check Gemini/Codex instruction+skills symlinks and MCP wiring"
 
 # One command to stand the whole environment up on a fresh machine.
@@ -68,6 +68,10 @@ post-install:
 	npm install -g rins_hooks --prefix "$$HOME/.claude/npm" >/dev/null 2>&1 || echo "⚠️  'npm install -g rins_hooks' failed — run manually"; \
 	echo "-> headroom MCP (pipx)"; \
 	command -v headroom >/dev/null 2>&1 || pipx install headroom >/dev/null 2>&1 || echo "⚠️  'pipx install headroom' failed — confirm the package name and install manually"; \
+	echo "-> Gemini CLI (npm; --prefix ~/.local because nix's global npm prefix is read-only)"; \
+	command -v gemini >/dev/null 2>&1 || npm install -g @google/gemini-cli --prefix "$$HOME/.local" >/dev/null 2>&1 || echo "⚠️  gemini install failed — run: npm install -g @google/gemini-cli --prefix ~/.local"; \
+	echo "-> Codex CLI (official standalone installer; self-updates, installs to ~/.local/bin)"; \
+	command -v codex >/dev/null 2>&1 || curl -fsSL https://chatgpt.com/codex/install.sh | sh || echo "⚠️  codex install failed — see https://github.com/openai/codex"; \
 	echo "-> installable Claude skills (npx skills)"; \
 	bash ai/install-skills.sh || echo "⚠️  some skills failed — re-run: bash ai/install-skills.sh"; \
 	echo "-> tool-managed hooks (rtk / herdr)"; \

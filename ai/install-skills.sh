@@ -21,10 +21,16 @@ fi
 # exists, so this never clobbers already-installed skills.
 mkdir -p "$HOME/.agents/skills"
 
-# "owner/repo:skill" — sources verified on https://skills.sh. Curated to the
-# skills actually in use (unused ones pruned; re-add a line to bring one back).
+# "owner/repo:skill" — sources verified against ~/.agents/.skill-lock.json (the
+# npx-skills provenance ledger) and each upstream repo. Every third-party skill in
+# the shared store is listed here so a fresh machine reinstalls the full set.
 SKILLS=(
   "upstash/context7:context7-mcp"          # official Upstash / Context7
+  "ast-grep/agent-skill:ast-grep"          # official ast-grep structural search
+  "vercel-labs/skills:find-skills"         # skills.sh discovery/installer
+  "cocoindex-io/cocoindex-code:ccc"        # semantic codebase search (ccc CLI)
+  "kambleakash0/agent-skills:code-review"
+  "kambleakash0/agent-skills:deep-codebase-audit"
   "kambleakash0/agent-skills:domain-glossary"
   "kambleakash0/agent-skills:english-humanizer"
   "kambleakash0/agent-skills:git-workflow"
@@ -32,6 +38,7 @@ SKILLS=(
   "kambleakash0/agent-skills:incremental-tdd"
   "kambleakash0/agent-skills:script-writer"
   "kambleakash0/agent-skills:slice-the-spec"
+  "kambleakash0/agent-skills:spec-to-plan"
   "kambleakash0/agent-skills:spec-writer"
 )
 
