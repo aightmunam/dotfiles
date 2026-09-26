@@ -42,15 +42,25 @@ SKILLS=(
   "kambleakash0/agent-skills:spec-writer"
 )
 
-fail=0
+echo "Installing ${#SKILLS[@]} agent skills into ~/.agents/skills"
+echo "(per-skill output is shown only on failure; an npx 'PromptScript does not support global' skip is expected and harmless)"
+
+installed=0; failed=0; fails=()
 for entry in "${SKILLS[@]}"; do
   repo="${entry%%:*}"
   skill="${entry##*:}"
-  echo "-> skills add $repo --skill $skill"
-  npx -y skills add "$repo" --skill "$skill" -g -y || { echo "  failed: $entry"; fail=1; }
+  if out="$(npx -y skills add "$repo" --skill "$skill" -g -y 2>&1)"; then
+    printf '   \342\234\223 %-22s (%s)\n' "$skill" "$repo"          # ✓
+    installed=$((installed + 1))
+  else
+    printf '   \342\234\227 %-22s (%s)\n' "$skill" "$repo"          # ✗
+    printf '%s\n' "$out" | tail -6 | sed 's/^/       /'
+    fails+=("$entry"); failed=$((failed + 1))
+  fi
 done
 
-if [ "$fail" -ne 0 ]; then
-  echo "Some skills failed to install. Re-run: ./ai/install-skills.sh" >&2
+echo "Skills: $installed installed, $failed failed (of ${#SKILLS[@]}) in ~/.agents/skills"
+if [ "$failed" -ne 0 ]; then
+  printf 'Re-run for failures: %s\n' "${fails[*]}" >&2
   exit 1
 fi

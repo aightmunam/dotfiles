@@ -292,6 +292,7 @@
     }
   },
   "effortLevel": "xhigh",
+  "autoCompactWindow": 200000,
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,

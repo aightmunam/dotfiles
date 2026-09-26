@@ -61,37 +61,40 @@ build:
 # whole setup, it just prints a warning to resolve manually.
 post-install:
 	@export PATH="$$HOME/.nix-profile/bin:$$HOME/.local/bin:$$PATH"; \
-	echo "-> rtk (no Nix flake; official installer)"; \
-	command -v rtk >/dev/null 2>&1 || curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/master/install.sh | sh || echo "⚠️  rtk install failed — see https://www.rtk-ai.app/"; \
-	echo "-> global npm packages used by Claude hooks"; \
+	ok(){ echo "   ✓ $$1"; }; skip(){ echo "   • $$1"; }; warn(){ echo "   ⚠️  $$1"; }; \
+	echo "==> post-install: non-Nix tools, skills, hooks, cross-tool wiring"; \
+	echo "-> rtk (token-optimizing CLI proxy)"; \
+	if command -v rtk >/dev/null 2>&1; then skip "already installed ($$(rtk --version 2>/dev/null | head -1))"; \
+	elif curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/master/install.sh | sh; then ok "installed"; \
+	else warn "install failed — see https://www.rtk-ai.app/"; fi; \
+	echo "-> rins_hooks (npm global used by Claude hooks)"; \
 	mkdir -p "$$HOME/.claude/npm"; \
-	npm install -g rins_hooks --prefix "$$HOME/.claude/npm" >/dev/null 2>&1 || echo "⚠️  'npm install -g rins_hooks' failed — run manually"; \
+	if npm install -g rins_hooks --prefix "$$HOME/.claude/npm" >/dev/null 2>&1; then ok "installed/updated in ~/.claude/npm"; else warn "'npm install -g rins_hooks' failed — run manually"; fi; \
 	echo "-> headroom MCP (pipx)"; \
-	command -v headroom >/dev/null 2>&1 || pipx install headroom >/dev/null 2>&1 || echo "⚠️  'pipx install headroom' failed — confirm the package name and install manually"; \
-	echo "-> Gemini CLI (npm; --prefix ~/.local because nix's global npm prefix is read-only)"; \
-	command -v gemini >/dev/null 2>&1 || npm install -g @google/gemini-cli --prefix "$$HOME/.local" >/dev/null 2>&1 || echo "⚠️  gemini install failed — run: npm install -g @google/gemini-cli --prefix ~/.local"; \
-	echo "-> Codex CLI (official standalone installer; self-updates, installs to ~/.local/bin)"; \
-	command -v codex >/dev/null 2>&1 || curl -fsSL https://chatgpt.com/codex/install.sh | sh || echo "⚠️  codex install failed — see https://github.com/openai/codex"; \
-	echo "-> installable Claude skills (npx skills)"; \
-	bash ai/install-skills.sh || echo "⚠️  some skills failed — re-run: bash ai/install-skills.sh"; \
-	echo "-> tool-managed hooks (rtk / herdr)"; \
-	bash ai/install-hooks.sh || echo "⚠️  some hooks failed — re-run: bash ai/install-hooks.sh"; \
+	if command -v headroom >/dev/null 2>&1; then skip "already installed"; \
+	elif pipx install headroom >/dev/null 2>&1; then ok "installed"; \
+	else warn "'pipx install headroom' failed — confirm the package name and install manually"; fi; \
+	echo "-> Gemini CLI (npm --prefix ~/.local; nix's global npm prefix is read-only)"; \
+	if command -v gemini >/dev/null 2>&1; then skip "already installed ($$(gemini --version 2>/dev/null | head -1))"; \
+	elif npm install -g @google/gemini-cli --prefix "$$HOME/.local" >/dev/null 2>&1; then ok "installed to ~/.local/bin"; \
+	else warn "gemini install failed — run: npm install -g @google/gemini-cli --prefix ~/.local"; fi; \
+	echo "-> Codex CLI (official standalone installer; self-updating)"; \
+	if command -v codex >/dev/null 2>&1; then skip "already installed ($$(codex --version 2>/dev/null | head -1))"; \
+	elif curl -fsSL https://chatgpt.com/codex/install.sh | sh; then ok "installed to ~/.local/bin"; \
+	else warn "codex install failed — see https://github.com/openai/codex"; fi; \
+	echo "-> agent skills (npx skills into ~/.agents/skills)"; \
+	bash ai/install-skills.sh || warn "some skills failed — re-run: bash ai/install-skills.sh"; \
+	echo "-> Claude hooks (tool-managed + pinned upstream)"; \
+	bash ai/install-hooks.sh || warn "some hooks failed — re-run: bash ai/install-hooks.sh"; \
 	echo "-> cross-tool wiring (Gemini/Codex symlinks + MCP fan-out)"; \
-	bash ai/generate.sh || echo "⚠️  cross-tool wiring failed — re-run: bash ai/generate.sh"; \
-	echo "-> Claude settings.json scaffold (machine-local; template only if missing)"; \
-	if [ -f "$$HOME/.claude/settings.json" ]; then \
-		echo "   ~/.claude/settings.json exists — leaving it (machine-local; may hold confidential/env config)."; \
-	else \
-		mkdir -p "$$HOME/.claude"; cp ai/claude/settings.json "$$HOME/.claude/settings.json"; \
-		echo "   created ~/.claude/settings.json from sanitized template."; \
-	fi; \
-	echo "-> secrets scaffold"; \
-	if [ -f "$$HOME/.zshenv.local" ]; then \
-		echo "   ~/.zshenv.local already exists — leaving it untouched."; \
-	else \
-		cp zshenv.local.example "$$HOME/.zshenv.local"; \
-		echo "   created ~/.zshenv.local from template — fill in your real secrets."; \
-	fi
+	bash ai/generate.sh || warn "cross-tool wiring failed — re-run: bash ai/generate.sh"; \
+	echo "-> Claude settings.json (machine-local; template only if missing)"; \
+	if [ -f "$$HOME/.claude/settings.json" ]; then skip "exists — left as is (machine-local; may hold confidential/env config)"; \
+	else mkdir -p "$$HOME/.claude"; cp ai/claude/settings.json "$$HOME/.claude/settings.json"; ok "created from sanitized template"; fi; \
+	echo "-> secrets scaffold (~/.zshenv.local)"; \
+	if [ -f "$$HOME/.zshenv.local" ]; then skip "exists — left untouched"; \
+	else cp zshenv.local.example "$$HOME/.zshenv.local"; ok "created from template — fill in real secrets"; fi; \
+	echo "==> post-install complete."
 
 # Drift check: confirm cross-tool config reaches Gemini and Codex.
 verify-ai:

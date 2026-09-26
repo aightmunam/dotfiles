@@ -15,37 +15,56 @@
 # Idempotent. Run standalone or via `make install`. Bump the *_REF pins to update.
 set -uo pipefail
 
+ok()   { echo "   ✓ $1"; }
+skip() { echo "   • $1"; }
+warn() { echo "   ⚠️  $1"; }
+
+# Real failures (install/fetch errors, not benign skips) bump this; the script
+# exits non-zero when it is set so `make post-install`'s `|| warn` surfaces it.
+fail_total=0
+
 dest="$HOME/.claude/hooks"
 mkdir -p "$dest"
+echo "==> Claude hooks -> $dest"
 
 # --- tool-managed hooks -----------------------------------------------------
-if command -v rtk >/dev/null 2>&1; then
-  echo "-> rtk init -g --hook-only --no-patch"
-  rtk init -g --hook-only --no-patch || echo "  rtk hook install failed"
+echo "-> rtk hook (rtk init -g --hook-only --no-patch)"
+if ! command -v rtk >/dev/null 2>&1; then
+  skip "rtk not on PATH — skipped (post-install installs rtk earlier)"
+elif rtk init -g --hook-only --no-patch >/dev/null 2>&1; then
+  ok "installed/updated"
 else
-  echo "  rtk not found on PATH — skipping rtk hook"
+  warn "rtk hook install failed — run: rtk init -g --hook-only --no-patch"; fail_total=$((fail_total + 1))
 fi
 
-if command -v herdr >/dev/null 2>&1; then
-  echo "-> herdr integration install claude"
-  herdr integration install claude || echo "  herdr integration install failed"
+echo "-> herdr hook (herdr integration install claude)"
+if ! command -v herdr >/dev/null 2>&1; then
+  skip "herdr not on PATH — run 'make build' first, then re-run"
+elif herdr integration install claude >/dev/null 2>&1; then
+  ok "installed/updated"
 else
-  echo "  herdr not found on PATH — run 'make build' first, then re-run this script"
+  warn "herdr integration install failed — run: herdr integration install claude"; fail_total=$((fail_total + 1))
 fi
 
 # --- helper: fetch a list of hook files from a raw base URL -----------------
 fetch_hooks() {
   local label="$1" base="$2"; shift 2
-  echo "-> $label ($# hooks)"
-  if ! command -v curl >/dev/null 2>&1; then echo "  curl not found — skipping"; return 1; fi
-  local h
+  local total=$#
+  echo "-> $label ($total hooks)"
+  if ! command -v curl >/dev/null 2>&1; then warn "curl not found — skipped"; fail_total=$((fail_total + total)); return 0; fi
+  local h got=0 fails=()
   for h in "$@"; do
     if curl -fsSL "$base/$h" -o "$dest/$h.tmp" 2>/dev/null; then
-      chmod +x "$dest/$h.tmp" && mv "$dest/$h.tmp" "$dest/$h"
+      chmod +x "$dest/$h.tmp" && mv "$dest/$h.tmp" "$dest/$h"; got=$((got + 1))
     else
-      echo "  failed: $h"; rm -f "$dest/$h.tmp" 2>/dev/null
+      rm -f "$dest/$h.tmp" 2>/dev/null; fails+=("$h")
     fi
   done
+  if [ "${#fails[@]}" -eq 0 ]; then
+    ok "$got/$total fetched"
+  else
+    warn "$got/$total fetched — failed: ${fails[*]}"; fail_total=$((fail_total + ${#fails[@]}))
+  fi
 }
 
 # --- yurukusa/claude-code-hooks (pinned) ------------------------------------
@@ -66,3 +85,9 @@ fetch_hooks "yurukusa/cc-safe-setup @ ${CCS_REF:0:7}" \
   memory-write-guard.sh no-sudo-guard.sh notify-waiting.sh prefer-builtin-tools.sh \
   prompt-injection-detector.sh protect-claudemd.sh scope-guard.sh skill-gate.sh \
   test-before-commit.sh verify-before-commit.sh verify-before-done.sh
+
+if [ "$fail_total" -ne 0 ]; then
+  echo "==> hooks: $fail_total item(s) failed — see warnings above; re-run: bash ai/install-hooks.sh" >&2
+  exit 1
+fi
+echo "==> hooks done."
