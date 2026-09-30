@@ -384,14 +384,14 @@ side: RIGHT
 
 2. **Open the review in the review-viewer**:
    - The slug is the review filename without `.md` (e.g. `2025-01-08-pr-123-add-user-authentication`)
-   - Run `open "http://review/r/[slug]"`
+   - Run `open "http://review:6937/r/[slug]"`
 
 3. **Present the review**:
    ```
    Review Complete!
 
    Document: thoughts/shared/reviews/YYYY-MM-DD-pr-NNN-title.md
-   Opened: http://review/r/[slug]
+   Opened: http://review:6937/r/[slug]
 
    Verdict: [approve / request_changes / comment]
 
