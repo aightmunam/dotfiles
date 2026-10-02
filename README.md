@@ -24,8 +24,11 @@ make install
    `uname`.
 3. **`make post-install`** — the non-Nix bits: `rtk` (its official installer),
    the global npm package the Claude hooks need (`rins_hooks`), `headroom` (via
-   `pipx`), the installable Claude skills (`npx skills`), the tool-managed and
-   upstream Claude hooks, and a scaffolded `~/.zshenv.local` for secrets.
+   `pipx`), the **Gemini CLI** (`npm`, into `~/.local`) and **Codex CLI** (its
+   standalone installer, which self-updates), the installable agent skills (`npx
+   skills`), the tool-managed and upstream Claude hooks, the cross-tool wiring
+   (Gemini/Codex instruction + skills symlinks and MCP fan-out via `generate.sh`),
+   and a scaffolded `~/.zshenv.local` for secrets.
 
 ### macOS
 
