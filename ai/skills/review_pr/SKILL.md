@@ -147,23 +147,17 @@ leaving a comment for the user, something like:
 Reviewing branch `branch-name` in repo `repo-name` via worktree located at `worktree_path`
 ```
 
-**Orchestrator step first (the command has Bash; the agents do not):** reuse the `[DIFF_PATH]` diff file saved in Step 3 (NOT `git diff main...HEAD`, which over-reports when local `main` is stale).
+**Orchestrator steps first (the command has Bash; the agents do not):**
+1. Reuse the `[DIFF_PATH]` diff file saved in Step 3 (NOT `git diff main...HEAD`, which over-reports when local `main` is stale).
+2. Evaluate the two conditional-agent predicates:
+   - **Python predicate**: any `.py` file in `[CHANGED_FILES]` → dispatch Agent 6.
+   - **API predicate**: any path in `[CHANGED_FILES]` matching `router|api/|schema|openapi|urls`, OR `grep -E '@(router|app)\.(get|post|put|patch|delete)\(' [DIFF_PATH]` hits, OR the diff adds/changes endpoint definitions in any framework (Django urls/views, FastAPI/Flask routes, serializers) → dispatch Agent 7. If dispatching, resolve `[REVIEW_API_SKILL_PATH]` first: `echo ~/.claude/skills/review_api/SKILL.md` (subagents' Read tool needs the expanded absolute path, not `~`).
 
-Then spawn **5 parallel Task agents** using **`codebase-analyzer`** (keep it — Reading/Greping the code is exactly its job; do NOT downgrade to a generic agent) with specialized prompts. Give every agent the `[DIFF_PATH]` and the changed-file list `[CHANGED_FILES]`; the agent **Reads** those and the source files and never runs `git`/`gh`. If an agent returns empty (0 tool uses), re-dispatch it.
+Then spawn **all applicable review agents in one parallel batch** using **`codebase-analyzer`** (keep it — Reading/Greping the code is exactly its job; do NOT downgrade to a generic agent) with specialized prompts. Agents 1–5 always run; Agents 6–7 run when their predicate above is true. Give every agent the `[DIFF_PATH]` and the changed-file list `[CHANGED_FILES]`; the agent **Reads** those and the source files and never runs `git`/`gh`. If an agent returns empty (0 tool uses), re-dispatch it.
 
-#### Agent 1: Change Analysis
-```
-Analyze all changed files in this PR. Working directory: [worktree_path]
+(There is no separate "change analysis" agent — the Step 3 How-analyst already produces that; reuse its output when synthesizing.)
 
-1. Read the authoritative PR diff at [DIFF_PATH] and the changed files listed in [CHANGED_FILES] (do NOT run git/gh)
-2. Categorize changes: new features, bug fixes, refactoring, config changes
-3. Identify main areas of impact
-4. Summarize what changed and why
-
-Return a structured summary of changes by component/area.
-```
-
-#### Agent 2: Security Review
+#### Agent 1: Security Review
 ```
 Perform a security-focused review of changed files. Working directory: [worktree_path]
 
@@ -179,7 +173,7 @@ Check for:
 Return findings with severity (Critical/High/Medium/Low) and file:line references.
 ```
 
-#### Agent 3: Performance Review
+#### Agent 2: Performance Review
 ```
 Perform a performance-focused review of changed files. Working directory: [worktree_path]
 
@@ -195,7 +189,7 @@ Check for:
 Return concerns with impact assessment and recommendations.
 ```
 
-#### Agent 4: Code Quality Review
+#### Agent 3: Code Quality Review
 ```
 Perform a code quality review of changed files. Working directory: [worktree_path]
 
@@ -205,13 +199,13 @@ Evaluate:
 3. Error handling completeness
 4. Test coverage for new code
 5. Naming conventions and clarity
-6. Type safety (TypeScript strict mode, Go types)
+6. Type safety (e.g. mypy --strict, TypeScript strict mode)
 7. Comment quality and documentation
 
 Return findings with specific suggestions for improvement.
 ```
 
-#### Agent 5: Architecture Review
+#### Agent 4: Architecture Review
 ```
 Assess the architectural impact of changes. Working directory: [worktree_path]
 
@@ -226,11 +220,85 @@ Evaluate:
 Return assessment with specific concerns if any.
 ```
 
+#### Agent 5: Regression Review (always runs — dispatch with `model: opus` on the Agent call; regression hunting reasons about code outside the diff and benefits from the stronger model)
+```
+Hunt for regressions this PR introduces in EXISTING behavior. Working directory: [worktree_path]
+
+1. Read the authoritative PR diff at [DIFF_PATH] (do NOT run git/gh). Pay special
+   attention to the REMOVED/changed (left) side of the diff, not just additions.
+2. For every removed or renamed function/class/method, changed signature, changed
+   default value, changed return shape, changed exception path, changed DB
+   migration/schema, changed config key, env var, or feature flag:
+   Grep the ENTIRE worktree (not just the diff) for remaining callers, importers,
+   templates, and configs that still expect the old behavior.
+3. Flag silent behavior changes in shared code paths: altered conditionals,
+   tightened validation on inputs that existing callers already send, changed
+   serialization/format of outputs that existing consumers parse.
+4. Flag tests that this PR deletes, skips, or weakens (loosened assertions,
+   broadened mocks) — each is a regression blind spot.
+5. Flag backwards-incompatible changes to public contracts consumed outside this
+   repo (API responses, emitted events, CLI flags, file formats).
+
+Return findings with severity (Critical/High/Medium/Low) and file:line references.
+Category: regression. For each finding, name the SPECIFIC caller/consumer/test
+that breaks — no speculative "something might use this".
+```
+
+#### Agent 6: Python Best Practices (only if the Python predicate matched)
+```
+Perform a Python-idiom review of the changed .py files. Working directory: [worktree_path]
+
+0. First Read the project config that exists in the worktree (pyproject.toml,
+   setup.cfg, ruff.toml, CLAUDE.md) so you enforce THIS project's rules and idioms.
+1. Read the diff at [DIFF_PATH] and the changed .py files in [CHANGED_FILES]
+   (do NOT run git/gh).
+
+Check for:
+- Mutable default arguments
+- Bare/overbroad `except` clauses; missing exception chaining (`raise ... from err`)
+- Resources not managed with context managers (files, locks, sessions, connections)
+- Eager string formatting in logging calls (should be lazy `logger.info("%s", x)`)
+- Incorrect Optional/None handling; truthiness bugs with 0, "", empty collections
+- Async pitfalls: blocking calls inside async functions, un-awaited coroutines,
+  missing timeouts/gather
+- Dataclass/pydantic idiom consistent with the codebase (validators, frozen/slots)
+- pathlib vs os.path, comprehensions vs loops — match what the codebase prefers
+- Shadowed builtins, module-level side effects, dead code
+- Missing/incorrect type hints on new public functions
+
+Do NOT report anything the project's configured linters (ruff/mypy) already catch —
+that lands in the Automated checks section. Report only judgment-level issues.
+
+Return findings with severity (Critical/High/Medium/Low) and file:line references.
+Category: python.
+```
+
+#### Agent 7: API Design Review (only if the API predicate matched)
+```
+Review this PR's API surface changes against the Zalando REST guidelines.
+Working directory: [worktree_path]
+
+1. Read the full checklist at [REVIEW_API_SKILL_PATH] and apply its rules,
+   report structure, and codebase-convention handling.
+2. IMPORTANT deviation from that file's Process step: do NOT run git/gh. Use the
+   diff at [DIFF_PATH] and Read the changed files in [CHANGED_FILES] instead.
+3. Before tagging a violation as a codebase convention, Read/Grep at least 3
+   comparable files in the worktree to confirm the pattern is project-wide.
+
+Map each violation to a review finding with this severity map:
+- MUST violation → high (critical for backward-compatibility breaks, e.g. #106/#115)
+- SHOULD violation → medium
+- MAY suggestion → low
+- Any violation tagged as a codebase convention → low, convention noted in the body
+Category: api. Include the Zalando rule number in each finding title, plus the
+overall PASS/WARN/FAIL verdict at the end of your report.
+```
+
 ### Step 5: Run Automated Checks
 
 Execute in the worktree:
 ```bash
-cd [worktree_path] && make check test 2>&1
+cd [worktree_path] && just lint && just test-unit 2>&1   # or the repo's equivalent targets (make check test, etc.)
 ```
 
 Capture: build status, lint results, test results, type checking.
@@ -260,6 +328,8 @@ gh repo view --json owner,name -q '.owner.login + "/" + .name'   # -> repo, as "
   - `2025-01-08-pr-123-add-user-authentication.md`
   - `2025-01-15-pr-456-fix-memory-leak.md`
 - The review-viewer identifies each review by its **slug**: the filename without `.md` (e.g. `2025-01-08-pr-123-add-user-authentication`).
+
+**Write the review document with the Write tool, never via a shell heredoc** — the shell hook strips lines starting with `#`, which would silently delete every heading in the document.
 
 Use this template — this is the "C+ light" format the review-viewer parses. Follow the format rules below the template exactly:
 
@@ -322,16 +392,18 @@ status: review_complete
 # Review findings
 
 ### C1 — [short title]
-_[one-line plain-English summary]_
+_[REQUIRED human summary — see recipe below the template]_
 
 ~~~finding
 severity: critical
-category: [security|correctness|performance|quality|architecture|api|observability|test|...]
+category: [security|correctness|performance|quality|architecture|api|regression|python|observability|test|...]
 file: [repo-relative path]
 line: [integer line in the diff]
 side: RIGHT
 ---
-[Full rationale in markdown. Explain the problem and why it matters.]
+[REQUIRED detailed comment in markdown: what the problem is, why it matters,
+the concrete failure scenario, and how to fix it. This is the full rationale
+a reviewer would defend in discussion.]
 
 ```suggestion
 [optional: the exact replacement code for that line/range]
@@ -339,7 +411,7 @@ side: RIGHT
 ~~~
 
 ### H1 — [short title]
-_[one-liner]_
+_[REQUIRED human summary]_
 
 ~~~finding
 severity: high
@@ -348,10 +420,10 @@ file: [...]
 line: [...]
 side: RIGHT
 ---
-[rationale]
+[detailed rationale]
 ~~~
 
-[...more findings, consolidated from all 5 review agents, ids grouped by severity: C#, H#, M#, L#...]
+[...more findings, consolidated from all review agents, ids grouped by severity: C#, H#, M#, L#...]
 
 # Automated checks
 
@@ -360,6 +432,7 @@ side: RIGHT
 | ruff lint | pass | [notes] |
 | mypy --strict | pass | [notes] |
 | tests | pass | [notes] |
+| Zalando API guidelines | [PASS/WARN/FAIL] | [only if Agent 7 ran: e.g. "0 MUST, 2 SHOULD violations"] |
 
 # Questions for author
 
@@ -369,7 +442,14 @@ side: RIGHT
 **Format rules the skill MUST follow (so the viewer parses it):**
 - Frontmatter is real YAML; `pr_number` and `line` are integers; `head_sha` and `repo` MUST be present (needed for the viewer's one-click GitHub pending-comment feature).
 - Severities are exactly `critical` / `high` / `medium` / `low` — fold anything that would have been "Info" into `low`.
-- Each finding: an `### <ID> — <title>` heading (ID matches `[CHML]\d+`, e.g. `C1`, `H2`, `M3`, `L1`; the `—` is an em dash but a hyphen also parses), then an optional italic `_summary_` line, then a `~~~finding` block (tilde fence) with a small YAML head, a line that is exactly `---`, then the markdown body. Put any ```` ```suggestion ```` fix INSIDE the finding body.
+- Each finding: an `### <ID> — <title>` heading (ID matches `[CHML]\d+`, e.g. `C1`, `H2`, `M3`, `L1`; the `—` is an em dash but a hyphen also parses), then a REQUIRED italic `_summary_` line, then a `~~~finding` block (tilde fence) with a small YAML head, a line that is exactly `---`, then the markdown body. Put any ```` ```suggestion ```` fix INSIDE the finding body.
+- **Every finding has exactly two layers.** The italic `_summary_` line is the human comment: 1–2 sentences, addressed to the PR author in plain conversational language, saying what breaks and when (or why it matters). No rule numbers, no jargon, no file paths — those live in the YAML head and body. The body below the `---` is the detailed comment: full rationale, failure scenario, and fix. Example of the two layers together:
+
+  ```
+  ### H2 — Deleted `retry_on_conflict` is still called by the sync job
+  _The nightly sync job still calls `retry_on_conflict`, so the first 409 after this merge crashes it with an AttributeError._
+  ```
+- **Consolidation**: the review agents overlap. Emit ONE finding per underlying issue — merge duplicates across agents, keep the most specific category and the highest justified severity, and fold the other agents' angles into the body.
 - `# Automated checks` and `# Questions for author` are H1 sections (NOT `##`) so the viewer's H1 section-splitter captures them. Same for `# Summary`, `# What was done`, `# How it was done`, `# Review findings`.
 - Every finding field the GitHub pending-comment needs — `file`, `line`, `side` — must be accurate to the diff.
 - Set `verdict` in the frontmatter to `approve`, `request_changes`, or `comment` based on the consolidated findings (Critical/High present → `request_changes`; otherwise `approve` or `comment` as appropriate).
@@ -428,13 +508,14 @@ If the user has follow-up questions or wants additional analysis:
 - All findings are written to a local document
 - User must manually share feedback with PR author (or use the review-viewer's staging flow)
 - Always remind user that no GitHub actions were taken
-- Run all 5 review agents in parallel for efficiency
+- Run all applicable review agents in one parallel batch for efficiency (Agents 1–5 always; Agents 6–7 per their predicates)
+- Every finding carries BOTH layers: the italic 1–2 sentence human summary line AND the detailed body inside the `~~~finding` block — never one without the other
 - **PR feature walkthrough (Step 3)**: always runs, no opt-in gate; the What-analyst and How-analyst returns feed the review document's `# What was done` / `# How it was done` sections directly. These sections are **diagram-first**: mermaid diagrams and tables carry the content, prose only connects them
 - Always sync thoughts directory after writing the review document
 - **File reading**: When reviewing PR details or related files, read them FULLY (no limit/offset parameters)
 - **Critical ordering**: Follow the numbered steps exactly
   - ALWAYS run the What-analyst and How-analyst (Step 3) before the review document is written
-  - ALWAYS wait for all 5 review agents to complete before synthesizing findings (Step 4)
+  - ALWAYS wait for all dispatched review agents to complete before synthesizing findings (Step 4)
   - ALWAYS run automated checks before generating the review document (Step 5 before Step 6)
   - ALWAYS open the review in the review-viewer after syncing (Step 7)
   - NEVER write the review document with placeholder values
