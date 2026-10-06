@@ -4,6 +4,21 @@ Canonical instruction file shared across Claude Code, Gemini CLI, and Codex CLI.
 Everything here applies to every agent. Tool-specific notes live in each tool's
 own config, not here.
 
+## Git worktrees
+
+All worktrees live in one place: `~/wt/<repo>/<name>`, where `<repo>` is the
+main checkout's directory name. Reviews of someone else's branch go under
+`~/wt/<repo>/review/<name>`. This is the declared worktree directory preference
+for any skill that asks (e.g. superpowers `using-git-worktrees`).
+
+- Never create worktrees in `/tmp`, as siblings of the repo (`../<repo>-x`),
+  or in project-local `.worktrees/` / `worktrees/` dirs, whatever a skill's
+  example or default says.
+- On Claude Code, native worktrees (`--worktree`, `EnterWorktree`, subagent
+  isolation) are already routed to `~/wt` by a WorktreeCreate hook; prefer
+  them. Elsewhere use `git worktree add ~/wt/<repo>/<name> -b <branch>`.
+- Use `/` -> `+` in names derived from branches (`feat/x` -> `feat+x`).
+
 ## Context7 for library docs
 
 Use the Context7 MCP to fetch current documentation whenever the user asks about
