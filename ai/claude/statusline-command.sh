@@ -60,8 +60,9 @@ fi
 # ── Active PR ─────────────────────────────────────────────────────────────────
 pr_part=""
 if [ -n "$branch" ] && command -v gh >/dev/null 2>&1; then
-  pr_info=$(gh pr view --json number,title,state 2>/dev/null \
-            || ([ -n "$cwd" ] && cd "$cwd" && gh pr view --json number,title,state 2>/dev/null))
+  # run gh from $cwd: the script's own cwd is the launch dir, which in a worktree
+  # session is the main checkout — its branch's PR, not this worktree's
+  pr_info=$(cd "$cwd" 2>/dev/null && gh pr view --json number,title,state 2>/dev/null)
   if [ -n "$pr_info" ]; then
     pr_num=$(echo "$pr_info" | jq -r '.number')
     pr_state=$(echo "$pr_info" | jq -r '.state')
