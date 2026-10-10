@@ -22,7 +22,7 @@ Use the following information to understand how to create your document:
         - ENG-XXXX is the ticket number (replace with `general` if no ticket)
         - ENG-ZZZZ is the ticket number (omit if no ticket)
         - description is a brief kebab-case description
-    - Run the `scripts/spec_metadata.sh` script to generate all relevant metadata
+    - Gather metadata: current date/time with timezone, `git rev-parse HEAD`, current branch, repository name, and researcher name from `humanlayer thoughts status`
     - Examples:
         - With ticket: `2025-01-08_13-55-22_ENG-2166_create-context-compaction.md`
         - Without ticket: `2025-01-08_13-55-22_create-context-compaction.md`

@@ -89,6 +89,8 @@ Before diving into code quality, always establish **what** the feature does befo
      links, link, properties, details, box, note, loop, alt, opt, par, and, rect, activate,
      deactivate, autonumber, participant, actor. E.g. `participant Links` breaks the parser —
      use `participant Permalink as data/links.py` instead.
+   - In sequenceDiagram message and note text, never use a semicolon — `;` ends the statement,
+     so `A->>B: gates only; skip gives 200` breaks the whole diagram. Use a comma or "then".
    - Diagrams must reflect the ACTUAL code you read — real module/function/file names, not
      generic boxes like "Frontend" → "Backend".
    ```

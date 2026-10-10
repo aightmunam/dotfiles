@@ -13,7 +13,6 @@ When given a plan path:
 - Read the plan completely and check for any existing checkmarks (- [x])
 - Read the original ticket and all files mentioned in the plan
 - **Read files fully** - never use limit/offset parameters, you need complete context
-- Think deeply about how the pieces fit together
 - Create a todo list to track your progress
 - Start implementing if you understand what needs to be done
 
@@ -30,7 +29,7 @@ Plans are carefully designed, but reality can be messy. Your job is to:
 When things don't match the plan exactly, think about why and communicate clearly. The plan is your guide, but your judgment matters too.
 
 If you encounter a mismatch:
-- STOP and think deeply about why the plan can't be followed
+- STOP and work out why the plan can't be followed
 - Present the issue clearly:
   ```
   Issue in Phase [N]:
@@ -44,7 +43,7 @@ If you encounter a mismatch:
 ## Verification Approach
 
 After implementing a phase:
-- Run the success criteria checks (usually `make check test` covers everything)
+- Run the success criteria checks (the repo's lint, type-check and test targets from its CLAUDE.md or justfile/Makefile, e.g. `just lint && just test-unit`)
 - Fix any issues before proceeding
 - Update your progress in both the plan and your todos
 - Check off completed items in the plan file itself using Edit

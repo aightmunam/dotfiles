@@ -78,10 +78,7 @@ If the user's feedback requires understanding new code patterns or validating as
    - **thoughts-locator** - To find related research or decisions
    - **thoughts-analyzer** - To extract insights from documents
 
-   **Be EXTREMELY specific about directories**:
-   - If the change involves "WUI", specify `humanlayer-wui/` directory
-   - If it involves "daemon", specify `hld/` directory
-   - Include full path context in prompts
+   **Be specific about directories** - include full path context in prompts
 
 3. **Read any new files identified by research**:
    - Read them FULLY into the main context
@@ -197,7 +194,7 @@ When updating success criteria, always maintain the two-category structure:
 
 1. **Automated Verification** (can be run by execution agents):
    - Commands that can be run: `make test`, `npm run lint`, etc.
-   - Prefer `make` commands: `make -C humanlayer-wui check` instead of `cd humanlayer-wui && bun run fmt`
+   - Prefer the repo's task-runner targets (e.g. `just lint`, `just test-unit`) over raw tool invocations
    - Specific files that should exist
    - Code compilation/type checking
 
@@ -214,11 +211,7 @@ When spawning research sub-tasks:
 1. **Only spawn if truly needed** - don't research for simple changes
 2. **Spawn multiple tasks in parallel** for efficiency
 3. **Each task should be focused** on a specific area
-4. **Provide detailed instructions** including:
-   - Exactly what to search for
-   - Which directories to focus on
-   - What information to extract
-   - Expected output format
+4. **Describe the goal, not the search technique**: what to find and why, which directories are in scope, and what to return. The agents already know how to search.
 5. **Request specific file:line references** in responses
 6. **Wait for all tasks to complete** before synthesizing
 7. **Verify sub-task results** - if something seems off, spawn follow-up tasks

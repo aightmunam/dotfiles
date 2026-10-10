@@ -16,9 +16,10 @@ This command is **repo-agnostic** — it auto-detects the repository name, packa
    - Plan file path (if launching an implementation session)
 
 2. **Create the worktree**:
-   - Run: `wt-create <name> [branch]`
-   - This handles everything: git worktree, thoughts symlink, .claude config, .env, dependency installation
-   - The worktree will be created at `~/wt/<repo-name>/<name>`
+   - Run: `git worktree add ~/wt/<repo-name>/<name> -b <branch>`
+   - Copy untracked env files (`.env`) from the main checkout; if the main checkout has a `thoughts/` directory, symlink it into the worktree
+   - Install dependencies with the repo's install command (e.g. `poetry install`)
+   - Never copy `.claude/` recursively — it can be gigabytes
 
 3. **Determine launch details** (if implementing a plan):
    - Path to plan file (use relative path only)
@@ -41,13 +42,13 @@ branch name: <BRANCH_NAME>
 path to plan file: <FILEPATH>
 launch prompt:
 
-    /implement_plan at <FILEPATH> and when you are done implementing and all tests pass, read .claude/commands/commit.md and create a commit, then read .claude/commands/describe_pr.md and create a PR
+    /implement_plan at <FILEPATH>. When all phases pass, run /commit, push the branch, open a draft PR with gh pr create, then run /describe_pr on it.
 
 command to run:
 
-    claude -w ~/wt/<repo-name>/<name> "/implement_plan at <FILEPATH> ..."
+    cd ~/wt/<repo-name>/<name> && claude "/implement_plan at <FILEPATH> ..."
 ```
 
 Incorporate any user feedback then:
 
-5. **Execute**: Run the worktree creation script, then launch implementation session if requested.
+5. **Execute**: Create the worktree as above, then launch implementation session if requested.

@@ -8,14 +8,8 @@ model: opus
 
 You are tasked with conducting comprehensive research across the codebase to answer user questions by spawning parallel sub-agents and synthesizing their findings.
 
-## CRITICAL: YOUR ONLY JOB IS TO DOCUMENT AND EXPLAIN THE CODEBASE AS IT EXISTS TODAY
-- DO NOT suggest improvements or changes unless the user explicitly asks for them
-- DO NOT perform root cause analysis unless the user explicitly asks for them
-- DO NOT propose future enhancements unless the user explicitly asks for them
-- DO NOT critique the implementation or identify problems
-- DO NOT recommend refactoring, optimization, or architectural changes
-- ONLY describe what exists, where it exists, how it works, and how components interact
-- You are creating a technical map/documentation of the existing system
+## Scope
+This command maps the codebase as it exists today: what exists, where, how it works, and how components interact. Leave out improvement suggestions, critiques, root-cause analysis and refactoring ideas unless the user asks for them. Planning and review happen in other commands.
 
 ## Initial Setup:
 
@@ -50,7 +44,7 @@ Then wait for the user's research query.
    - Use the **codebase-analyzer** agent to understand HOW specific code works (without critiquing it)
    - Use the **codebase-pattern-finder** agent to find examples of existing patterns (without evaluating them)
 
-   **IMPORTANT**: All agents are documentarians, not critics. They will describe what exists without suggesting improvements or identifying issues.
+   Tell agents they are describing the code, not evaluating it.
 
    **For thoughts directory:**
    - Use the **thoughts-locator** agent to discover what documents exist about the topic
@@ -60,17 +54,14 @@ Then wait for the user's research query.
    - Use the **web-search-researcher** agent for external documentation and resources
    - IF you use web-research agents, instruct them to return LINKS with their findings, and please INCLUDE those links in your final report
 
-   **For Linear tickets (if relevant):**
-   - Use the **linear-ticket-reader** agent to get full details of a specific ticket
-   - Use the **linear-searcher** agent to find related tickets or historical context
+   **For Jira tickets (if relevant):**
+   - Fetch the ticket or search related ones with the Atlassian tools (getJiraIssue / searchJiraIssuesUsingJql)
 
    The key is to use these agents intelligently:
    - Start with locator agents to find what exists
    - Then use analyzer agents on the most promising findings to document how they work
    - Run multiple agents in parallel when they're searching for different things
-   - Each agent knows its job - just tell it what you're looking for
-   - Don't write detailed prompts about HOW to search - the agents already know
-   - Remind agents they are documenting, not evaluating or improving
+   - Tell each agent what to find and why: the question, the directories in scope, and what to return (file:line references). Leave the search technique to the agent — it already knows how to search.
 
 4. **Wait for all sub-agents to complete and synthesize findings:**
    - IMPORTANT: Wait for ALL sub-agent tasks to complete before proceeding
@@ -79,12 +70,12 @@ Then wait for the user's research query.
    - Use thoughts/ findings as supplementary historical context
    - Connect findings across different components
    - Include specific file paths and line numbers for reference
-   - Verify all thoughts/ paths are correct (e.g., thoughts/allison/ not thoughts/shared/ for personal files)
+   - Verify all thoughts/ paths are correct (e.g., thoughts/munammubashir/ not thoughts/shared/ for personal files)
    - Highlight patterns, connections, and architectural decisions
    - Answer the user's specific questions with concrete evidence
 
 5. **Gather metadata for the research document:**
-   - Run the `hack/spec_metadata.sh` script to generate all relevant metadata
+   - Gather metadata: current date/time with timezone, `git rev-parse HEAD`, current branch, repository name, and researcher name from `humanlayer thoughts status`
    - Filename: `thoughts/shared/research/YYYY-MM-DD-ENG-XXXX-description.md`
      - Format: `YYYY-MM-DD-ENG-XXXX-description.md` where:
        - YYYY-MM-DD is today's date
@@ -194,22 +185,15 @@ Then wait for the user's research query.
 - Keep the main agent focused on synthesis, not deep file reading
 - Have sub-agents document examples and usage patterns as they exist
 - Explore all of thoughts/ directory, not just research subdirectory
-- **CRITICAL**: You and all sub-agents are documentarians, not evaluators
-- **REMEMBER**: Document what IS, not what SHOULD BE
-- **NO RECOMMENDATIONS**: Only describe the current state of the codebase
 - **File reading**: Always read mentioned files FULLY (no limit/offset) before spawning sub-tasks
-- **Critical ordering**: Follow the numbered steps exactly
-  - ALWAYS read mentioned files first before spawning sub-tasks (step 1)
-  - ALWAYS wait for all sub-agents to complete before synthesizing (step 4)
-  - ALWAYS gather metadata before writing the document (step 5 before step 6)
-  - NEVER write the research document with placeholder values
+- Don't write the document with placeholder values.
 - **Path handling**: The thoughts/searchable/ directory contains hard links for searching
   - Always document paths by removing ONLY "searchable/" - preserve all other subdirectories
   - Examples of correct transformations:
-    - `thoughts/searchable/allison/old_stuff/notes.md` → `thoughts/allison/old_stuff/notes.md`
+    - `thoughts/searchable/munammubashir/old_stuff/notes.md` → `thoughts/munammubashir/old_stuff/notes.md`
     - `thoughts/searchable/shared/prs/123.md` → `thoughts/shared/prs/123.md`
     - `thoughts/searchable/global/shared/templates.md` → `thoughts/global/shared/templates.md`
-  - NEVER change allison/ to shared/ or vice versa - preserve the exact directory structure
+  - Never change <user>/ to shared/ or vice versa - preserve the exact directory structure
   - This ensures paths are correct for editing and navigation
 - **Frontmatter consistency**:
   - Always include frontmatter at the beginning of research documents

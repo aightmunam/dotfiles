@@ -58,18 +58,7 @@ Then wait for the user's input.
      - Other notes
 
 2. **Spawn focused research tasks**:
-   Based on the handoff content, spawn parallel research tasks to verify current state:
-
-   ```
-   Task 1 - Gather artifact context:
-   Read all artifacts mentioned in the handoff.
-   1. Read feature documents listed in "Artifacts"
-   2. Read implementation plans referenced
-   3. Read any research documents mentioned
-   4. Extract key requirements and decisions
-   Use tools: Read
-   Return: Summary of artifact contents and key decisions
-   ```
+   Read the artifacts listed in the handoff yourself. Spawn subagents only to check that the handoff's "Recent changes" are still present in the code when there are many of them.
 
 3. **Wait for ALL sub-tasks to complete** before proceeding
 

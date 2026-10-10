@@ -1,5 +1,6 @@
 ---
 name: improve_claude_md
+name: improve-claude-md
 description: improve a CLAUDE.md file using <important if> blocks to improve instruction adherence
 ---
 

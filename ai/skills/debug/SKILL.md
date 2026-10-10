@@ -35,26 +35,8 @@ I can investigate logs, database state, and recent changes to help identify the 
 
 ## Environment Information
 
-You have access to these key locations and tools:
+Find the logs, database and running services for the project from its CLAUDE.md, justfile/Makefile and docker-compose files. Check git state with `git status`, `git log --oneline -10` and `git diff`.
 
-**Logs** (automatically created by `make daemon` and `make wui`):
-- MCP logs: `~/.humanlayer/logs/mcp-claude-approvals-*.log`
-- Combined WUI/Daemon logs: `~/.humanlayer/logs/wui-${BRANCH_NAME}/codelayer.log`
-- First line shows: `[timestamp] starting [service] in [directory]`
-
-**Database**:
-- Location: `~/.humanlayer/daemon-{BRANCH_NAME}.db`
-- SQLite database with sessions, events, approvals, etc.
-- Can query directly with `sqlite3`
-
-**Git State**:
-- Check current branch, recent commits, uncommitted changes
-- Similar to how `commit` and `describe_pr` commands work
-
-**Service Status**:
-- Check if daemon is running: `ps aux | grep hld`
-- Check if WUI is running: `ps aux | grep wui`
-- Socket exists: `~/.humanlayer/daemon.sock`
 
 ## Process Steps
 
@@ -74,28 +56,23 @@ After the user describes the issue:
 
 ### Step 2: Investigate the Issue
 
-Spawn parallel Task agents for efficient investigation:
+Spawn parallel subagents for efficient investigation:
 
 ```
 Task 1 - Check Recent Logs:
 Find and analyze the most recent logs for errors:
-1. Find latest daemon log: ls -t ~/.humanlayer/logs/daemon-*.log | head -1
-2. Find latest WUI log: ls -t ~/.humanlayer/logs/wui-*.log | head -1
-3. Search for errors, warnings, or issues around the problem timeframe
-4. Note the working directory (first line of log)
-5. Look for stack traces or repeated errors
+1. Locate the project's logs (local server output, docker compose logs, cloud logging per its CLAUDE.md)
+2. Search for errors, warnings, or issues around the problem timeframe
+3. Look for stack traces or repeated errors
 Return: Key errors/warnings with timestamps
 ```
 
 ```
 Task 2 - Database State:
 Check the current database state:
-1. Connect to database: sqlite3 ~/.humanlayer/daemon.db
-2. Check schema: .tables and .schema for relevant tables
-3. Query recent data:
-   - SELECT * FROM sessions ORDER BY created_at DESC LIMIT 5;
-   - SELECT * FROM conversation_events WHERE created_at > datetime('now', '-1 hour');
-   - Other queries based on the issue
+1. Connect to the project's database (connection details in its CLAUDE.md / .env sample), read-only
+2. Inspect the relevant tables' schema
+3. Query recent rows related to the issue
 4. Look for stuck states or anomalies
 Return: Relevant database findings
 ```
@@ -123,7 +100,7 @@ Based on the investigation, present a focused debug report:
 
 ### Evidence Found
 
-**From Logs** (`~/.humanlayer/logs/`):
+**From Logs**:
 - [Error/warning with timestamp]
 - [Pattern or repeated issue]
 
@@ -148,9 +125,7 @@ Based on the investigation, present a focused debug report:
    ```
 
 2. **If That Doesn't Work**:
-   - Restart services: `make daemon` and `make wui`
-   - Check browser console for WUI errors
-   - Run with debug: `HUMANLAYER_DEBUG=true make daemon`
+   - Restart the affected services with the project's own commands (see its CLAUDE.md / justfile)
 
 ### Can't Access?
 Some issues might be outside my reach:
@@ -171,25 +146,6 @@ Would you like me to investigate something specific further?
 - **No file editing** - Pure investigation only
 
 ## Quick Reference
-
-**Find Latest Logs**:
-```bash
-ls -t ~/.humanlayer/logs/daemon-*.log | head -1
-ls -t ~/.humanlayer/logs/wui-*.log | head -1
-```
-
-**Database Queries**:
-```bash
-sqlite3 ~/.humanlayer/daemon.db ".tables"
-sqlite3 ~/.humanlayer/daemon.db ".schema sessions"
-sqlite3 ~/.humanlayer/daemon.db "SELECT * FROM sessions ORDER BY created_at DESC LIMIT 5;"
-```
-
-**Service Check**:
-```bash
-ps aux | grep hld     # Is daemon running?
-ps aux | grep wui     # Is WUI running?
-```
 
 **Git State**:
 ```bash

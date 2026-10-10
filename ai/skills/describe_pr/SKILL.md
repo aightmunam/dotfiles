@@ -10,8 +10,7 @@ You are tasked with generating a comprehensive pull request description followin
 ## Steps to follow:
 
 1. **Read the PR description template:**
-   - First, check if `thoughts/shared/pr_description.md` exists
-   - If it doesn't exist, inform the user that their `humanlayer thoughts` setup is incomplete and they need to create a PR description template at `thoughts/shared/pr_description.md`
+   - Use the repo's PR template (`thoughts/shared/pr_description.md`, `.github/pull_request_template.md`) if one exists; otherwise follow the PR-description rules in the project CLAUDE.md, or a concise What/Why/How-to-verify structure
    - Read the template carefully to understand all sections and requirements
 
 
@@ -56,6 +55,7 @@ You are tasked with generating a comprehensive pull request description followin
      - Include technical details in appropriate sections
      - Write a concise changelog entry
    - Ensure all checklist items are addressed (checked or explained)
+   - Don't add Claude attribution ("Generated with Claude Code", Co-Authored-By) to the PR body
 
 8. **Save and sync the description:**
    - Ensure the output directory exists: `mkdir -p "$(readlink thoughts/shared)/prs"`

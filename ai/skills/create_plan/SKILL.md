@@ -28,8 +28,7 @@ Please provide:
 
 I'll analyze this information and work with you to create a comprehensive plan.
 
-Tip: You can also invoke this command with a ticket file directly: `/create_plan thoughts/allison/tickets/eng_1234.md`
-For deeper analysis, try: `/create_plan think deeply about thoughts/allison/tickets/eng_1234.md`
+Tip: You can also invoke this command with a ticket file directly: `/create_plan thoughts/shared/specs/<spec>.md`
 ```
 
 Then wait for the user's input.
@@ -39,13 +38,11 @@ Then wait for the user's input.
 ### Step 1: Context Gathering & Initial Analysis
 
 1. **Read all mentioned files immediately and FULLY**:
-   - Ticket files (e.g., `thoughts/allison/tickets/eng_1234.md`)
+   - Ticket or spec files (e.g., `thoughts/shared/specs/<spec>.md`)
    - Research documents
    - Related implementation plans
    - Any JSON/data files mentioned
-   - **IMPORTANT**: Use the Read tool WITHOUT limit/offset parameters to read entire files
-   - **CRITICAL**: DO NOT spawn sub-tasks before reading these files yourself in the main context
-   - **NEVER** read files partially - if a file is mentioned, read it completely
+   - Read each mentioned file in full yourself before spawning subagents, so the research you delegate is scoped by the actual ticket.
 
 2. **Spawn initial research tasks to gather context**:
    Before asking the user any questions, use specialized agents to research in parallel:
@@ -53,11 +50,11 @@ Then wait for the user's input.
    - Use the **codebase-locator** agent to find all files related to the ticket/task
    - Use the **codebase-analyzer** agent to understand how the current implementation works
    - If relevant, use the **thoughts-locator** agent to find any existing thoughts documents about this feature
-   - If a Linear ticket is mentioned, use the **linear-ticket-reader** agent to get full details
+   - If a Jira ticket is mentioned, fetch it with the Atlassian tools (getJiraIssue)
 
    These agents will:
    - Find relevant source files, configs, and tests
-   - Identify the specific directories to focus on (e.g., if WUI is mentioned, they'll focus on humanlayer-wui/)
+   - Identify the specific directories to focus on
    - Trace data flow and key functions
    - Return detailed explanations with file:line references
 
@@ -102,7 +99,7 @@ After getting initial clarifications:
 2. **Create a research todo list** using TodoWrite to track exploration tasks
 
 3. **Spawn parallel sub-tasks for comprehensive research**:
-   - Create multiple Task agents to research different aspects concurrently
+   - Create multiple subagents to research different aspects concurrently
    - Use the right agent for each type of research:
 
    **For deeper investigation:**
@@ -115,7 +112,7 @@ After getting initial clarifications:
    - **thoughts-analyzer** - To extract key insights from the most relevant documents
 
    **For related tickets:**
-   - **linear-searcher** - To find similar issues or past implementations
+   - Search Jira with the Atlassian tools (searchJiraIssuesUsingJql) for similar issues
 
    Each agent knows how to:
    - Find the right files and code patterns
@@ -329,7 +326,7 @@ After structure approval:
    - Research actual code patterns using parallel sub-tasks
    - Include specific file paths and line numbers
    - Write measurable success criteria with clear automated vs manual distinction
-   - automated steps should use `make` whenever possible - for example `make -C humanlayer-wui check` instead of `cd humanlayer-wui && bun run fmt`
+   - automated steps should use the repo's task-runner targets (e.g. `just lint`, `just test-unit`) rather than raw tool invocations
 
 4. **Be Practical**:
    - Focus on incremental, testable changes
@@ -371,8 +368,8 @@ After structure approval:
 
 #### Automated Verification:
 - [ ] Database migration runs successfully: `make migrate`
-- [ ] All unit tests pass: `go test ./...`
-- [ ] No linting errors: `golangci-lint run`
+- [ ] All unit tests pass: `just test-unit`
+- [ ] No linting errors: `just lint`
 - [ ] API endpoint returns 200: `curl localhost:8080/api/new-endpoint`
 
 #### Manual Verification:
@@ -382,62 +379,20 @@ After structure approval:
 - [ ] Feature works correctly on mobile devices
 ```
 
-## Common Patterns
-
-### For Database Changes:
-- Start with schema/migration
-- Add store methods
-- Update business logic
-- Expose via API
-- Update clients
-
-### For New Features:
-- Research existing patterns first
-- Start with data model
-- Build backend logic
-- Add API endpoints
-- Implement UI last
-
-### For Refactoring:
-- Document current behavior
-- Plan incremental changes
-- Maintain backwards compatibility
-- Include migration strategy
-
 ## Sub-task Spawning Best Practices
 
 When spawning research sub-tasks:
 
 1. **Spawn multiple tasks in parallel** for efficiency
 2. **Each task should be focused** on a specific area
-3. **Provide detailed instructions** including:
-   - Exactly what to search for
-   - Which directories to focus on
-   - What information to extract
-   - Expected output format
-4. **Be EXTREMELY specific about directories**:
-   - If the ticket mentions "WUI", specify `humanlayer-wui/` directory
-   - If it mentions "daemon", specify `hld/` directory
-   - Never use generic terms like "UI" when you mean "WUI"
-   - Include the full path context in your prompts
-5. **Specify read-only tools** to use
-6. **Request specific file:line references** in responses
-7. **Wait for all tasks to complete** before synthesizing
-8. **Verify sub-task results**:
+3. **Describe the goal, not the search technique**: what to find and why, which directories are in scope, and what to return. The agents already know how to search.
+4. **Be specific about directories** - include the full path context in your prompts
+5. **Request specific file:line references** in responses
+6. **Wait for all tasks to complete** before synthesizing
+7. **Verify sub-task results**:
    - If a sub-task returns unexpected results, spawn follow-up tasks
    - Cross-check findings against the actual codebase
    - Don't accept results that seem incorrect
-
-Example of spawning multiple tasks:
-```python
-# Spawn these tasks concurrently:
-tasks = [
-    Task("Research database schema", db_research_prompt),
-    Task("Find API patterns", api_research_prompt),
-    Task("Investigate UI components", ui_research_prompt),
-    Task("Check test patterns", test_research_prompt)
-]
-```
 
 ## Example Interaction Flow
 
@@ -450,7 +405,7 @@ Assistant: Let me read that ticket file completely first...
 
 [Reads file fully]
 
-Based on the ticket, I understand we need to track parent-child relationships for Claude sub-task events in the hld daemon. Before I start planning, I have some questions...
+Based on the ticket, I understand we need to add rate limiting to the public API. Before I start planning, I have some questions...
 
 [Interactive process continues...]
 ```

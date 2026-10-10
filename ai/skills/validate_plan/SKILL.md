@@ -25,7 +25,7 @@ When invoked:
    git diff HEAD~N..HEAD  # Where N covers implementation commits
 
    # Run comprehensive checks
-   cd $(git rev-parse --show-toplevel) && make check test
+   cd $(git rev-parse --show-toplevel) && just lint && just test-unit   # or the repo's equivalent targets
    ```
 
 ## Validation Process
@@ -75,7 +75,7 @@ For each phase in the plan:
    - List what needs manual testing
    - Provide clear steps for user verification
 
-4. **Think deeply about edge cases**:
+4. **Check edge cases**:
    - Were error conditions handled?
    - Are there missing validations?
    - Could the implementation break existing functionality?
