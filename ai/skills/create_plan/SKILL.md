@@ -184,6 +184,23 @@ After structure approval:
 2. **Use this template structure**:
 
 ````markdown
+---
+kind: plan
+title: [Feature/Task Name]
+repo: [owner/name]
+date: YYYY-MM-DD
+status: draft                # draft | approved | in-progress | done
+spec: [path to the spec, if any; omit the key otherwise]
+phases:
+  - id: P1
+    title: [Descriptive Name]
+    files:
+      - { path: path/to/file.ext, change: modified }   # new | modified | deleted
+  - id: P2
+    title: [Descriptive Name]
+    files: []                    # list every **File**: from Phase 2's body here
+---
+
 # [Feature/Task Name] Implementation Plan
 
 ## Overview
@@ -210,6 +227,21 @@ After structure approval:
 ## Implementation Approach
 
 [High-level strategy and reasoning]
+
+## Before → After
+
+### Before
+```mermaid
+flowchart LR
+  a["Existing component"] --> b["Existing component"]
+```
+
+### After
+```mermaid
+flowchart LR
+  a["Existing component"] --> c["New component"]
+  c --> b["Existing component"]
+```
 
 ## Phase 1: [Descriptive Name]
 
@@ -280,6 +312,16 @@ After structure approval:
 - Similar implementation: `[file:line]`
 ````
 
+3. **Rules for the manifest and diagrams** (grimoire renders plans from them and flags any drift):
+   - **Always include the `## Before → After` section with both diagrams.** Every plan gets them, however small the change. For greenfield work, Before shows the existing system the new piece plugs into (or a single node for what's there today); never drop the section or leave a diagram out.
+   - Diagrams show only the components this plan touches, about 12 nodes at most each. New pieces appear only in After; removed pieces appear only in Before.
+   - Use mermaid `flowchart LR`, quote every label (`a["Label"]`), and don't start a label with `/` (mermaid reads it as shape syntax).
+   - Fill `phases[].files` from the same Changes Required items you write into the body. Every `**File**:` in a phase must appear in that phase's manifest entry, and the other way round.
+   - One `**File**:` per Changes Required item.
+   - Paths are repo-relative; files in another repo use `~/` paths.
+   - Phase ids are `P1`, `P2`, … matching the `## Phase N:` headings; keep phase titles to about 40 characters.
+   - `change` is one of `new`, `modified`, `deleted`.
+
 ### Step 5: Sync and Review
 
 1. **Sync the thoughts directory**:
@@ -290,6 +332,7 @@ After structure approval:
    ```
    I've created the initial implementation plan at:
    `thoughts/shared/plans/YYYY-MM-DD-ENG-XXXX-description.md`
+   Grimoire: http://review:6937/p/YYYY-MM-DD-ENG-XXXX-description
 
    Please review it and let me know:
    - Are the phases properly scoped?
