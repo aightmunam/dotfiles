@@ -33,24 +33,28 @@ def logo(agent: str) -> str:
     return chr(0xE1A0 + VENDORS.index(name)) if name in VENDORS else ""
 
 
-def count(n: int, noun: str) -> str:
-    return f"{n} {noun}" if n == 1 else f"{n} {noun}s"
+# Most urgent first; idle agents are left out of the summary
+STATUS_LABELS = {"blocked": "need you", "working": "working", "done": "done"}
+
+
+def summary(statuses: Counter[str]) -> str:
+    parts = [f"{statuses[s]} {label}" for s, label in STATUS_LABELS.items() if statuses[s]]
+    return " · ".join(parts) or "all idle"
 
 
 def main() -> None:
     workspaces = herdr("workspace", "list")["workspaces"]
     agents = herdr("agent", "list")["agents"]
     labels = {w["workspace_id"]: w["label"] for w in workspaces}
-    agents_per_space = Counter(a["workspace_id"] for a in agents)
+    statuses_per_space: dict[str, Counter[str]] = {w["workspace_id"]: Counter() for w in workspaces}
 
     for agent in agents:
+        statuses_per_space.setdefault(agent["workspace_id"], Counter())[agent["agent_status"]] += 1
         # One token, so herdr doesn't put its " · " separator between logo and name
         head = " ".join(filter(None, [logo(agent["agent"]), labels.get(agent["workspace_id"], "")]))
         report("pane", agent["pane_id"], "head", head)
-
     for space in workspaces:
-        summary = f"{count(space['tab_count'], 'tab')} · {count(agents_per_space[space['workspace_id']], 'agent')}"
-        report("workspace", space["workspace_id"], "summary", summary)
+        report("workspace", space["workspace_id"], "summary", summary(statuses_per_space[space["workspace_id"]]))
 
 
 main()

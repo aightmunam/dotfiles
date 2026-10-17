@@ -2,7 +2,7 @@ id = "local.sidebar"
 name = "Sidebar"
 version = "0.1.0"
 min_herdr_version = "0.9.0"
-description = "Reports $head (agent logo + workspace name) for agent rows and $summary (tab and agent counts) for space rows"
+description = "Reports $head (agent logo + workspace name) for agent rows and $summary (agent status counts) for space rows"
 platforms = ["macos"]
 
 [[startup]]
