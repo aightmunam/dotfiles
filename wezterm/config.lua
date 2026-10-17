@@ -34,9 +34,10 @@ config = {
 		top = 16,
 		bottom = 16,
 	},
-	-- Cmd+K opens the herdr-bar command bar; herdr reads this CSI-u sequence as ctrl+alt+k
+	-- herdr reads these CSI-u sequences as ctrl+alt+<key>
 	keys = {
-		{ key = "k", mods = "CMD", action = wezterm.action.SendString("\x1b[107;7u") },
+		{ key = "k", mods = "CMD", action = wezterm.action.SendString("\x1b[107;7u") }, -- herdr-bar command bar
+		{ key = "b", mods = "CMD", action = wezterm.action.SendString("\x1b[98;7u") }, -- herdr-projects work board
 	},
 	front_end = "WebGpu",
 	max_fps = 120,

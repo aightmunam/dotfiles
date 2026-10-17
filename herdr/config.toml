@@ -330,8 +330,9 @@ description = "zoetrope: session graph (overlay)"
 # description = "zoetrope: session graph (tab)"
 
 # <<< furkankly.zoetrope keys
+# ctrl+alt+b is what WezTerm sends for Cmd+B (see wezterm/config.lua).
 [[keys.command]]
-key = "prefix+t"
+key = ["prefix+t", "ctrl+alt+b"]
 type = "plugin_action"
 command = "herdr-projects.open"
 description = "Open the work board"
