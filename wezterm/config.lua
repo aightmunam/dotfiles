@@ -15,41 +15,24 @@ config = {
 	check_for_updates = false,
 	use_fancy_tab_bar = false,
 	tab_bar_at_bottom = false,
-	line_height = 1.15,
-	font_size = 14,
-	font = wezterm.font("Mononoki", { weight = "Bold" }),
+	-- Type and spacing follow the Hairline tokens (~/Developer/design-system/systems/hairline)
+	line_height = 1.15, -- --leading-tight
+	font_size = 14, -- --text-md
+	font = wezterm.font("JetBrains Mono", { weight = "Regular" }), -- --font-mono, 400
+	-- Hairline never goes above weight 500, so terminal bold renders as Medium
+	font_rules = {
+		{ intensity = "Bold", italic = false, font = wezterm.font("JetBrains Mono", { weight = "Medium" }) },
+		{ intensity = "Bold", italic = true, font = wezterm.font("JetBrains Mono", { weight = "Medium", italic = true }) },
+	},
 	enable_tab_bar = false,
 	window_padding = {
-		left = 15,
-		right = 15,
-		top = 15,
-		bottom = 15,
+		left = 16, -- --space-4
+		right = 16,
+		top = 16,
+		bottom = 16,
 	},
 	front_end = "WebGpu",
 	max_fps = 120,
-	background = {
-		{
-			source = {
-				File = "/Users/" .. os.getenv("USER") .. "/.config/wezterm/bg.png",
-			},
-			hsb = {
-				hue = 1.0,
-				saturation = 1.02,
-				brightness = 0.25,
-			},
-			-- attachment = { Parallax = 0.3 },
-			-- width = '100%',
-			-- height = '100%',
-		},
-		{
-			source = {
-				Color = "#282c35",
-			},
-			width = "100%",
-			height = "100%",
-			opacity = 0.55,
-		},
-	},
 	-- from: https://akos.ma/blog/adopting-wezterm/
 	hyperlink_rules = {
 		-- Matches: a URL in parens: (URL)

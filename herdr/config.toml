@@ -20,12 +20,33 @@ name = "gruvbox"
 
 # Override individual color tokens on top of the base theme.
 # Accepts: hex (#rrggbb), named colors, rgb(r,g,b), or panel_bg = "reset"
+# Dark only: auto_switch never fires under WezTerm, so panes and chrome would split.
 auto_switch = false
+
+# Hairline design system v1.5.0 dark (~/Developer/design-system/systems/hairline).
+# Every token is overridden, so the base theme above only acts as a fallback.
+# Matches the "Hairline Dark" scheme in wezterm/hairline.lua.
 [theme.custom]
-panel_bg = "reset"
-# accent = "#f5c2e7"
-# red = "#ff6188"
-# green = "#a6e3a1"
+panel_bg = "#010120"       # --bg navy canvas
+accent = "#bdbbff"         # --link / periwinkle
+sidebar_bg = "#010120"     # --bg navy canvas
+active_row_bg = "#22223f"  # --raised
+selection_bg = "#292648"   # --sev-low-soft
+surface0 = "#22223f"       # --raised
+surface1 = "#4a4a63"       # --line-strong
+surface_dim = "#0b0b2b"    # --sunken
+overlay0 = "#6b6b85"       # --faint
+overlay1 = "#9a9ab0"       # --muted
+text = "#ffffff"           # --text
+subtext0 = "#9a9ab0"       # --muted
+red = "#ff6b8b"            # --sev-critical
+peach = "#fc6b33"          # --sev-high
+yellow = "#f5b041"         # --sev-medium
+green = "#7fdc9a"          # --ok
+blue = "#aeacff"           # --cat-1
+mauve = "#d496f9"          # --cat-5
+teal = "#5edadb"           # --cat-6
+
 
 [terminal]
 # Executable used for new interactive panes.
@@ -191,6 +212,23 @@ split_vertical = "prefix+="
 # Background notification popup delivery
 agent_panel_sort = "priority"
 show_agent_labels_on_pane_borders = true
+
+# Each inner list is one line of an entry. $head and $summary come from plugins/sidebar.
+# No branch/git_status: tabs in one space run different worktrees.
+[ui.sidebar.spaces]
+row_gap = 1  # blank line between spaces
+rows = [
+  ["state_icon", "workspace"],
+  [{ token = "$summary", fg = "#9a9ab0" }],  # --muted
+]
+
+[ui.sidebar.agents]
+row_gap = 1  # blank line between agents
+rows = [
+  ["state_icon", "$head"],
+  ["tab"],
+]
+
 [ui.toast]
 # off = disable pop-up notifications
 # herdr = show in-app toasts
