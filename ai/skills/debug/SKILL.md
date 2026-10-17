@@ -1,6 +1,6 @@
 ---
 name: debug
-description: Debug issues by investigating logs, database state, and git history
+description: Use when something breaks during local manual testing or while implementing a plan, and you want a read-only look at local logs, database state and git history.
 ---
 
 # Debug
