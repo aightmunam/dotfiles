@@ -37,5 +37,6 @@ in
 
     # --- herdr ---
     ".config/herdr/config.toml".source = link "herdr/config.toml";
+    ".config/herdr/plugins/config/herdr-bar/config.json".source = link "herdr/herdr-bar.json";
   };
 }

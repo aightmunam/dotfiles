@@ -334,3 +334,11 @@ key = "prefix+t"
 type = "plugin_action"
 command = "herdr-projects.open"
 description = "Open the work board"
+
+# herdr-bar: fuzzy-jump to any tab, pane, agent, repo or branch.
+# ctrl+alt+k is what WezTerm sends for Cmd+K (see wezterm/config.lua).
+[[keys.command]]
+key = ["prefix+f", "ctrl+alt+k"]
+type = "plugin_action"
+command = "herdr-bar.open"
+description = "command bar"

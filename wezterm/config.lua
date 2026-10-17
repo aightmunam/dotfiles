@@ -18,11 +18,14 @@ config = {
 	-- Type and spacing follow the Hairline tokens (~/Developer/design-system/systems/hairline)
 	line_height = 1.15, -- --leading-tight
 	font_size = 14, -- --text-md
-	font = wezterm.font("JetBrains Mono", { weight = "Regular" }), -- --font-mono, 400
+	font = wezterm.font_with_fallback({
+		{ family = "JetBrains Mono", weight = "Regular" }, -- --font-mono, 400
+		"Herdr Agent Icons Max", -- agent logos at U+E1A0-U+E1B7 for herdr-bar
+	}),
 	-- Hairline never goes above weight 500, so terminal bold renders as Medium
 	font_rules = {
-		{ intensity = "Bold", italic = false, font = wezterm.font("JetBrains Mono", { weight = "Medium" }) },
-		{ intensity = "Bold", italic = true, font = wezterm.font("JetBrains Mono", { weight = "Medium", italic = true }) },
+		{ intensity = "Bold", italic = false, font = wezterm.font_with_fallback({ { family = "JetBrains Mono", weight = "Medium" }, "Herdr Agent Icons Max" }) },
+		{ intensity = "Bold", italic = true, font = wezterm.font_with_fallback({ { family = "JetBrains Mono", weight = "Medium", italic = true }, "Herdr Agent Icons Max" }) },
 	},
 	enable_tab_bar = false,
 	window_padding = {
@@ -30,6 +33,10 @@ config = {
 		right = 16,
 		top = 16,
 		bottom = 16,
+	},
+	-- Cmd+K opens the herdr-bar command bar; herdr reads this CSI-u sequence as ctrl+alt+k
+	keys = {
+		{ key = "k", mods = "CMD", action = wezterm.action.SendString("\x1b[107;7u") },
 	},
 	front_end = "WebGpu",
 	max_fps = 120,
