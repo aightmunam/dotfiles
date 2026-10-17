@@ -212,6 +212,7 @@ split_vertical = "prefix+="
 # Background notification popup delivery
 agent_panel_sort = "priority"
 show_agent_labels_on_pane_borders = true
+status_indicators = "symbols"  # one glyph per state, readable without colour
 
 # Each inner list is one line of an entry. $head and $summary come from plugins/sidebar.
 # No branch/git_status: tabs in one space run different worktrees.
