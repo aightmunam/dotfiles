@@ -9,7 +9,86 @@
   },
   "includeCoAuthoredBy": false,
   "permissions": {
-    "allow": [],
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git tag:*)",
+      "Bash(git remote -v:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git describe:*)",
+      "Bash(git name-rev:*)",
+      "Bash(git shortlog:*)",
+      "Bash(git stash list:*)",
+      "Bash(git fetch:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git switch:*)",
+      "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(file:*)",
+      "Bash(stat:*)",
+      "Bash(du:*)",
+      "Bash(df:*)",
+      "Bash(which:*)",
+      "Bash(type:*)",
+      "Bash(echo:*)",
+      "Bash(printf:*)",
+      "Bash(date:*)",
+      "Bash(pwd)",
+      "Bash(whoami)",
+      "Bash(uname:*)",
+      "Bash(hostname)",
+      "Bash(just test:*)",
+      "Bash(just lint:*)",
+      "Bash(just check:*)",
+      "Bash(just fmt:*)",
+      "Bash(pytest:*)",
+      "Bash(uv run pytest:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(python3 -m pytest:*)",
+      "Bash(python -m py_compile:*)",
+      "Bash(tox:*)",
+      "Bash(ruff check:*)",
+      "Bash(ruff format:*)",
+      "Bash(uv run ruff:*)",
+      "Bash(black:*)",
+      "Bash(isort:*)",
+      "Bash(flake8:*)",
+      "Bash(pylint:*)",
+      "Bash(mypy:*)",
+      "Bash(uv run mypy:*)",
+      "Bash(pyright:*)",
+      "Bash(pip list:*)",
+      "Bash(pip show:*)",
+      "Bash(pip freeze:*)",
+      "Bash(pipdeptree:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run test:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx jest:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(pnpm test:*)",
+      "Bash(yarn test:*)",
+      "Bash(bun test:*)",
+      "Bash(go test:*)",
+      "Bash(cargo test:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker images:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker inspect:*)",
+      "Bash(docker network ls:*)",
+      "Bash(docker volume ls:*)",
+      "Bash(docker build:*)",
+      "Bash(docker compose ps:*)",
+      "Bash(docker compose logs:*)",
+      "Bash(docker compose up:*)",
+      "Bash(docker compose down:*)",
+      "Bash(docker compose build:*)",
+      "Bash(docker compose restart:*)"
+    ],
     "deny": [],
     "defaultMode": "auto"
   },
@@ -33,15 +112,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.claude/hooks/auto-approve-compound-git.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
             "command": "$HOME/.claude/hooks/prefer-builtin-tools.sh"
           }
         ]
@@ -58,20 +128,15 @@
         ]
       },
       {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/context-monitor.sh"
-          }
-        ]
-      },
-      {
         "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/max-session-duration.sh"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/commit-gate.sh"
           }
         ]
       },
@@ -81,24 +146,6 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/activity-logger.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/auto-git-checkpoint.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/decision-warn.sh"
           }
         ]
       },
@@ -119,23 +166,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.claude/hooks/rtk-rewrite.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash $HOME/.claude/hooks/auto-approve-readonly.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash $HOME/.claude/hooks/auto-approve-test.sh"
-          },
-          {
-            "type": "command",
             "command": "bash $HOME/.claude/hooks/no-sudo-guard.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash $HOME/.claude/hooks/protect-claudemd.sh"
           },
           {
             "type": "command",
@@ -143,27 +174,11 @@
           },
           {
             "type": "command",
-            "command": "bash $HOME/.claude/hooks/skill-gate.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash $HOME/.claude/hooks/auto-approve-docker.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash $HOME/.claude/hooks/auto-approve-python.sh"
-          },
-          {
-            "type": "command",
             "command": "bash $HOME/.claude/hooks/env-source-guard.sh"
           },
           {
             "type": "command",
-            "command": "bash $HOME/.claude/hooks/guard-thoughts.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash $HOME/.claude/hooks/guard-test-required.sh"
+            "command": "$HOME/.claude/hooks/commit-gate.sh"
           }
         ]
       },
@@ -180,35 +195,7 @@
           },
           {
             "type": "command",
-            "command": "$HOME/.claude/hooks/comment-strip.sh"
-          },
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/cd-git-allow.sh"
-          },
-          {
-            "type": "command",
             "command": "$HOME/.claude/hooks/secret-guard.sh"
-          },
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/no-ask-human.sh"
-          },
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/verify-before-done.sh"
-          },
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/test-before-commit.sh"
-          },
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/verify-before-commit.sh"
-          },
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/backup-before-refactor.sh"
           },
           {
             "type": "command",
@@ -239,15 +226,6 @@
       }
     ],
     "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/api-error-alert.sh"
-          }
-        ]
-      },
       {
         "matcher": "",
         "hooks": [

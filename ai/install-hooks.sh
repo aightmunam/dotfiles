@@ -4,7 +4,7 @@
 # come from upstream sources. Custom, user-authored hooks live in claude/hooks/
 # and ARE tracked. This script restores everything else into ~/.claude/hooks/,
 # which settings.json (versioned) references by path:
-#   - tool-managed hooks (rtk, herdr) that their own tools create/overwrite
+#   - tool-managed hooks (herdr) that their own tools create/overwrite
 #   - upstream safety hooks from yurukusa/claude-code-hooks (pinned)
 #   - upstream safety hooks from yurukusa/cc-safe-setup      (pinned)
 #
@@ -28,15 +28,6 @@ mkdir -p "$dest"
 echo "==> Claude hooks -> $dest"
 
 # --- tool-managed hooks -----------------------------------------------------
-echo "-> rtk hook (rtk init -g --hook-only --no-patch)"
-if ! command -v rtk >/dev/null 2>&1; then
-  skip "rtk not on PATH — skipped (post-install installs rtk earlier)"
-elif rtk init -g --hook-only --no-patch >/dev/null 2>&1; then
-  ok "installed/updated"
-else
-  warn "rtk hook install failed — run: rtk init -g --hook-only --no-patch"; fail_total=$((fail_total + 1))
-fi
-
 echo "-> herdr hook (herdr integration install claude)"
 if ! command -v herdr >/dev/null 2>&1; then
   skip "herdr not on PATH — run 'make build' first, then re-run"
@@ -71,31 +62,26 @@ fetch_hooks() {
 CCH_REF="4e62261f5036a0b166aba65c502258710d5f8322"
 fetch_hooks "yurukusa/claude-code-hooks @ ${CCH_REF:0:7}" \
   "https://raw.githubusercontent.com/yurukusa/claude-code-hooks/${CCH_REF}/hooks" \
-  activity-logger.sh auto-approve-readonly.sh branch-guard.sh cd-git-allow.sh \
-  comment-strip.sh context-monitor.sh decision-warn.sh destructive-guard.sh \
-  no-ask-human.sh proof-log-session.sh secret-guard.sh syntax-check.sh
+  activity-logger.sh branch-guard.sh destructive-guard.sh \
+  proof-log-session.sh secret-guard.sh syntax-check.sh
 
 # --- yurukusa/cc-safe-setup (pinned, examples/) -----------------------------
 CCS_REF="07f676f8960cffca8e16767e1b1c90ef813905e9"
 fetch_hooks "yurukusa/cc-safe-setup @ ${CCS_REF:0:7}" \
   "https://raw.githubusercontent.com/yurukusa/cc-safe-setup/${CCS_REF}/examples" \
-  auto-approve-compound-git.sh auto-approve-docker.sh auto-approve-python.sh \
-  auto-approve-test.sh auto-git-checkpoint.sh backup-before-refactor.sh \
   env-source-guard.sh loop-detector.sh max-session-duration.sh \
   memory-write-guard.sh no-sudo-guard.sh notify-waiting.sh prefer-builtin-tools.sh \
-  prompt-injection-detector.sh protect-claudemd.sh scope-guard.sh skill-gate.sh \
-  test-before-commit.sh verify-before-commit.sh verify-before-done.sh
+  prompt-injection-detector.sh scope-guard.sh
 
 # --- portability patches -----------------------------------------------------
 # The pinned upstreams use GNU-only `stat -c %Y`; macOS ships BSD stat, which
-# rejects -c, and the `|| echo 0` fallback then silently yields mtime 0. In
-# verify-before-commit.sh that makes every test marker look epoch-old, so the
-# guard fail-closes and blocks EVERY commit; in proof-log-session.sh it just
-# logs an absurd session duration. Rewrite the call to try BSD `stat -f %m`
-# first with the GNU form as fallback. Idempotent: files already containing the
-# BSD form are skipped. Drop this once fixed upstream and the *_REF pins move.
+# rejects -c, and the `|| echo 0` fallback then silently yields mtime 0, so
+# proof-log-session.sh logs an absurd session duration. Rewrite the call to try
+# BSD `stat -f %m` first with the GNU form as fallback. Idempotent: files
+# already containing the BSD form are skipped. Drop this once fixed upstream
+# and the *_REF pins move.
 echo "-> portability patches (BSD/GNU stat)"
-for f in verify-before-commit.sh proof-log-session.sh; do
+for f in proof-log-session.sh; do
   if [ ! -f "$dest/$f" ]; then
     warn "$f missing — fetch failed above?"
   elif grep -q 'stat -f %m' "$dest/$f"; then
