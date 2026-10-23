@@ -9,6 +9,9 @@ local themes = {
 }
 local success, stdout, stderr = wezterm.run_child_process({ os.getenv("SHELL"), "-c", "printenv WEZTERM_THEME" })
 local selected_theme = stdout:gsub("%s+", "") -- Remove all whitespace characters including newline
-config.color_scheme = themes[selected_theme]
+
+-- Default to Hairline Dark, matching herdr's theme (herdr can't follow a light switch here)
+config.color_schemes = require("hairline")
+config.color_scheme = themes[selected_theme] or "Hairline Dark"
 
 return config

@@ -1,0 +1,17 @@
+{
+  "_comment": "Canonical, tool-neutral MCP server list. generate.sh fans these into Claude/Gemini/Codex via each tool's native `mcp add`. Secrets go in env values as ${VAR} placeholders (expanded by each tool at runtime), never literal.",
+  "servers": {
+    "approvals": {
+      "transport": "stdio",
+      "command": "humanlayer",
+      "args": ["mcp", "claude_approvals"],
+      "env": {}
+    },
+    "sentry": {
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.sentry.dev/mcp"],
+      "env": {}
+    }
+  }
+}
