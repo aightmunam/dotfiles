@@ -12,7 +12,7 @@
 
 ## Global Constraints
 - Cross-platform: macOS + Linux. No literal secrets in the repo; MCP `env` uses `${VAR}` placeholders.
-- Every structural task ends GREEN on a non-activating build: `NIXPKGS_ALLOW_UNFREE=1 nix build --impure '/Users/munammubashir/dotfiles/home-manager#homeConfigurations."mynixos-aarch64-darwin".activationPackage' --out-link <scratch>/hm-result`.
+- Every structural task ends GREEN on a non-activating build: `NIXPKGS_ALLOW_UNFREE=1 nix build --impure ~/dotfiles/home-manager#homeConfigurations."mynixos-aarch64-darwin".activationPackage --out-link <scratch>/hm-result`.
 - Live-edit preserved: config reaches tools via symlinks/`@import`, not copies.
 - Filenames snake_case (existing convention). No em dashes in committed text.
 - Skills runtime store is `~/.agents/skills`; third-party skills gitignored, custom skills tracked in `ai/skills/`.
@@ -75,7 +75,7 @@ Replace the Claude Code block in `home.file`:
 - [ ] **Step 3: Update `.gitignore`, `Makefile` paths** — change any `claude/` references to `ai/` (Makefile `post-install` calls `bash claude/install-*.sh` → `bash ai/install-*.sh`; move the `ai/claude/.gitignore` skills-ignore rules as needed). Grep to confirm none remain: `grep -rn "claude/install\|claude/skills\|claude/hooks" Makefile home-manager`.
 
 - [ ] **Step 4: Non-activating build**
-Run: `NIXPKGS_ALLOW_UNFREE=1 nix build --impure '/Users/munammubashir/dotfiles/home-manager#homeConfigurations."mynixos-aarch64-darwin".activationPackage' --out-link /tmp/hm-result`
+Run: `NIXPKGS_ALLOW_UNFREE=1 nix build --impure ~/dotfiles/home-manager#homeConfigurations."mynixos-aarch64-darwin".activationPackage --out-link /tmp/hm-result`
 Expected: exit 0; `readlink -f /tmp/hm-result/home-files/.claude/AGENTS.md` → `…/dotfiles/ai/AGENTS.md`; `readlink /tmp/hm-result/home-files/.claude/skills`'s final target → `…/.agents/skills`.
 
 - [ ] **Step 5: Commit**

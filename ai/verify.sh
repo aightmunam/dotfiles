@@ -8,9 +8,9 @@ for l in \
   "$HOME/.claude/AGENTS.md" "$HOME/.gemini/GEMINI.md" "$HOME/.codex/AGENTS.md" \
   "$HOME/.claude/skills"    "$HOME/.gemini/skills"     "$HOME/.codex/skills"; do
   if [ -e "$l" ]; then
-    printf '  OK   %-24s -> %s\n' "${l#$HOME/}" "$(readlink -f "$l")"
+    printf '  OK   %-24s -> %s\n' "${l#"$HOME"/}" "$(readlink -f "$l")"
   else
-    printf '  DEAD %s\n' "${l#$HOME/}"
+    printf '  DEAD %s\n' "${l#"$HOME"/}"
   fi
 done
 

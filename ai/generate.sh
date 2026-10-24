@@ -86,7 +86,7 @@ if [ -d "$AI/skills" ]; then
       printf "prompt = '''\n%s\n'''\n" "$body"
     } > "$HOME/.gemini/commands/$name.toml"
   done
-  log "rendered $(ls -1 "$HOME/.gemini/commands"/*.toml 2>/dev/null | wc -l | tr -d ' ') /name wrappers into ~/.gemini/commands"
+  log "rendered $(find "$HOME/.gemini/commands" -maxdepth 1 -name '*.toml' 2>/dev/null | wc -l | tr -d ' ') /name wrappers into ~/.gemini/commands"
 fi
 
 # --- MCP fan-out via each tool's native `mcp add` (idempotent) ---
@@ -117,7 +117,9 @@ if [ -f "$servers" ] && command -v jq >/dev/null 2>&1; then
           eflags=(); for e in "${envs[@]}"; do eflags+=( --env "$e" ); done
           if [ -n "$url" ]; then codex mcp add "$n" --url "$url" "${eflags[@]}" >/dev/null 2>&1
           else codex mcp add "$n" "${eflags[@]}" -- "$cmd" "${args[@]}" >/dev/null 2>&1; fi ;;
-      esac && log "✓ $n -> $tool" || log "⚠️  $n -> $tool (add failed)"
+      esac
+      # shellcheck disable=SC2181  # status of the case branch that ran
+      if [ $? -eq 0 ]; then log "✓ $n -> $tool"; else log "⚠️  $n -> $tool (add failed)"; fi
     done
   done < <(jq -r '.servers | keys[]' "$servers")
 else

@@ -89,7 +89,20 @@
       "Bash(docker compose build:*)",
       "Bash(docker compose restart:*)"
     ],
-    "deny": [],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.config/gcloud/**)",
+      "Read(**/*.pem)",
+      "Read(**/id_rsa*)",
+      "Read(**/*service-account*.json)",
+      "Bash(wget:*)",
+      "Bash(nc:*)"
+    ],
     "defaultMode": "auto"
   },
   "model": "claude-opus-4-8",
