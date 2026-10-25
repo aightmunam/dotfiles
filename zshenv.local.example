@@ -1,0 +1,18 @@
+# ~/.zshenv.local — machine-local secrets & overrides.
+#
+# This is a TEMPLATE. Copy it to ~/.zshenv.local and fill in real values:
+#     cp zshenv.local.example ~/.zshenv.local && $EDITOR ~/.zshenv.local
+#
+# ~/.zshenv.local is gitignored (the repo ignores *.local) and is sourced
+# automatically by ~/.zshenv. `make install` copies this template into place
+# if ~/.zshenv.local does not already exist.
+#
+# Put any machine-local secrets / env overrides here. Keep real secrets OUT of
+# the (public) repo. Claude Code expands ${VAR} in ~/.claude/settings.json from
+# the environment, so anything an MCP server needs must be exported here.
+
+# --- Gemini CLI (optional) ---
+# export GEMINI_API_KEY="<your-gemini-api-key>"
+
+# --- Example: a secret referenced by an MCP server in settings.json ---
+# export SOME_MCP_TOKEN="<value>"

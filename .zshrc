@@ -105,6 +105,7 @@ alias c='clear'
 # Language/tool specific aliases
 alias pre-commit='python -m pre_commit'
 alias g='git'
+alias cc='claude'
 alias pip='python3 -m pip'
 alias python='python3'
 

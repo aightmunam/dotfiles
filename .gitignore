@@ -38,6 +38,10 @@ $RECYCLE.BIN/
 *.tmp
 *.old
 
+# Nix build artifact (home-manager build ./result symlink)
+result
+/result
+
 # Node.js dependencies (if you use Node tools in your dotfiles)
 node_modules/
 

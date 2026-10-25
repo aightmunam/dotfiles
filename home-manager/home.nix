@@ -1,165 +1,56 @@
-{ inputs, username, ... }@flakeContext:
+# Portable home-manager entrypoint (macOS + Linux).
+#
+# This is a pure module: the per-system `pkgs` and the `homeManagerConfiguration`
+# wiring live in flake.nix (see `mkHome`). `inputs` and `username` are passed via
+# extraSpecialArgs.
+#
+# Everything tool-specific lives in modules/ — one file per concern, each
+# contributing its own `home.packages` and `home.file` entries (the module
+# system merges them). A future machine profile can import a subset.
+#
+# Config files are linked with `mkOutOfStoreSymlink`, i.e. they point at the LIVE
+# repo checkout (~/dotfiles), not a read-only copy in the Nix store. Editing any
+# linked file (nvim, wezterm, tmux, zsh, Claude skills/hooks, herdr, ...) takes
+# effect immediately with NO rebuild. `home-manager switch` is only needed to
+# change which paths are linked or which packages/programs are installed.
+{ inputs, username, config, lib, pkgs, ... }:
 let
-    dotfilesDir = builtins.path { path = ../.; };
-    homeModule = { config, lib, pkgs, ... }: {
-        config = {
-            home = {
-                sessionPath = [
-                    "/run/current-system/sw/bin"
-                    "$HOME/.nix-profile/bin"
-                ];
-                sessionVariables = {
-                };
-                file = {
-                    ".dircolors" = {
-                        source = "${dotfilesDir}/.dircolors";
-                    };
-                    ".gitconfig" = {
-                        source = "${dotfilesDir}/git/.gitconfig";
-                    };
-                    ".gitignore_global" = {
-                        source = "${dotfilesDir}/git/.gitignore_global";
-                    };
-                    ".tmux.conf" = {
-                        source = "${dotfilesDir}/tmux/.tmux.conf";
-                    };
-                    ".vimrc" = {
-                        source = "${dotfilesDir}/.vimrc";
-                    };
-                    ".zshrc" = {
-                        source = "${dotfilesDir}/.zshrc";
-                    };
-                    ".zshenv" = {
-                        source = "${dotfilesDir}/.zshenv";
-                    };
-                    ".zsh_functions" = {
-                        source = "${dotfilesDir}/.zsh_functions";
-                    };
-                    ".config/nvim" = {
-                        source = "${dotfilesDir}/nvim";
-                        recursive = true;
-                    };
-                    ".config/wezterm" = {
-                        source = "${dotfilesDir}/wezterm";
-                    };
-                    ".config/aerospace" = {
-                        source = "${dotfilesDir}/aerospace";
-                    };
-                    ".config/nix" = {
-                        source = "${dotfilesDir}/nix";
-                    };
-                    ".config/home-manager" = {
-                        source = "${dotfilesDir}/home-manager";
-                    };
-                    "raycast-scripts" = {
-                        source = "${dotfilesDir}/raycast-scripts";
-                        recursive = true;
-                    };
-                    "Applications/Raycast.app".source = "${pkgs.raycast}/Applications/Raycast.app";
-                };
-                packages = with pkgs; [
-                    # Core CLI tools
-                    autojump
-                    bat
-                    coreutils
-                    dust
-                    eza
-                    fd
-                    findutils
-                    fzf
-                    gawk
-                    gnugrep
-                    gzip
-                    ripgrep
-                    tree
-                    zoxide
-                    aerospace
-                    
-                    # System utilities and networking
-                    curl
-                    btop
-                    mosh
-                    netcat
-                    nmap
-                    wget
-
-                    # Development tools
-                    gh          # GitHub CLI
-                    delta       # Better git diff
-                    tldr        # Better man pages
-                    duf         # Better df
-                    difftastic
-                    git
-                    go
-                    jq
-                    lazygit
-                    lua
-                    pyenv
-                    tmux
-                    reattach-to-user-namespace
-                    tree-sitter
-                    yq
-                    jankyborders 
-
-                    # Terminal and shell
-                    zsh
-                    wezterm
-                    neovim
-                    opencode
-
-                    # Fonts
-                    nerd-fonts._0xproto
-                    nerd-fonts.hack
-                    nerd-fonts.meslo-lg
-                    nerd-fonts.monaspace
-                    nerd-fonts.mononoki
-
-                ]
-                # Clipboard provider for nvim's unnamedplus and the pbcopy shim (macOS has pbcopy built in)
-                ++ lib.optionals pkgs.stdenv.isLinux [ wl-clipboard ];
-                stateVersion = "25.11";
-                username = username;
-                homeDirectory = "/Users/${username}/";
-            };
-            programs = {
-                autojump = {
-                    enable = true;
-                };
-                fzf = {
-                    enable = true;
-                };
-                direnv = {
-                    enable = true;          # hooks zsh automatically; replaces autoenv
-                    # nix-direnv.enable = true;  # opt-in: caches `use flake`/`use nix` dev shells
-                };
-                home-manager = {
-                    enable = true;
-                };
-                zsh = {
-                    enable = true;
-                    initExtra = ''
-                      # Add any additional configurations here
-                      export PATH=/run/current-system/sw/bin:$HOME/.nix-profile/bin:$PATH
-                      if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
-                        . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
-                      fi
-                    '';
-                };
-            };
-        };
-    };
-    nixosModule = { ... }: {
-        home-manager.users.mynixos = homeModule;
-    };
+  isDarwin = pkgs.stdenv.isDarwin;
+  # Absolute path to the live checkout. Assumes the repo is cloned to ~/dotfiles.
+  repoRoot = "${config.home.homeDirectory}/dotfiles";
+  link = path: config.lib.file.mkOutOfStoreSymlink "${repoRoot}/${path}";
 in
-    (
-    (
-        inputs.home-manager.lib.homeManagerConfiguration {
-            modules = [
-                homeModule
-            ];
-            pkgs = inputs.nixpkgs.legacyPackages.aarch64-darwin;
-        }
-    ) // { inherit nixosModule;
-    }
-)
+{
+  imports = [
+    ./modules/core-cli.nix
+    ./modules/git.nix
+    ./modules/dev.nix
+    ./modules/terminal.nix
+    ./modules/ai.nix
+    ./modules/darwin.nix
+  ];
+
+  home = {
+    username = username;
+    homeDirectory = if isDarwin then "/Users/${username}" else "/home/${username}";
+    stateVersion = "25.11";
+
+    sessionPath = [
+      "/run/current-system/sw/bin"
+      "$HOME/.nix-profile/bin"
+    ];
+    sessionVariables = { };
+
+    # Nix / home-manager's own config; everything else lives in modules/.
+    file = {
+      ".config/nix".source = link "nix";
+      ".config/home-manager".source = link "home-manager";
+    };
+  };
+
+  # home-manager manages itself. All shell integration (zsh, fzf, direnv, autojump,
+  # zoxide, nix PATH) is handled directly in the live .zshrc, so no program modules
+  # are used for it — they only generated init that .zshrc already overrides. Their
+  # binaries come from home.packages in the modules.
+  programs.home-manager.enable = true;
+}
