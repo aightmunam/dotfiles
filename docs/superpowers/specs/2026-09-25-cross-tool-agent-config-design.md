@@ -61,7 +61,7 @@ Rename `~/dotfiles/claude/` → `~/dotfiles/ai/` (neutral):
 
 ### Instructions
 - `ai/AGENTS.md` is **self-contained plain markdown** (rules inlined). `@import` is Claude-only, so the canonical file must not rely on it.
-- **Claude:** `~/.claude/CLAUDE.md` = thin wrapper containing `@AGENTS.md` + Claude-only notes (e.g. rtk-hook detail); `~/.claude/AGENTS.md` → symlink to canonical. `@import` injects once (avoids the symlink double-read token waste).
+- **Claude:** `~/.claude/CLAUDE.md` = thin wrapper containing `@AGENTS.md` + any Claude-only notes; `~/.claude/AGENTS.md` → symlink to canonical. `@import` injects once (avoids the symlink double-read token waste).
 - **Gemini:** `~/.gemini/GEMINI.md` → symlink to canonical.
 - **Codex:** `~/.codex/AGENTS.md` → symlink to canonical.
 
@@ -109,7 +109,7 @@ Rename `~/dotfiles/claude/` → `~/dotfiles/ai/` (neutral):
 **Drift guard:** `make verify-ai` checks every canonical symlink resolves and each tool's `mcp list` matches `servers.json`.
 
 ## Migration (high level)
-1. `git mv claude ai`; move Claude-only files under `ai/claude/`; split `CLAUDE.md`/`RTK.md`/`rules` content into a self-contained `ai/AGENTS.md` + a thin `ai/claude/CLAUDE.md` wrapper.
+1. `git mv claude ai`; move Claude-only files under `ai/claude/`; split `CLAUDE.md`/`rules` content into a self-contained `ai/AGENTS.md` + a thin `ai/claude/CLAUDE.md` wrapper.
 2. Update `home-manager/home.nix` symlink paths (`claude/` → `ai/…`, skills → `~/.agents/skills`) and `.gitignore`.
 3. Add `ai/mcp/servers.json` (from current Claude `mcpServers`); remove the block from `settings.json`.
 4. Write `generate.sh`; wire it into `Makefile` `post-install`; add `make verify-ai`.
