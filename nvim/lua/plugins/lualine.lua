@@ -44,10 +44,21 @@ function M.config()
     end
   end
   local lazy = require 'lazy.status'
-  local colors = {}
-  if package.loaded['kanagawa'] then
-    colors = require 'kanagawa.colors'
-  end
+  -- lualine's own names, filled from the hairline tokens
+  local hl = require('hairline.palette').get()
+  local colors = {
+    bg = hl.bg,
+    fg = hl.text,
+    red = hl.critical,
+    orange = hl.high,
+    yellow = hl.medium,
+    green = hl.ok,
+    blue = hl.cat1,
+    cyan = hl.cat6,
+    teal = hl.cat6,
+    purple = hl.cat5,
+    violet = hl.cat5,
+  }
   local filename_with_icon = require('lualine.components.filename'):extend()
   filename_with_icon.apply_icon = require('lualine.components.filetype').apply_icon
   filename_with_icon.icon_hl_cache = {}

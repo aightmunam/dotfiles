@@ -14,8 +14,11 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-- Local hairline colorscheme (colors/hairline.lua), matching wezterm and herdr.
+-- Loaded before lazy so bufferline and lualine see its highlight groups.
+vim.cmd.colorscheme 'hairline'
+
 require('lazy').setup {
-  require 'plugins.colorscheme',
   require 'plugins.bufferline',
   require 'plugins.lualine',
   require 'plugins.treesitter',
