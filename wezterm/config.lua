@@ -93,4 +93,13 @@ config = {
 		},
 	},
 }
+
+-- Linux: Hyprland turns Super+C/V into Ctrl/Shift+Insert (hypr/clipboard.lua).
+-- WezTerm's defaults send those to the primary selection, so use the clipboard.
+if wezterm.target_triple:find("linux") then
+	config.keys = config.keys or {}
+	table.insert(config.keys, { key = "Insert", mods = "CTRL", action = wezterm.action.CopyTo("Clipboard") })
+	table.insert(config.keys, { key = "Insert", mods = "SHIFT", action = wezterm.action.PasteFrom("Clipboard") })
+end
+
 return config

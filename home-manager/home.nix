@@ -114,7 +114,9 @@ let
                     nerd-fonts.monaspace
                     nerd-fonts.mononoki
 
-                ];
+                ]
+                # Clipboard provider for nvim's unnamedplus and the pbcopy shim (macOS has pbcopy built in)
+                ++ lib.optionals pkgs.stdenv.isLinux [ wl-clipboard ];
                 stateVersion = "25.11";
                 username = username;
                 homeDirectory = "/Users/${username}/";

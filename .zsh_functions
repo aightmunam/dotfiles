@@ -1,5 +1,11 @@
 #!/bin/zsh
 
+# pbcopy/pbpaste on Wayland, so muscle memory and scripts work on both machines
+if [[ "$OSTYPE" == linux* ]] && (( $+commands[wl-copy] )); then
+  pbcopy() { wl-copy "$@"; }
+  pbpaste() { wl-paste --no-newline "$@"; }
+fi
+
 # Clear port - kills all processes on a given port
 cport() {
   local port=$1
