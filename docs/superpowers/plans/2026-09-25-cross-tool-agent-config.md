@@ -36,7 +36,7 @@ ai/install-skills.sh    (from claude/install-skills.sh)
 ai/install-hooks.sh     (from claude/install-hooks.sh)
 ai/claude/CLAUDE.md     (from claude/CLAUDE.md; rewritten Task 2)
 ai/claude/settings.json (from claude/settings.json)
-ai/claude/output-styles/ ai/claude/hooks/ ai/claude/rules/ ai/claude/statusline-command.sh ai/claude/RTK.md ai/claude/.gitignore
+ai/claude/output-styles/ ai/claude/hooks/ ai/claude/rules/ ai/claude/statusline-command.sh ai/claude/.gitignore
 ai/gemini/  ai/codex/    (empty dirs with .gitkeep)
 ```
 
@@ -45,7 +45,7 @@ ai/gemini/  ai/codex/    (empty dirs with .gitkeep)
 cd ~/dotfiles
 git mv claude ai
 mkdir -p ai/claude ai/mcp ai/gemini ai/codex
-for f in settings.json CLAUDE.md RTK.md statusline-command.sh output-styles hooks rules .gitignore; do git mv ai/$f ai/claude/$f; done
+for f in settings.json CLAUDE.md statusline-command.sh output-styles hooks rules .gitignore; do git mv ai/$f ai/claude/$f; done
 touch ai/AGENTS.md ai/gemini/.gitkeep ai/codex/.gitkeep
 # agents/, skills/, install-skills.sh, install-hooks.sh stay at ai/ top level
 ```
@@ -66,7 +66,6 @@ Replace the Claude Code block in `home.file`:
       ".claude/rules".source = link "ai/claude/rules";
       ".claude/CLAUDE.md".source = link "ai/claude/CLAUDE.md";
       ".claude/AGENTS.md".source = link "ai/AGENTS.md";
-      ".claude/RTK.md".source = link "ai/claude/RTK.md";
       ".claude/settings.json".source = link "ai/claude/settings.json";
       ".claude/statusline-command.sh".source = link "ai/claude/statusline-command.sh";
 ```
@@ -89,16 +88,13 @@ git add -A && git commit -m "refactor(ai): rename claude/ to ai/ and reorganize 
 
 **Files:** Create `ai/AGENTS.md`; rewrite `ai/claude/CLAUDE.md`.
 
-- [ ] **Step 1: Write self-contained `ai/AGENTS.md`** — inline the neutral guidance (no `@import`, which is Claude-only). Include the `rules/context7.md` content and the tool-neutral rtk usage from `RTK.md` (meta commands, install verification). Header notes it is the shared instruction file for all agents.
+- [ ] **Step 1: Write self-contained `ai/AGENTS.md`** — inline the neutral guidance (no `@import`, which is Claude-only). Include the `rules/context7.md` content. Header notes it is the shared instruction file for all agents.
 
 - [ ] **Step 2: Rewrite `ai/claude/CLAUDE.md` as the wrapper**
 ```markdown
 @AGENTS.md
-
-<!-- Claude-Code-only notes below -->
-@RTK.md
 ```
-(Keeps the Claude-only rtk auto-rewrite-hook detail in `RTK.md`; `AGENTS.md` carries only the tool-neutral rtk usage. `@AGENTS.md` resolves to `~/.claude/AGENTS.md`, symlinked to canonical.)
+(`@AGENTS.md` resolves to `~/.claude/AGENTS.md`, symlinked to canonical.)
 
 - [ ] **Step 3: Verify `@import` resolves** — `readlink -f ~/.claude/AGENTS.md` points at `ai/AGENTS.md`; open a headless Claude and confirm context loads (optional).
 
@@ -269,6 +265,6 @@ verify-ai:
 
 ## Self-Review
 - **Spec coverage:** instructions (T2), skills store (T1/T5/T8), commands→skills (T6), subagents Claude-only (T1 keeps `ai/agents`→`~/.claude/agents`), MCP (T3/T4), wiring+gitignore+make+drift (T1/T7), rename (T1). All spec sections mapped.
-- **Placeholder scan:** `generate.sh`, `servers.json`, `verify-ai`, conversion script are concrete. AGENTS.md composition (T2) inlines known source files (context7.md + RTK.md) — content exists in repo.
+- **Placeholder scan:** `generate.sh`, `servers.json`, `verify-ai`, conversion script are concrete. AGENTS.md composition (T2) inlines a known source file (context7.md) — content exists in repo.
 - **Consistency:** store path `~/.agents/skills` used uniformly; `lnsf` guard reused; MCP names from `servers.json` drive both add and verify.
 - **Gap fixed:** Task 1 keeps `ai/commands/` at top-level (not moved under `ai/claude/`) so Task 6 can convert then remove it.

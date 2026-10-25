@@ -1,0 +1,126 @@
+# Hairline prompt: a two-line zsh prompt in the hairline design system
+# (~/Developer/design-system/systems/hairline). No framework, no theme engine.
+#
+#   ~/Developer/design-system  main*  ↑1                  PY 3.13  EXIT 1  4S
+#   › _
+#
+# Colors are ANSI slots, never hex. wezterm/hairline.lua maps each slot to a
+# token for both Hairline Dark and Light, so the prompt follows the theme. Segments
+# use the --cat-* colors (each one sits next to its own text, as hairline requires);
+# --ok and --sev-* only ever mean status. Change a segment's color here.
+#
+# prompt_subst stays off: precmd builds the finished string, so a branch name like
+# '$(cmd)' is printed, never run. Only '%' needs escaping.
+
+zmodload zsh/datetime
+autoload -Uz add-zsh-hook
+
+export VIRTUAL_ENV_DISABLE_PROMPT=1
+
+typeset -gA _hp_c=(
+  dir     4    # --cat-1 periwinkle
+  branch  6    # --cat-6 teal
+  dirty   3    # --sev-medium amber
+  ab      12   # --cat-4 blue
+  label   8    # --faint, for EXIT / PY
+  venv    13   # --cat-5 violet
+  dur     9    # --cat-3 coral
+  code    1    # --sev-critical
+  ok      2    # --ok, prompt arrow
+  fail    1    # --sev-critical, prompt arrow after a failure
+)
+
+typeset -g _hp_start _hp_left _hp_right _hp_arrow _hp_first=1
+
+# git: one `git status` call gives branch, ahead/behind and dirty state.
+_hp_git() {
+  local out line head oid ahead=0 behind=0 dirty
+  out=$(command git status --porcelain=v2 --branch 2>/dev/null) || return
+  for line in ${(f)out}; do
+    case $line in
+      '# branch.head '*) head=${line#\# branch.head } ;;
+      '# branch.oid '*)  oid=${line#\# branch.oid } ;;
+      '# branch.ab '*)   local -a counts=(${=line#\# branch.ab }); ahead=${counts[1]#+}; behind=${counts[2]#-} ;;
+      '#'*) ;;
+      *) dirty=1; break ;;
+    esac
+  done
+  [[ $head == '(detached)' ]] && head=${oid[1,7]}
+  local s="%F{$_hp_c[branch]}${head//\%/%%}%f"
+  [[ -n $dirty ]] && s+="%F{$_hp_c[dirty]}*%f"
+  local ab
+  (( ahead ))  && ab+="↑${ahead}"
+  (( behind )) && ab+="${ab:+ }↓${behind}"
+  [[ -n $ab ]] && s+="  %F{$_hp_c[ab]}${ab}%f"
+  print -rn -- $s
+}
+
+# PY <major.minor> while a virtualenv (venv, uv, poetry) is active. Reads
+# pyvenv.cfg instead of running python, so it costs no process.
+_hp_venv() {
+  [[ -n $VIRTUAL_ENV && -r $VIRTUAL_ENV/pyvenv.cfg ]] || return
+  local line v
+  for line in "${(@f)$(<$VIRTUAL_ENV/pyvenv.cfg)}"; do
+    [[ $line == version*=* ]] && { v=${${line#*=}// /}; break; }
+  done
+  [[ -n $v ]] && print -rn -- "%F{$_hp_c[label]}PY%f %F{$_hp_c[venv]}${(j:.:)${(s:.:)v}[1,2]}%f"
+}
+
+# 4S, 2M10S, 1H5M
+_hp_duration() {
+  local -i t=$1
+  if (( t >= 3600 )); then print -rn -- "$((t / 3600))H$((t % 3600 / 60))M"
+  elif (( t >= 60 )); then print -rn -- "$((t / 60))M$((t % 60))S"
+  else print -rn -- "${t}S"
+  fi
+}
+
+_hp_preexec() { _hp_start=$EPOCHREALTIME }
+
+_hp_precmd() {
+  local -i code=$?
+  local -a right
+  local venv=$(_hp_venv) git=$(_hp_git)
+
+  [[ -n $venv ]] && right+=($venv)
+  # Exit code and duration describe the last command, so skip them after an
+  # empty Enter (preexec did not run and $? is stale).
+  if [[ -n $_hp_start ]]; then
+    (( code )) && right+=("%F{$_hp_c[label]}EXIT%f %F{$_hp_c[code]}${code}%f")
+    local -i elapsed=$(( EPOCHREALTIME - _hp_start ))
+    (( elapsed >= 3 )) && right+=("%F{$_hp_c[dur]}$(_hp_duration $elapsed)%f")
+  fi
+
+  _hp_left="%F{$_hp_c[dir]}%~%f${git:+  $git}"
+  _hp_right=${(j:  :)right}
+  local arrow="%F{$_hp_c[ok]}›%f"
+  [[ -n $_hp_start ]] && (( code )) && arrow="%F{$_hp_c[fail]}›%f"
+  _hp_start=
+
+  _hp_render $arrow
+  # A blank line between commands, except above the very first prompt.
+  (( _hp_first )) && _hp_first=0 || print
+}
+
+# Builds PROMPT, right-aligning the info on line 1. Measures display width
+# (prompt expanded, color escapes stripped, wide chars counted) and drops the
+# right side when it won't fit. Stops one column short so the line never wraps.
+_hp_render() {
+  setopt localoptions extendedglob
+  _hp_arrow=${1:-$_hp_arrow}
+  local esc=$'\e'
+  local -i lw=${(m)#${${(%)_hp_left}//$esc\[[0-9;]#m}} rw=${(m)#${${(%)_hp_right}//$esc\[[0-9;]#m}}
+  local line1=$_hp_left
+  if [[ -n $_hp_right ]] && (( lw + rw + 3 <= COLUMNS )); then
+    line1+="${(l:$(( COLUMNS - lw - rw - 1 )):: :)}$_hp_right"
+  fi
+  PROMPT="${line1}"$'\n'"${_hp_arrow} "
+  RPROMPT=
+}
+
+# Re-align on terminal resize.
+TRAPWINCH() { _hp_render; zle && zle reset-prompt }
+
+# zsh restores $? before each precmd hook, so order among hooks does not matter.
+add-zsh-hook preexec _hp_preexec
+add-zsh-hook precmd _hp_precmd

@@ -1,0 +1,22 @@
+# Atuin: shell history in SQLite with a full-screen search on Ctrl-R.
+# Docs: https://docs.atuin.sh/configuration/config/
+# Linked to ~/.config/atuin/config.toml by home-manager/modules/core-cli.nix.
+
+# History stays on this machine. Run `atuin login` and flip this to sync.
+auto_sync = false
+update_check = false
+
+# Search
+search_mode = "fuzzy"
+filter_mode = "global"
+style = "compact"
+inline_height = 20
+show_preview = true
+# Enter runs the selected command; Tab puts it on the prompt to edit first.
+enter_accept = true
+
+# Keep secrets out of history. A leading space also skips a command.
+secrets_filter = true
+history_filter = [
+  "^export .*(TOKEN|SECRET|KEY|PASSWORD)=",
+]
