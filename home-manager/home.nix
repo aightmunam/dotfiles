@@ -48,7 +48,7 @@ in
     };
   };
 
-  # home-manager manages itself. All shell integration (zsh, fzf, direnv, autojump,
+  # home-manager manages itself. All shell integration (zsh, atuin, direnv,
   # zoxide, nix PATH) is handled directly in the live .zshrc, so no program modules
   # are used for it — they only generated init that .zshrc already overrides. Their
   # binaries come from home.packages in the modules.

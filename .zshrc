@@ -1,6 +1,11 @@
-# Enable Powerlevel10k instant prompt (must be at the very top)
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+# Panes the herdr-projects board opens for its agents get a bare shell. herdr will not
+# start an agent while any command of this file runs in the foreground, and the board
+# gives up within a second. PATH, pyenv shims and node already come from .zshenv.
+if [[ -n $HERDR_PROJECTS_DATA_DIR || $PWD == $HOME/.herdr-projects/* ]]; then
+  export PATH="$HOME/.herdr-projects/data/bin:$HOME/.cargo/bin:$HOME/.local/bin:$PATH"
+  export TERM=wezterm
+  PROMPT='%~ %# '
+  return
 fi
 
 #######################################################
@@ -14,50 +19,60 @@ export TERM=wezterm
 # Pyenv
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init --path)"
+eval "$(pyenv init --path --no-rehash)"
 
 # Rust / Cargo
 export PATH="$HOME/.cargo/bin:$PATH"
+
+# herdr-projects
+export PATH="$HOME/.herdr-projects/data/bin:$PATH"
 
 # Work trunk
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
 
 #######################################################
-# Oh-my-zsh & Plugins
+# Shell options, completion & plugins (no framework)
 #######################################################
 
-export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="powerlevel10k/powerlevel10k"
+ZSH_PLUGINS="$HOME/.nix-profile/share/zsh"
 
 setopt auto_cd
 setopt auto_pushd
 setopt extended_glob
 setopt glob_dots
+setopt interactive_comments
+setopt complete_in_word
+setopt always_to_end
 
-plugins=(
-    zsh-autosuggestions
-    macos
-    copypath
-    copyfile
-    dirhistory
-    history
-    fast-syntax-highlighting
-    k
-    autojump
-    docker
-    poetry
-)
+# Completion: nix-installed completions (atuin, zoxide, rg, gh, uv, ...) must be on
+# fpath before compinit runs.
+fpath+=("$ZSH_PLUGINS/site-functions")
+autoload -Uz compinit && compinit
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 
-source $ZSH/oh-my-zsh.sh
+# Key bindings: emacs mode, Up/Down search by the typed prefix, sane Home/End/Delete.
+bindkey -e
+autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey '^[[A' up-line-or-beginning-search
+bindkey '^[OA' up-line-or-beginning-search
+bindkey '^[[B' down-line-or-beginning-search
+bindkey '^[OB' down-line-or-beginning-search
+bindkey '^[[H' beginning-of-line
+bindkey '^[[F' end-of-line
+bindkey '^[[3~' delete-char
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+# Prompt: hairline design system, plain zsh (see ~/.zsh_prompt).
+[[ -r ~/.zsh_prompt ]] && source ~/.zsh_prompt
 
-# Enable fzf for fuzzy searching of files and commands
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[[ -r $ZSH_PLUGINS/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && source $ZSH_PLUGINS/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 
-# Initialize zoxide
+# zoxide: `z <dir>` jumps to a frecent directory. `j` kept from autojump days.
 eval "$(zoxide init zsh)"
+alias j='z'
 
 #######################################################
 # History
@@ -77,6 +92,10 @@ setopt hist_ignore_dups
 setopt hist_ignore_all_dups
 setopt hist_save_no_dups
 setopt hist_find_no_dups
+
+# Atuin owns Ctrl-R (full-screen search over ~/.local/share/atuin/history.db). Up
+# stays prefix search above. zsh keeps writing HISTFILE too, as a fallback.
+if command -v atuin >/dev/null 2>&1; then eval "$(atuin init zsh --disable-up-arrow)"; fi
 
 #######################################################
 # general aliases
@@ -108,6 +127,7 @@ alias g='git'
 alias cc='claude'
 alias pip='python3 -m pip'
 alias python='python3'
+alias hweb='open http://127.0.0.1:7317'
 
 # Editor aliases
 alias v='nvim'
@@ -168,3 +188,9 @@ fi
 if hash direnv &>/dev/null; then
   eval "$(direnv hook zsh)"
 fi
+
+# bun completions
+[ -s "/Users/munammubashir/.bun/_bun" ] && source "/Users/munammubashir/.bun/_bun"
+
+# Syntax highlighting wraps every ZLE widget defined before it, so it loads last.
+[[ -r $ZSH_PLUGINS/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh ]] && source $ZSH_PLUGINS/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
