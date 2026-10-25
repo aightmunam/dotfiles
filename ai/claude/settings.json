@@ -1,0 +1,321 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
+  },
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git tag:*)",
+      "Bash(git remote -v:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git describe:*)",
+      "Bash(git name-rev:*)",
+      "Bash(git shortlog:*)",
+      "Bash(git stash list:*)",
+      "Bash(git fetch:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git switch:*)",
+      "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(file:*)",
+      "Bash(stat:*)",
+      "Bash(du:*)",
+      "Bash(df:*)",
+      "Bash(which:*)",
+      "Bash(type:*)",
+      "Bash(echo:*)",
+      "Bash(printf:*)",
+      "Bash(date:*)",
+      "Bash(pwd)",
+      "Bash(whoami)",
+      "Bash(uname:*)",
+      "Bash(hostname)",
+      "Bash(just test:*)",
+      "Bash(just lint:*)",
+      "Bash(just check:*)",
+      "Bash(just fmt:*)",
+      "Bash(pytest:*)",
+      "Bash(uv run pytest:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(python3 -m pytest:*)",
+      "Bash(python -m py_compile:*)",
+      "Bash(tox:*)",
+      "Bash(ruff check:*)",
+      "Bash(ruff format:*)",
+      "Bash(uv run ruff:*)",
+      "Bash(black:*)",
+      "Bash(isort:*)",
+      "Bash(flake8:*)",
+      "Bash(pylint:*)",
+      "Bash(mypy:*)",
+      "Bash(uv run mypy:*)",
+      "Bash(pyright:*)",
+      "Bash(pip list:*)",
+      "Bash(pip show:*)",
+      "Bash(pip freeze:*)",
+      "Bash(pipdeptree:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run test:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx jest:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(pnpm test:*)",
+      "Bash(yarn test:*)",
+      "Bash(bun test:*)",
+      "Bash(go test:*)",
+      "Bash(cargo test:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker images:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker inspect:*)",
+      "Bash(docker network ls:*)",
+      "Bash(docker volume ls:*)",
+      "Bash(docker build:*)",
+      "Bash(docker compose ps:*)",
+      "Bash(docker compose logs:*)",
+      "Bash(docker compose up:*)",
+      "Bash(docker compose down:*)",
+      "Bash(docker compose build:*)",
+      "Bash(docker compose restart:*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.config/gcloud/**)",
+      "Read(**/*.pem)",
+      "Read(**/id_rsa*)",
+      "Read(**/*service-account*.json)",
+      "Bash(wget:*)",
+      "Bash(nc:*)"
+    ],
+    "defaultMode": "auto"
+  },
+  "model": "claude-opus-4-8",
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rh=\"$HOME/.claude/npm/lib/node_modules/rins_hooks\"; [ -f \"$rh/hooks/notification/index.js\" ] || rh=\"$(npm root -g)/rins_hooks\"; node \"$rh/hooks/notification/index.js\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/prefer-builtin-tools.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/syntax-check.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/max-session-duration.sh"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/commit-gate.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/activity-logger.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rh=\"$HOME/.claude/npm/lib/node_modules/rins_hooks\"; [ -f \"$rh/hooks/code-formatter/index.js\" ] || rh=\"$(npm root -g)/rins_hooks\"; node \"$rh/hooks/code-formatter/index.js\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/no-sudo-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/scope-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/env-source-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/commit-gate.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/destructive-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/branch-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/secret-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/no-claude-attribution.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/memory-write-guard.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/herdr-agent-state.sh\" session",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/proof-log-session.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/prompt-injection-detector.sh"
+          }
+        ]
+      }
+    ],
+    "WorktreeCreate": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/worktree-create.sh",
+            "timeout": 120
+          }
+        ]
+      }
+    ],
+    "WorktreeRemove": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/worktree-remove.sh",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash $HOME/.claude/statusline-command.sh"
+  },
+  "enabledPlugins": {
+    "agent-skills@addy-agent-skills": true,
+    "context7@claude-plugins-official": true,
+    "explanatory-output-style@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "addy-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "addyosmani/agent-skills"
+      }
+    }
+  },
+  "effortLevel": "xhigh",
+  "autoCompactWindow": 200000,
+  "tui": "fullscreen",
+  "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
+  "skipAutoPermissionPrompt": true,
+  "autoMode": {
+    "allow": [
+      "$defaults"
+    ],
+    "soft_deny": [
+      "$defaults"
+    ]
+  }
+}
