@@ -108,6 +108,7 @@ alias ftp='noglob ftp'
 alias history='fc -il 1'
 alias ls='eza --icons'
 alias la='eza -la --icons'
+alias lsa='ls -lah'
 alias tree='tree -hpugD'
 alias map="xargs -n1"
 alias mkdir='mkdir -p'
