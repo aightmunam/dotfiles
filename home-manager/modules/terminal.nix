@@ -6,7 +6,6 @@ let
 in
 {
   home.packages = with pkgs; [
-    wezterm
     tmux
     neovim
     opencode
@@ -19,7 +18,10 @@ in
     nerd-fonts.mononoki
   ]
   # Clipboard provider for nvim's unnamedplus and the pbcopy shim (macOS has pbcopy built in)
-  ++ lib.optionals pkgs.stdenv.isLinux [ wl-clipboard ];
+  ++ lib.optionals pkgs.stdenv.isLinux [ wl-clipboard ]
+  # On non-NixOS Linux the Nix wezterm can't find the GPU drivers (EGL panic at
+  # startup), so it comes from the distro there: pacman -S wezterm
+  ++ lib.optionals pkgs.stdenv.isDarwin [ wezterm ];
 
   home.file = {
     ".tmux.conf".source = link "tmux/.tmux.conf";
