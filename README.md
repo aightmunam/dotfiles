@@ -2,7 +2,7 @@
 
 Cross-platform (macOS + Linux) dev environment, managed with Nix + home-manager.
 Covers the shell, editors, terminal, window manager **and** the AI-coding
-toolchain (Claude Code, herdr, rtk).
+toolchain (Claude Code, herdr).
 
 ## Setup
 
@@ -22,8 +22,7 @@ make install
 2. **`make build`** — applies the home-manager config, auto-selecting the system
    (`aarch64-darwin`, `x86_64-darwin`, `x86_64-linux`, `aarch64-linux`) from
    `uname`.
-3. **`make post-install`** — the non-Nix bits: `rtk` (its official installer),
-   the global npm package the Claude hooks need (`rins_hooks`), `headroom` (via
+3. **`make post-install`** — the non-Nix bits: the global npm package the Claude hooks need (`rins_hooks`), `headroom` (via
    `pipx`), the **Gemini CLI** (`npm`, into `~/.local`) and **Codex CLI** (its
    standalone installer, which self-updates), the installable agent skills (`npx
    skills`), the tool-managed and upstream Claude hooks, the cross-tool wiring
@@ -71,10 +70,6 @@ make install
   `libghostty-vt`), which is memory-hungry: give the machine or VM **at least
   ~4 GB of free RAM (8 GB is comfortable)**. A 2 GB environment OOM-kills the Zig
   build. Everything else comes prebuilt from the binary cache and is cheap.
-- **rtk** ships a prebuilt Linux binary that needs **glibc ≥ 2.39** (Ubuntu
-  24.04+, Debian 13+, Fedora 39+). On older distros it fails with a
-  `GLIBC_2.39 not found` error; post-install keeps going (rtk is best-effort), but
-  rtk's command-rewrite hook is skipped until you upgrade or build rtk from source.
 
 ### After setup (both platforms)
 
@@ -116,8 +111,6 @@ missing).
 
 - **herdr** is pinned via its own Nix flake (`home-manager/flake.nix`). Update it
   with `nix flake update herdr` after bumping the tag.
-- **rtk** has no Nix flake, so it is installed by its own cross-platform script in
-  `make post-install`. Re-running the script updates it.
 - **MCP servers** are defined in `claude/settings.json` (generic tools only:
   `approvals`, `sentry`). Work-specific servers are kept out of this public repo;
   re-add any you need locally with `claude mcp add`.
@@ -131,7 +124,6 @@ missing).
   (`no-claude-attribution`, `dj`, `auto-commit-wrapper`, `api-error-alert`,
   `guard-test-required`, `guard-thoughts`). Everything else is restored by
   `claude/install-hooks.sh` (run by `make install`), not tracked:
-  `rtk-rewrite.sh` / `herdr-agent-state.sh` from their own tools (`rtk init` /
-  `herdr integration install claude`); and upstream safety hooks fetched pinned
+  `herdr-agent-state.sh` from its own tool (`herdr integration install claude`); and upstream safety hooks fetched pinned
   from [`yurukusa/claude-code-hooks`](https://github.com/yurukusa/claude-code-hooks)
   (12) and [`yurukusa/cc-safe-setup`](https://github.com/yurukusa/cc-safe-setup) (20).

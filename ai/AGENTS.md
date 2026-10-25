@@ -42,21 +42,3 @@ Steps:
 3. `query-docs` with the selected ID and the user's full question (not single
    words).
 4. Answer using the fetched docs.
-
-## rtk (Rust Token Killer)
-
-A token-optimizing CLI proxy (60-90% savings on dev operations).
-
-Meta commands, run directly:
-- `rtk gain`: token-savings analytics
-- `rtk gain --history`: command usage history with savings
-- `rtk discover`: analyze history for missed opportunities
-- `rtk proxy <cmd>`: run a raw command without filtering (debugging)
-
-Verify install: `rtk --version`, `rtk gain`, `which rtk`. Name collision: if
-`rtk gain` fails you may have reachingforthejack/rtk (Rust Type Kit) installed
-instead.
-
-On Claude Code a hook auto-rewrites other commands through rtk (e.g. `git status`
-becomes `rtk git status`, transparently, at 0 token overhead). On agents without
-that hook, invoke `rtk <cmd>` explicitly to get the savings.

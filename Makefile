@@ -21,7 +21,7 @@ help:
 	@echo "make install   - one-shot: Nix + home-manager + post-install (recommended)"
 	@echo "make setup     - install Nix with flakes support (if missing)"
 	@echo "make build     - apply the home-manager config for this machine ($(HM_CONFIG))"
-	@echo "make post-install - install non-Nix bits (rtk, headroom, gemini, codex, npm hook deps) + scaffold secrets"
+	@echo "make post-install - install non-Nix bits (headroom, gemini, codex, npm hook deps) + scaffold secrets"
 	@echo "make verify-ai - check Gemini/Codex instruction+skills symlinks and MCP wiring"
 
 # One command to stand the whole environment up on a fresh machine.
@@ -63,10 +63,6 @@ post-install:
 	@export PATH="$$HOME/.nix-profile/bin:$$HOME/.local/bin:$$PATH"; \
 	ok(){ echo "   ✓ $$1"; }; skip(){ echo "   • $$1"; }; warn(){ echo "   ⚠️  $$1"; }; \
 	echo "==> post-install: non-Nix tools, skills, hooks, cross-tool wiring"; \
-	echo "-> rtk (token-optimizing CLI proxy)"; \
-	if command -v rtk >/dev/null 2>&1; then skip "already installed ($$(rtk --version 2>/dev/null | head -1))"; \
-	elif curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/master/install.sh | sh; then ok "installed"; \
-	else warn "install failed — see https://www.rtk-ai.app/"; fi; \
 	echo "-> rins_hooks (npm global used by Claude hooks)"; \
 	mkdir -p "$$HOME/.claude/npm"; \
 	if npm install -g rins_hooks --prefix "$$HOME/.claude/npm" >/dev/null 2>&1; then ok "installed/updated in ~/.claude/npm"; else warn "'npm install -g rins_hooks' failed — run manually"; fi; \
