@@ -8,6 +8,8 @@ return {
     require('bufferline').setup {
       options = {
         mode = 'buffers', -- set to "tabs" to only show tabpages instead
+        -- flat canvas instead of tinted tabs, as hairline wants
+        style_preset = require('bufferline').style_preset.minimal,
         themable = true, -- allows highlight groups to be overriden i.e. sets highlights as default
         numbers = 'none', -- | "ordinal" | "buffer_id" | "both" | function({ ordinal, id, lower, raise }): string,
         close_command = 'Bdelete! %d', -- can be a string | function, see "Mouse actions"
@@ -43,7 +45,7 @@ return {
       },
       highlights = {
         separator = {
-          fg = '#434C5E',
+          fg = require('hairline.palette').get().line,
         },
         buffer_selected = {
           bold = true,
