@@ -15,6 +15,7 @@
 - **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (the form bar: an empty section says why).
 - **ketchup:** `ai/AGENTS.md` writing standard (item format: link, change, evidence, risk).
 - **review:** Task 3.6 review and the controller rulings for fix round 1.
+- **audit:** `.superpowers/sdd/2026-10-30-skill-rework/skill-audit.md` items 9 and 10, and final-review M3 (round 2).
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
 "Loop N" is a step in SKILL.md. "T" is `plan-template.md`.
@@ -52,6 +53,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Interfaces block: consumes and produces, with exact names and types. | sp Task Structure (Interfaces). | O | T Interfaces. | GREEN |
 | A step is one action with a checkable result. | sp Step Granularity. | D | Rules. T steps. T self-review 2. | GREEN |
 | A code step gives file, signature, values. A body only for an algorithm the tests do not fix. | sp What a Step Contains. | D | Rules. T self-review 2 and 5. | GREEN |
+| A test step names a test and a literal expected value. A code step (title starts with Implement) names a signature `name(params) -> type` and a file path. `plan-lint` exits 1 for each miss. | sp What a Step Contains (sp/writing-plans:140-161). audit item 9. `ai/tests/test_plan_lint.py`. | D | `ai/bin/plan-lint`. Loop 8. Rules. T Step rules. | Unit tests. GREEN round 2: see Pressure scenarios. |
 | No "TBD", "handle edge cases", "add validation". | sp What a Step Contains. | D | Rules. T self-review 2. | GREEN |
 | Fail-first step predicts the mismatch, not an import, collection, or missing-file error. | spec 8.4 build entry (fail-first receipt). sp step 2 (expected FAIL with a reason). | P | T Step 3. | GREEN |
 | Self-review: spec coverage, step scan, name match, failure modes, proportion. Fix inline, no second review. | sp Self-Review. | P | Loop 8. T Self-review. | GREEN |
@@ -60,7 +62,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Exit 2 is a setup error: stop, do not run again, report the code and message in the handoff. | pl (exit 2 on setup error). review I3 (controller ruling). | D | Loop 8. Handoff template. Red flags. | Untested. The runs had no file to lint. |
 | Exit 2, no file, or linter not on disk: check the manifest rules by hand and say so. | brief (live path has no `ai/bin` before merge). | P | Loop 8. Handoff template. | GREEN |
 | An empty section says why. Entry points and failure modes are always present. | fcd (empty section says why). spec 8.4. | D | Rules. T intro. | GREEN |
-| No humanlayer residue. | spec 8.4 (remove ENG-XXXX, thoughts/allison, npm, humanlayer sync). | D | Rules. | RED: Codex read the old `create_plan` skill. |
+| No humanlayer command except `humanlayer thoughts sync`. | spec 8.4 (remove ENG-XXXX, thoughts/allison, npm). audit item 10 (one rule across skills: review-pr runs `humanlayer thoughts sync`, so make-plan allows it). | D | Rules. | Untested. Edited in round 2. No run used a humanlayer command. |
 | Handoff: numbered questions, each with a recommended answer. No "approve?". | spec 8.4. brief (same ruling as brainstorm). tt step 4 (numbered breakdown, quiz). | O | Loop 9. Handoff template. Red flags. | RED: Claude ended "please review the plan there". |
 | Each question in item form: link, change, evidence, risk. | spec 8.4. ketchup. | O | Handoff template. | GREEN |
 | Drop a question that a run can answer. | spec 8.4. mpp step 2. | D | Definitions. Loop 9. Red flags. | GREEN |
@@ -68,7 +70,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Hand back the plan path and the linter output. | mpp step 7. | O | Handoff template. | GREEN |
 | Answers go into the plan, then `status: approved`. No open decision: approved at once. Next is `build`. | old (status values). brief (never-block). spec 8.1 (make-plan -> build). | P | Handoff template. | Untested. A headless run stops at the handoff. |
 | `Principles applied:` line in the reply. | spec 8.7. | O | Handoff template. | GREEN |
-| Read all four principle files in full, also when a step does not apply. Write each full path in the read command, so that the transcript shows each read. | spec 8.7 and section 9 (the transcript must show the principle file read). review I4. | D | Loop intro. Red flags. | GREEN fix round 1: see Pressure scenarios. |
+| Read all four principle files in full, also when a step does not apply. One read command for each file, with its full path, and no loop or variable for the path. | spec 8.7 and section 9 (the transcript must show the principle file read). review I4. Round 2: Claude read the files in a shell loop over `$f` (green-2). | D | Loop intro. Red flags. | GREEN round 2: green-3 (Claude), green-4 (Codex). |
 | Four repo lines, verbatim. | Brief Global Constraints. | D | Repo Rules. | Untested. The runs cannot write, deploy, or open a DB. |
 
 ## Cut
@@ -84,7 +86,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 - mpp: "execution starts on the operator's explicit go". never-block-on-the-human overrides it for reversible work.
 - cp: its checks for pstack sections, the mid-sentence colon rule (it conflicts with `**File**:` lines), and the curly quote rule. The house lint for plans is `plan-lint`. The long dash rule stays as the house no-em-dash rule.
 - fio: architect and arena runs, the hypothesis loop, and the decision trail. They belong to `build` and its `## Deviations` section (spec 8.4 build entry).
-- old: everything except the manifest, the diagrams, and the phase headings. The source rule (spec 8.2a) cuts its research flow, sub-task agents, `humanlayer thoughts sync`, ticket file names, and `npm` commands. It also cuts the Testing Strategy, Performance, Migration Notes, and References sections.
+- old: everything except the manifest, the diagrams, and the phase headings. The source rule (spec 8.2a) cuts its research flow, sub-task agents, ticket file names, and `npm` commands. Audit item 10 keeps `humanlayer thoughts sync` (see Rules). It also cuts the Testing Strategy, Performance, Migration Notes, and References sections.
 - old: the "Implementation Note" that pauses for manual confirmation after each phase. never-block-on-the-human overrides it.
 - spec 8.4: "ste-lint flavored checks" on the plan. `ste-lint.py` has no flavored mode. The controller's own plan, which passes `plan-lint`, has 102 strict violations. Plan prose follows the AGENTS.md writing standard. `plan-lint` is the only gate. Controller ruling: the cut stands (review M7).
 
@@ -110,10 +112,18 @@ Neither plan has a `kind: plan` manifest, `## Phase N:` headings, a Before -> Af
 Iteration 1 failed for Claude and passed for Codex. Claude read the principles with a shell loop, and the harness counts only the file-read tool for Claude. The fix is one line at the start of the Loop: open each principle file in full with the file-read tool.
 Iteration 2 passed for both. Claude cost 0.94 USD. Codex used 142,188 input tokens (121,088 cached) and 4,494 output tokens. I saved each plan from the answer to a copy that starts at `---`. Plan-lint exits 0 on each copy (3 phases each, no warnings). Each plan has entry points, failure modes with owner phases, a base branch, and touched tests for each phase. Claude asks three numbered decisions in item form and keeps `status: draft`. Codex finds no open decision and sets `status: approved`. Neither asks "approve?". Each names `build` as the next step and gives the `Principles applied:` line.
 
-**Known gap** (review M8, iteration 2): Codex's plan passes plan-lint, but many steps decide little. Some steps have no test names and no exact values. Its `spec:` field is prose, not a path. "Decide, do not transcribe" and the step scan did not hold under Codex. This round does not change the skill for it.
+**Known gap** (review M8, iteration 2): Codex's plan passes plan-lint, but many steps decide little. Some steps have no test names and no exact values. Its `spec:` field is prose, not a path. "Decide, do not transcribe" and the step scan did not hold under Codex. This round does not change the skill for it. Closed in round 2 for test and code steps (see below). The `spec:` field is still not checked.
 
 **GREEN fix round 1** (same scenario, both CLIs, 2026-10-30):
 Run 1 failed for both. Without the file-read sentence, Claude read only two of the four principle files. Codex read all four in one `cat` with a brace list, which the harness does not parse.
 Run 2 added "Read each principle file in full at the step that names it." It failed the same way. Claude skipped build-the-lever and separate-before-serializing-shared-state.
 Run 3 passed for both. The Loop intro now says to read all four files, also when a step does not apply, with each full path in the read command. Claude cost 1.07 USD. Codex used 158,135 input tokens (129,536 cached) and 4,686 output tokens. The new plan-lint exits 0 on each extracted plan. Each plan has a `## Domain model` section and a failure-modes table with a write-path column.
 Base branch: Codex chose `master` from `origin/HEAD`. Claude found the full spec on disk, and its section 7 names `skill-rework` as the build branch, so Claude chose `skill-rework`. Each choice follows the rule and names its source. The runs differ because only Claude read the full spec.
+
+**Round 2** (audit items 9 and 10, final-review M3, both CLIs, 2026-10-30). Run dirs are under `.superpowers/sdd/2026-10-30-skill-rework/scratch-r2-make-plan/`.
+New rule: `plan-lint` checks each checkbox step. A test step (title starts with Write or Add and names a test) needs a backticked test name and a literal expected value. A code step (title starts with Implement) needs a signature and a backticked file path. The old Codex plan from fix round 3 still exits 0, because its steps are bare checkboxes such as "Define the domain records" that neither class matches. The rule does not catch a vague step of another kind.
+green-1 (`--write`, the scenario names the worktree linter, because `~/dotfiles/ai/bin/plan-lint` does not exist before the merge): Codex PASS. It wrote `plan.md` and ran the new plan-lint in the same command: exit 0, no output. Its test step names `test_same_sha_old_code` and expects `dispatch_count == 1`. Claude FAIL from the harness: `--write` runs in acceptEdits, so Claude could not read outside the scratch dir and could not run plan-lint ("This command requires approval").
+green-2 (read-only scenario, Claude only): FAIL. Claude read the four principle files in one shell loop over `$f`, and the harness counts only the file-read tool. Fix: one read command for each file, no loop or variable.
+green-3 (read-only, Claude, after the fix): PASS, 0.95 USD. The extracted plan exits 0 under the new plan-lint (not run in the loop, the session cannot write). Each code step has a backticked signature and path, and each test step a name and a value.
+green-4 (`--write`, Codex, after the fix): PASS. 361,462 input tokens (310,656 cached), 11,335 output tokens. Codex read the plan-lint usage, wrote the plan, and ran plan-lint: exit 0, no output. Its code step is `validate_evidence(record: dict) -> list[str]` in `ai/skills/staging/scripts/check_evidence.py`. Its test steps name each test and the expected exit code.
+Concern: Claude used Implement steps for Markdown edits, with forced signatures such as `Definitions(Case kind, Run key) -> 2 bullets`. The rule passes them. A prose edit is not code, and the template does not yet say which title to use for it.

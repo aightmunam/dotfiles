@@ -16,7 +16,7 @@ You own the plan, not the code. Do not implement.
 
 ## The Loop
 
-**First, read `plan-template.md`.** Your plan fills it in order. Steps 3 to 6 each name one principle file. Read all four files in full, also when a step does not apply. Write the full path of each file in the read command, so that the transcript shows each read.
+**First, read `plan-template.md`.** Your plan fills it in order. Steps 3 to 6 each name one principle file. Read all four files in full, also when a step does not apply. Read each file with its own read command, and write its full path in that command. Do not use a loop or a variable for the path. The transcript must show each read.
 
 1. **Read.** Read the design doc or spec in full. Copy its exact values (names, limits, paths). For one or two files with an obvious approach, say so, name `tdd`, and stop. For several independent subsystems, write one plan for each.
 2. **Explore.** Read the code that the spec touches. Read the test card `~/dotfiles/ai/test-cards/<repo>.md`. If it is missing, take the test commands from the repo config and say so. List the entry points: HTTP routes, events, jobs, test endpoints, and other consumers. For a wide spec, give 2 to 4 angles to `explorer` agents. With no dispatch tool, do each angle yourself. If a run can answer a question, run it. Find the base branch. Use the branch that the user or the spec names. Otherwise use the repo default branch from `git symbolic-ref refs/remotes/origin/HEAD`. Write the branch and its source in the plan header.
