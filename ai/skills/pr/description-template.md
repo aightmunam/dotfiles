@@ -22,8 +22,10 @@ Mechanical files:
 
 ## Evidence
 
-Prove doc: `<path>`, fresh at `<head_sha>`. <or: no prove doc | prove doc not fresh: reason>
-- <finding title>: <VERIFIED | NOT VERIFIED | INCONCLUSIVE>, ladder step <n>. Before: <the test or behavior before>. After: <the test or behavior after>.
+Prove doc: `<path>`, outcome <VERIFIED | NOT VERIFIED | INCONCLUSIVE>, fresh at diff_hash `<hash>`. <or: no prove doc | prove doc not fresh: reason>
+- Safety fact: <the fact>, ladder step <n>.
+- <check name>: <VERIFIED | NOT VERIFIED | INCONCLUSIVE>. Before: <the test or behavior before>. After: <the test or behavior after>.
+- <finding ID> <finding title>: NOT VERIFIED, ladder step <n>.
 
 ## Merge Danger
 
@@ -47,7 +49,7 @@ Keep only the calls, files, states and boundaries that a reviewer needs.
 
 ## Evidence
 
-- Each line comes from one prove doc finding. Copy its status and its ladder step.
+- Each line comes from one prove doc item: the safety fact, a row of `# Automated checks`, or a finding. Copy the outcome word from the Notes cell of a check. A finding is always NOT VERIFIED. Copy its ladder step from its italic line.
 - Before and after: name the test or the behavior. Show a test in pseudocode, not as a command.
 - Do not paste the prove doc output. Link to the doc.
 
