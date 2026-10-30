@@ -25,7 +25,7 @@ description: Use when agents repeat the same mistake in a repo and you must add 
    - Level 4: a test that drives the code through its users' interface. A test that patches the clock or an internal helper is not a guard. Correct or remove each test that passes when its behavior breaks, or fails when only the internals change.
    - Level 5: docs only for a judgment call. Nothing fails when an agent skips a doc.
 4. **Correct.** Correct the most frequent classes first. Make one commit for each class. The CI must run the same command as the local check. Correct the current cases that the check finds. An exception goes on the offending line with a reason, an expiry date, and the name of the human who approved it.
-5. **Prove.** Run the new check against one evidence SHA. Do not change the checkout. Run a shell command that pipes the old file into the check, for example `git show <sha>:<path> | ruff check --select <rule> --stdin-filename <path> -`. A check on the current files is not a proof. A diff from `git log -p` is not a proof. The check must fail and name the line. Copy the error line from the output. Do not write it from the source. Then run it at HEAD with your change. It must pass. Run the touched tests from the test card. Read each exit code.
+5. **Prove.** Run the new check against one evidence SHA. Do not change the checkout. Make one shell tool call for this step. In it, pipe the old file into the check and print the exit code, for example `git show <sha>:<path> | ruff check --select <rule> --stdin-filename <path> -; echo "exit $?"`. Do not go to step 6 before this call returns. A check on the current files is not a proof. A diff from `git log -p` is not a proof. The check must fail and name the line. Copy the error line from the output. Do not write it from the source. Then run it at HEAD with your change. It must pass. Run the touched tests from the test card. Read each exit code.
 6. **Rule table.** In the repo agent instruction file, keep a table with the columns rule and enforced by. Add one row for each class. Remove the old text rule that the structure replaces. Remove a row when its mistake cannot happen.
 7. **Reply.** Use the reply template. If you cannot write files, put each change in your answer as a full diff. Before you send, find each `Proof at` command in your shell commands of this session. If it is not there, run it now.
 
@@ -62,7 +62,7 @@ Class: <name>
   Evidence: <sha> <one line>, <sha> <one line>, ...
   Level: <n> <name>. Higher level not used: <reason for each higher level>
   Check: <command>. Error text: <what it says>
-  Proof at <sha>: <command> -> exit <code>
+  Proof at <sha>: <command, as it ran in your tool call> -> exit <code from its "exit" line>
   Output: <error line copied from the run>   (or "not run: <reason>")
   At HEAD with the change: exit <code>
   Rule table row: <rule> | <enforced by>
