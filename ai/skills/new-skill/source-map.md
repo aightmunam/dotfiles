@@ -11,7 +11,7 @@
 - **elis:** pstack-claude `plugins/pstack/skills/principle-encode-lessons-in-structure/SKILL.md`, adapted in `ai/principles/encode-lessons-in-structure.md`.
 - **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md`, sections 8.2 (naming), 8.2a (source rule), 8.3a (house form), 8.3 (STE), 8.4 new-skill entry, 8.5 (router, routing eval, pressure harness, plugin lint), 8.7 (principles).
 - **brief:** Task 6.5 brief and its Global Constraints (repo lines, description shape, skill task template).
-- **fcd:** `ai/skills/fact-constrained-debugging/` (the form bar).
+- **fcd:** `ai/skills/fact-constrained-debugging/` (the form bar, provenance only). `house-form.md` names `ai/skills/debug/` as the model skill (final review M9).
 - **mp:** `ai/skills/make-plan/SKILL.md` (fallback when a tool is not on disk, repo lines).
 - **lint:** `ai/tests/test_skills_lint.py` (what the lint checks).
 - **pr:** `ai/bin/pressure-run` (what GREEN checks).
@@ -52,7 +52,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Run each command from the dotfiles root. Name a scratch `--out` dir. | review 6.5 I4 (runs in a temp dir said the tools did not exist). | P | Loop intro. Loops 4 and 7. HF intro. | Partial. GREEN 4: Claude went to the worktree root and gave `<scratch>` out dirs. |
 | `pressure-run` is the fresh agent. Not at the dotfiles root: a fresh agent with the scenario only. No dispatch tool: scenario and commands in the handoff, status `untested`. | tsw (subagent with no skill). fcd (roles isolated, fallback). mp (tool not on disk, say so). | P | Roles. | Partial. Only the no-dispatch fallback ran (GREEN 4 both CLIs); the fresh-agent and not-at-root paths are Untested. |
 | No test, no status. `green` only from two saved GREEN answers. | ws (deploying untested skills). tsw. | D | Rules. Red flags. Output Status. | GREEN |
-| `skill-creator` for trigger evals when the user asks. | spec 8.4 new-skill entry. | P | HF Tests. | Untested. |
+| A trigger eval on the description is a `prompts.tsv` row and an `ai/bin/routing-eval` run. | spec 8.4 new-skill entry (trigger evals). spec 8.5 (routing eval). Final review M6: `skill-creator` is a plugin skill and is not on the branch. | P | HF Tests. | Untested. |
 | `## Repo Rules` with the four lines, verbatim, in each skill. No exception. | brief Global Constraints. review 6.5 I1. | D | Repo Rules. Red flags. HF SKILL.md. | Failed in GREEN 3: Codex cut the lines. GREEN 4 after the red flag: both drafts have the four lines. |
 
 ## Cut

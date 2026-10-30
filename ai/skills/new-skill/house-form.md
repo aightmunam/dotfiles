@@ -2,7 +2,7 @@
 
 Check each line. A line that does not apply says why in the handoff.
 Run each command from the dotfiles root (see the SKILL.md loop).
-The model skill is `ai/skills/fact-constrained-debugging/`. Finished examples are `ai/skills/research/`, `ai/skills/brainstorm/`, `ai/skills/make-plan/` and `ai/skills/unslop/`.
+The model skill is `ai/skills/debug/`. Finished examples are `ai/skills/research/`, `ai/skills/brainstorm/`, `ai/skills/make-plan/` and `ai/skills/unslop/`. The sources are under `~/Developer/ref/` (see `ai/sources.lock`).
 
 ## Name check
 
@@ -67,4 +67,4 @@ The model skill is `ai/skills/fact-constrained-debugging/`. Finished examples ar
 - [ ] `source-map.md` has the columns rule, source, form, where enforced, and scenario.
 - [ ] `source-map.md` has `## Pressure scenarios` with two to four lines each for RED and GREEN.
 - [ ] `python3 -m unittest ai.tests.test_skills_lint -v` passes.
-- [ ] For trigger evals on the description, run `skill-creator` when the user asks for it.
+- [ ] For a trigger eval on the description, add a row to `ai/tests/routing/prompts.tsv`. Then run `ai/bin/routing-eval --tool both --id <id>`.
