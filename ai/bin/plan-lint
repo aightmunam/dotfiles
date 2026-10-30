@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# plan-lint FILE...: run Grimoire's plan parser on each file and print every
+# warning as "FILE: warning". Exit 0 clean, 1 on any warning, 2 on setup error.
+# GRIMOIRE_DIR overrides the Grimoire checkout (default ~/Developer/grimoire).
+set -u
+
+if [ "$#" -eq 0 ]; then
+  echo "usage: plan-lint FILE..." >&2
+  exit 2
+fi
+
+for f in "$@"; do
+  if [ ! -f "$f" ]; then
+    echo "plan-lint: input file not found: $f" >&2
+    exit 2
+  fi
+done
+
+grimoire="${GRIMOIRE_DIR:-$HOME/Developer/grimoire}"
+py="$grimoire/.venv/bin/python"
+if [ ! -x "$py" ]; then
+  echo "plan-lint: Grimoire venv python not found: $py (set GRIMOIRE_DIR)" >&2
+  exit 2
+fi
+
+PYTHONPATH="$grimoire" exec "$py" -c '
+import sys
+from pathlib import Path
+from app.data.plan_parser import parse_plan
+
+bad = False
+for name in sys.argv[1:]:
+    path = Path(name)
+    plan = parse_plan(path.read_text(encoding="utf-8"), path)
+    for warning in plan.warnings:
+        print(f"{name}: {warning}")
+        bad = True
+sys.exit(1 if bad else 0)
+' "$@"
