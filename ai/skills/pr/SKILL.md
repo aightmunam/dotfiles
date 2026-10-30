@@ -8,7 +8,7 @@ description: Use when your own branch is ready for a PR and the user asks to ope
 ## Definitions
 
 - **PR state:** the output of `gh pr list --head <branch> --state all --json number,state,title,isDraft,url,body`. It is none, OPEN, MERGED or CLOSED.
-- **Prove doc:** a file in the review root with `kind: self-review` and `branch:` equal to the current branch. Take the newest `date:`. On a tie, take the newest file. It has `outcome:`, `base_sha`, `diff_hash`, a safety fact with a ladder step, and a `# Automated checks` table with an outcome word in each Notes cell. Each finding (`### <ID> - <title>`) is NOT VERIFIED and has `_Ladder step <n>: ..._`. The review root is the target of the `thoughts/shared` link plus `/reviews`. If `thoughts/shared` is not a link, it is `thoughts/shared/reviews`. In a worktree, use the main checkout (`git rev-parse --git-common-dir`, then its parent).
+- **Prove doc:** a file in the review root with `kind: self-review` and `branch:` equal to the current branch. Take the newest `date:`. On a tie, take the file with the newest modification time. It has `outcome:`, `base_sha`, `diff_hash`, a safety fact with a ladder step, and a `# Automated checks` table with an outcome word in each Notes cell. Each finding (`### <ID> - <title>`) is NOT VERIFIED and has `_Ladder step <n>: ..._`. The review root is the target of the `thoughts/shared` link plus `/reviews`. If `thoughts/shared` is not a link, it is `thoughts/shared/reviews`. In a worktree, use the main checkout (`git rev-parse --git-common-dir`, then its parent).
 - **Fresh:** the first field of `git diff <base_sha> | shasum` equals `diff_hash`. Use the `base_sha` of the prove doc. This diff includes uncommitted edits, as in `prove`.
 - **pr block:** the text from `<!-- pr:start -->` to `<!-- pr:end -->` in a PR body. `pr` writes only this text. All other text in the body is **hand-written text**.
 
@@ -60,7 +60,7 @@ description: Use when your own branch is ready for a PR and the user asks to ope
 PR state: <none | OPEN #<n> <url> | MERGED #<n> <url>, stopped | CLOSED #<n> <url>, stopped>
 Prove doc: <path>, <fresh, diff_hash <hash> | not fresh: reason | none>
 Repo template: <path | none>
-Push: <pushed | up to date | failed: reason>
+Push: <pushed | up to date | failed: reason | not run: reason>
 Reviewability:
 - <one finding, or none found>
 Deslop:
