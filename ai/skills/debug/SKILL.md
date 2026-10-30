@@ -21,7 +21,7 @@ description: Use when something is broken and the cause is not known. Use when a
 1. **Red loop.** Build the red loop before you write a hypothesis or a fix. Build it from the test command and the symptom. Do not read the suspect code yet. Run the loop on the unchanged code, and show its red output, before any patch. For a flaky bug, pin the random input (seed, hash seed, clock, order), or run the trigger many times. Record the red rate. The loop output is fact F1. If real attempts give no loop, list the attempts. Then mark each cause and each fix `UNCONFIRMED (no loop)`.
 2. **Facts** (gatherers). Gather read-only, and do it yourself. Prefer facts from the environment where the bug occurred. Ask a human only for a source that you cannot get to, and write each ask in the intervention log.
    - Local sources: run output, logs, local DB state, configs, and `git status`, `git log` and `git diff`.
-   - Prod sources, reads only: Sentry (issue, events, release) when you have it. Cloud Logging: `gcloud logging read` with a time window and a service filter. Prod data only through read paths: Metabase and read APIs. Camunda read tools for process state. Deploy history: `gh api repos/<owner>/<repo>/deployments`, `gh run list` for the deploy workflow, and `gcloud run revisions list`.
+   - Prod sources, reads only: Sentry (issue, events, release) when you have it. Cloud Logging: `gcloud logging read` with a time window and a service filter. Prod data only through read paths: Metabase and read APIs. Camunda read tools for process state. Deploy history: `gh api repos/<owner>/<repo>/deployments`, with the owner and the repo from `git remote get-url origin` (do not guess them), `gh run list` for the deploy workflow, and `gcloud run revisions list`.
    - First, list the tools that you have. Query each source that applies. Write each source that you cannot get to as a gap in template section 1. An empty result is a fact.
 3. **Variable and control.** Use the best control in the data, and write its weakness.
 4. **Matrix** (eliminators). Give a row to each candidate in the input, each failed fix, and each of yours. Make each fact a column. A `Y` needs no unproven mechanism.
@@ -61,7 +61,7 @@ description: Use when something is broken and the cause is not known. Use when a
 - You left out a fact column, or you settled a disputed cell yourself. Send it to an eliminator. Go back to step 4.
 - The control is "the other users", with no reason to trust it. Go back to step 3.
 - A prod source applies, but the answer does not show it as a fact or as a gap. Go back to step 2.
-- Quoted text holds a secret, a token, or customer personal data. Replace it with `<REDACTED>`. Go back to step 2.
+- Quoted text holds a secret, a token, or customer personal data. Replace it with `<REDACTED>`. Go back to step 13.
 - Agreement, "it reproduces", or a deadline does the work of a fact. Go back to step 4.
 - You read code when you needed the splitting fact. Go back to step 7.
 - You plan a third fix on the same premise. Go back to step 9.
