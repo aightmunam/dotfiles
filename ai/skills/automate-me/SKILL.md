@@ -8,7 +8,7 @@ description: Use when the user asks to capture, update, or refresh their working
 ## Definitions
 
 - **Target:** the `## Working style` section of `~/dotfiles/ai/AGENTS.md`. Put it after `## Writing standard`. Never make a `-mode` skill.
-- **History:** the transcripts and the `feedback_*.md` memory files of the active workspace. `<enc>` is the absolute workspace path with each `/` and `.` changed to `-`. Claude transcripts: `~/.claude/projects/<enc>/*.jsonl`. Memory: `~/.claude/projects/<enc>/memory/feedback_*.md`. Codex: each `~/.codex/sessions/**/*.jsonl` whose first line has `payload.cwd` equal to the workspace path. Do not search other projects.
+- **History:** the transcripts and the `feedback_*.md` memory files of the active workspace. `<enc>` is the absolute workspace path with each character that is not a letter, a digit, or `-` changed to `-`. Claude transcripts: `~/.claude/projects/<enc>/*.jsonl`. Memory: `~/.claude/projects/<enc>/memory/feedback_*.md`. Codex: each `~/.codex/sessions/**/*.jsonl` whose first line has `payload.cwd` equal to the workspace path. Do not search other projects.
 - **Instance:** one user message or one memory file that states a preference. An agent message is not an instance.
 - **Signal:** a preference with two instances, or with instances in two slices.
 - **Noise:** a preference with one instance, or a preference that a later instance contradicts. A later instance that contradicts it must be a signal on its own.
