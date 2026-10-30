@@ -1,157 +1,65 @@
 ---
 name: debug
-description: Use when something breaks during local manual testing or while implementing a plan, and you want a read-only look at local logs, database state and git history.
+description: Use when something is broken and the cause is not known. Use when a test fails only some of the time, or a bug has no reliable repro. Use when a bug arrives with logs, traces, user reports or telemetry. Use when a regression, a latency spike or an error spike follows a deploy. Use during an on-call incident, or when someone asks for a quick patch to a live problem. Use when you debug code that you or another agent wrote but no longer understand. Use when a repro, a fix or a review claims to show the cause already.
 ---
 
 # Debug
 
-You are tasked with helping debug issues during manual testing or implementation. This command allows you to investigate problems by examining logs, database state, and git history without editing files. Think of this as a way to bootstrap a debugging session without using the primary window's context.
+## Definitions
 
-## Initial Response
+- **Fact:** a thing from outside you, such as a log, a trace, a config, a deploy, a run output, or a user report. Facts do not change.
+- **Derived claim:** a hypothesis, a repro, a review, or a code reading. It must agree with every fact. One contradiction discards it.
+- **Red loop:** one command that you ran at least once. It drives the real code path and asserts the user's exact symptom. It gives the same verdict on each run, in seconds, with no human.
+- Code shows what can happen, not what did happen. Read it last.
 
-When invoked WITH a plan/ticket file:
-```
-I'll help debug issues with [file name]. Let me understand the current state.
+## The Loop
 
-What specific problem are you encountering?
-- What were you trying to test/implement?
-- What went wrong?
-- Any error messages?
+**First, read `investigation-template.md`.** Your answer fills all of its sections in order. A section that does not apply says why.
 
-I'll investigate the logs, database, and git state to help figure out what's happening.
-```
+**If you have a subagent dispatch tool, also read `subagent-roles.md`.** Give each role to a subagent. Isolation from your context is the point. With no dispatch tool, do each role yourself.
 
-When invoked WITHOUT parameters:
-```
-I'll help debug your current issue.
+Open the skill files and the principle files with your file-read tool when you have one, not with a shell command. For a path that starts with `~`, give the tool the full path of your home directory.
 
-Please describe what's going wrong:
-- What are you working on?
-- What specific problem occurred?
-- When did it last work?
+1. **Red loop.** Build the red loop before you write a hypothesis or a fix. Build it from the test command and the symptom. Do not read the suspect code yet. Run the loop on the unchanged code, and show its red output, before any patch. For a flaky bug, pin the random input (seed, hash seed, clock, order), or run the trigger many times. Record the red rate. The loop output is fact F1. If real attempts give no loop, list the attempts. Then mark each cause and each fix `UNCONFIRMED (no loop)`.
+2. **Facts** (gatherers). Gather read-only. Sources include run output, logs, local DB state, configs, and `git status`, `git log` and `git diff`.
+3. **Variable and control.** Use the best control in the data, and write its weakness.
+4. **Matrix** (eliminators). Give a row to each candidate in the input, each failed fix, and each of yours. Make each fact a column. A `Y` needs no unproven mechanism.
+5. **Read it.** The strongest signal is the column with the fewest `Y`. Any `N` discards a row.
+6. **No row survives.** Do the tactics in order (template section 4).
+7. **Too many rows survive, or the signals are weak.** Stop the hypotheses. Get the one fact that splits the rows, one layer down, cheapest first.
+8. **Replay the survivor.** Run its path through the red loop against the real code, one step for each action. The loop must go red on that path, and green when you remove the cause. If not, suspect the hypothesis until you show that it is right.
+9. **Attack the premise.** When two fixes that share one premise fail the same gate, test the premise. Do not write a third fix. Count the failed fixes in the input too. Write the premise in one sentence. Look at how the failures spread, not only at their size. Read ~/.agents/principles/attack-the-premise.md before this step.
+10. **Pick the fix.** Fix the fault, not the place where it showed. Ask if the state that caused the symptom is legitimate. A failure only after a restart points at saved state first. Find each place with the same fault. Name a cheap log or metric that shows the cause at first look. Read ~/.agents/principles/fix-root-causes.md before this step.
+11. **Fix.** Write the regression test at the real seam. Watch it fail. Make one change. Run the test and the red loop again.
+12. **Eliminate adversarially.** Use the Signals and Hypotheses reviewers always. Use the Validation reviewer when a row survives. Ask them for facts that contradict, never for agreement.
+13. **Close** with the required outputs. The last line is `Principles applied:` with each principle and the choice that it changed.
 
-I can investigate logs, database state, and recent changes to help identify the issue.
-```
+## Rules That Shape Claims
 
-## Environment Information
+- **Cite or label.** Each claim names its fact ID. A link that only code or reasoning supports gets the label `UNCONFIRMED (code-only)`. It ranks below rows that facts support.
+- **Minorities are constraints.** An outlier report must fit too, or it is your strongest signal.
+- **A repro is a hypothesis** until it shows the strongest real signal, line by line.
+- **One change at a time.** Never put two fixes in one run.
+- **Fix or mitigation.** Mitigate first if necessary. A fix with open `?` cells stays open and does not close the report.
+- **Decisions belong to the user.** Give each option with its tradeoffs. Reversible work, such as a local fix or a test, needs no question. A merge or push to main/master, or a production write, needs the user's OK.
+- **No user present** (a headless run, a dispatch). Do not ask and do not wait. Write each assumption in the intervention log, and continue. With a user present, ask one question in each message, with a recommended answer.
 
-Find the logs, database and running services for the project from its CLAUDE.md, justfile/Makefile and docker-compose files. Check git state with `git status`, `git log --oneline -10` and `git diff`.
+## Repo Rules
 
+- never touch a prod Salesforce org, not even --help.
+- No alembic upgrade or downgrade, and no DB mutation, without in-the-moment user confirmation.
+- Do not read .env files.
+- Worktrees only under ~/wt/<repo>/<name>.
 
-## Process Steps
+## Red Flags
 
-### Step 1: Understand the Problem
-
-After the user describes the issue:
-
-1. **Read any provided context** (plan or ticket file):
-   - Understand what they're implementing/testing
-   - Note which phase or step they're on
-   - Identify expected vs actual behavior
-
-2. **Quick state check**:
-   - Current git branch and recent commits
-   - Any uncommitted changes
-   - When the issue started occurring
-
-### Step 2: Investigate the Issue
-
-Spawn parallel subagents for efficient investigation:
-
-```
-Task 1 - Check Recent Logs:
-Find and analyze the most recent logs for errors:
-1. Locate the project's logs (local server output, docker compose logs, cloud logging per its CLAUDE.md)
-2. Search for errors, warnings, or issues around the problem timeframe
-3. Look for stack traces or repeated errors
-Return: Key errors/warnings with timestamps
-```
-
-```
-Task 2 - Database State:
-Check the current database state:
-1. Connect to the project's database (connection details in its CLAUDE.md / .env sample), read-only
-2. Inspect the relevant tables' schema
-3. Query recent rows related to the issue
-4. Look for stuck states or anomalies
-Return: Relevant database findings
-```
-
-```
-Task 3 - Git and File State:
-Understand what changed recently:
-1. Check git status and current branch
-2. Look at recent commits: git log --oneline -10
-3. Check uncommitted changes: git diff
-4. Verify expected files exist
-5. Look for any file permission issues
-Return: Git state and any file issues
-```
-
-### Step 3: Present Findings
-
-Based on the investigation, present a focused debug report:
-
-```markdown
-## Debug Report
-
-### What's Wrong
-[Clear statement of the issue based on evidence]
-
-### Evidence Found
-
-**From Logs**:
-- [Error/warning with timestamp]
-- [Pattern or repeated issue]
-
-**From Database**:
-```sql
--- Relevant query and result
-[Finding from database]
-```
-
-**From Git/Files**:
-- [Recent changes that might be related]
-- [File state issues]
-
-### Root Cause
-[Most likely explanation based on evidence]
-
-### Next Steps
-
-1. **Try This First**:
-   ```bash
-   [Specific command or action]
-   ```
-
-2. **If That Doesn't Work**:
-   - Restart the affected services with the project's own commands (see its CLAUDE.md / justfile)
-
-### Can't Access?
-Some issues might be outside my reach:
-- Browser console errors (F12 in browser)
-- MCP server internal state
-- System-level issues
-
-Would you like me to investigate something specific further?
-```
-
-## Important Notes
-
-- **Focus on manual testing scenarios** - This is for debugging during implementation
-- **Always require problem description** - Can't debug without knowing what's wrong
-- **Read files completely** - No limit/offset when reading context
-- **Think like `commit` or `describe_pr`** - Understand git state and changes
-- **Guide back to user** - Some issues (browser console, MCP internals) are outside reach
-- **No file editing** - Pure investigation only
-
-## Quick Reference
-
-**Git State**:
-```bash
-git status
-git log --oneline -10
-git diff
-```
-
-Remember: This command helps you investigate without burning the primary window's context. Perfect for when you hit an issue during manual testing and need to dig into logs, database, or git state.
+- You wrote a hypothesis or a fix before the red loop ran. Go back to step 1.
+- One command ran the loop and a patch together. Go back to step 1.
+- A candidate leaves the matrix without a cited `N`. Go back to step 4.
+- You left out a fact column, or you settled a disputed cell yourself. Send it to an eliminator. Go back to step 4.
+- The control is "the other users", with no reason to trust it. Go back to step 3.
+- Agreement, "it reproduces", or a deadline does the work of a fact. Go back to step 4.
+- You read code when you needed the splitting fact. Go back to step 7.
+- You plan a third fix on the same premise. Go back to step 9.
+- You had a dispatch tool, but you did a gatherer or reviewer job yourself. Go back to that step.
+- Your answer ends with a question, and no user is present. Go back to step 13.

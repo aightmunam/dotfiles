@@ -20,9 +20,8 @@ STE_LINT = ROOT / "ai" / "vendor" / "ste-lint.py"
 
 EM_DASH = chr(0x2014)
 MAX_SKILL_LINES = 80
-# Excluded until P9 removes them.
-# The old `debug` is replaced in Task 4.3, which removes it from LEGACY.
-LEGACY = {"fact-constrained-debugging", "debug"}
+# Excluded until P9 removes it.
+LEGACY = {"fact-constrained-debugging"}
 PLANNED = {
     "research", "brainstorm", "make-plan", "build", "tdd", "debug", "prove", "verifier",
     "performance", "pr", "unslop", "reply", "address", "new-skill", "handoff", "recall", "bro",
