@@ -63,6 +63,7 @@ if [ -d "$AI/skills" ]; then
   done
   log "linked $n custom skills into ~/.agents/skills"
 fi
+safe_link "$AI/principles" "$HOME/.agents/principles"
 
 # --- Skills store: link into Gemini + Codex (whole-dir, or per-skill if real) ---
 echo "-> skills store (shared store -> Gemini + Codex)"

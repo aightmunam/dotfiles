@@ -4,6 +4,7 @@ Checks run on NEW_FORM (skill dirs with source-map.md or tenet-map.md, minus
 LEGACY) and on the NEW_AGENTS files that exist.
 """
 
+import re
 import subprocess
 import sys
 import tempfile
@@ -13,6 +14,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 SKILLS_DIR = ROOT / "ai" / "skills"
 AGENTS_DIR = ROOT / "ai" / "agents"
+PRINCIPLES_DIR = ROOT / "ai" / "principles"
+AGENTS_MD = ROOT / "ai" / "AGENTS.md"
 STE_LINT = ROOT / "ai" / "vendor" / "ste-lint.py"
 
 EM_DASH = chr(0x2014)
@@ -22,8 +25,39 @@ MAX_SKILL_LINES = 80
 LEGACY = {"fact-constrained-debugging", "debug"}
 PLANNED = {
     "research", "brainstorm", "make-plan", "build", "tdd", "debug", "prove", "verifier",
-    "performance", "pr", "reply", "address", "new-skill", "staging", "data-op", "review-pr",
+    "performance", "pr", "unslop", "reply", "address", "new-skill", "handoff", "recall", "bro",
+    "ketchup", "review-pr", "staging", "data-op", "fix-merge-conflicts", "what-did-i-get-done",
+    "reflect", "correct", "automate-me",
 }
+# Spec 8.7 table: skill -> principles it must name in SKILL.md or a reference file.
+PRINCIPLE_TARGETS = {
+    "debug": ["attack-the-premise", "fix-root-causes"],
+    "address": ["attack-the-premise", "encode-lessons-in-structure"],
+    "review-pr": [
+        "boundary-discipline", "fix-root-causes", "minimize-reader-load",
+        "model-the-domain", "test-behavior-not-implementation",
+    ],
+    "build": ["boundary-discipline", "separate-before-serializing-shared-state"],
+    "tdd": ["boundary-discipline", "test-behavior-not-implementation"],
+    "data-op": ["build-the-lever", "make-operations-idempotent", "prove-it-works"],
+    "make-plan": [
+        "build-the-lever", "foundational-thinking", "model-the-domain",
+        "separate-before-serializing-shared-state",
+    ],
+    "new-skill": ["encode-lessons-in-structure"],
+    "reflect": ["encode-lessons-in-structure"],
+    "correct": ["encode-lessons-in-structure", "test-behavior-not-implementation"],
+    "automate-me": ["encode-lessons-in-structure"],
+    "performance": ["explain-the-number"],
+    "staging": ["make-operations-idempotent", "prove-it-works"],
+    "prove": ["prove-it-works"],
+    "handoff": ["prove-it-works"],
+    "recall": ["prove-it-works"],
+}
+POINTER_RE = re.compile(r"~/\.agents/principles/([A-Za-z0-9_-]+)\.md")
+PLUGIN_MARKERS = ("superpowers:", "agent-skills:", "feature-dev:", "plugins/cache")
+# Agent files and AGENTS.md may not name superpowers at all. Skill source maps may cite it.
+STRICT_MARKERS = PLUGIN_MARKERS + ("superpowers",)
 NEW_AGENTS = {"reviewer", "explorer"}
 
 
@@ -136,6 +170,70 @@ def agent_errors(path):
     )
 
 
+def principle_names(principles_dir=PRINCIPLES_DIR):
+    if not principles_dir.is_dir():
+        return set()
+    return {p.stem for p in principles_dir.glob("*.md")}
+
+
+def check_pointers(paths, principles_dir=PRINCIPLES_DIR):
+    known = principle_names(principles_dir)
+    errors = []
+    for p in paths:
+        for name in POINTER_RE.findall(p.read_text(encoding="utf-8")):
+            if name not in known:
+                errors.append(f"{p}: pointer to missing principle {name}.md")
+    return errors
+
+
+def index_names(agents_md):
+    text = agents_md.read_text(encoding="utf-8")
+    m = re.search(r"^## Principles\s*$(.*?)(?=^## |\Z)", text, re.M | re.S)
+    return set(POINTER_RE.findall(m.group(1))) if m else set()
+
+
+def check_index(agents_md, principles_dir=PRINCIPLES_DIR):
+    indexed = index_names(agents_md)
+    files = principle_names(principles_dir)
+    return [f"index lists {n}.md, file missing" for n in sorted(indexed - files)] + [
+        f"{n}.md is in no index line" for n in sorted(files - indexed)
+    ]
+
+
+def check_targets(skill_dir, principles):
+    text = "\n".join(p.read_text(encoding="utf-8") for p in md_files(skill_dir))
+    return [f"{skill_dir.name}: does not name {n}" for n in principles if n not in text]
+
+
+def check_principle_shape(path):
+    text = path.read_text(encoding="utf-8")
+    errors = []
+    if not any(line.startswith("Source:") for line in text.splitlines()):
+        errors.append(f"{path}: missing Source: line")
+    if len(text.splitlines()) > 40:
+        errors.append(f"{path}: more than 40 lines")
+    if EM_DASH in text:
+        errors.append(f"{path}: contains an em dash")
+    return errors
+
+
+def check_plugin_refs(paths, markers=PLUGIN_MARKERS):
+    return [
+        f"{p}: names {m}"
+        for p in paths
+        for m in markers
+        if m in p.read_text(encoding="utf-8")
+    ]
+
+
+def agent_files():
+    return [AGENTS_DIR / f"{n}.md" for n in sorted(NEW_AGENTS) if (AGENTS_DIR / f"{n}.md").is_file()]
+
+
+def skill_md_files():
+    return [f for n in SKILLS_UNDER_TEST for f in md_files(SKILLS_DIR / n)]
+
+
 class SkillsLint(unittest.TestCase):
     def each(self, check):
         for name in SKILLS_UNDER_TEST:
@@ -169,6 +267,42 @@ class SkillsLint(unittest.TestCase):
             with self.subTest(agent=name):
                 errors = agent_errors(path)
                 self.assertEqual(errors, [], "\n".join(errors))
+
+
+    def test_principle_pointers_resolve(self):
+        paths = skill_md_files() + agent_files() + [AGENTS_MD]
+        errors = check_pointers(paths)
+        self.assertEqual(errors, [], "\n".join(errors))
+
+    # Task 3.3 adds the ## Principles index to ai/AGENTS.md.
+    @unittest.expectedFailure
+    def test_principles_index_matches_files(self):
+        self.assertTrue(principle_names(), "no principle files")
+        errors = check_index(AGENTS_MD)
+        self.assertEqual(errors, [], "\n".join(errors))
+
+    def test_principle_targets(self):
+        for name, principles in PRINCIPLE_TARGETS.items():
+            if name not in SKILLS_UNDER_TEST or not (SKILLS_DIR / name / "SKILL.md").is_file():
+                continue  # Not built yet, or still legacy.
+            with self.subTest(skill=name):
+                errors = check_targets(SKILLS_DIR / name, principles)
+                self.assertEqual(errors, [], "\n".join(errors))
+
+    def test_principle_files_shape(self):
+        files = sorted(PRINCIPLES_DIR.glob("*.md"))
+        self.assertTrue(files, "no principle files")
+        for f in files:
+            with self.subTest(principle=f.name):
+                errors = check_principle_shape(f)
+                self.assertEqual(errors, [], "\n".join(errors))
+
+    # Task 3.3 removes the superpowers name from ai/AGENTS.md.
+    @unittest.expectedFailure
+    def test_no_plugin_references(self):
+        errors = check_plugin_refs(skill_md_files())
+        errors += check_plugin_refs(agent_files() + [AGENTS_MD], STRICT_MARKERS)
+        self.assertEqual(errors, [], "\n".join(errors))
 
 
 class LintSelfCheck(unittest.TestCase):
@@ -260,6 +394,61 @@ class LintSelfCheck(unittest.TestCase):
         self.assertEqual(new_form(self.dir.parent), [])
         (self.dir / "tenet-map.md").write_text("x\n")
         self.assertEqual(new_form(self.dir.parent), ["good-name"])
+
+    def tree(self):
+        root = self.dir.parent
+        pdir = root / "principles"
+        pdir.mkdir(exist_ok=True)
+        (pdir / "real.md").write_text("Source: x\n")
+        return root, pdir
+
+    def test_dangling_pointer(self):
+        _, pdir = self.tree()
+        p = self.skill("Read ~/.agents/principles/ghost.md before this step.\n")
+        self.assertTrue(check_pointers([p], pdir))
+        p = self.skill("Read ~/.agents/principles/real.md before this step.\n")
+        self.assertEqual(check_pointers([p], pdir), [])
+
+    def test_index_extra_file_and_missing_file(self):
+        root, pdir = self.tree()
+        idx = root / "AGENTS.md"
+        idx.write_text("## Principles\n- ~/.agents/principles/real.md\n## Other\n")
+        self.assertEqual(check_index(idx, pdir), [])
+        (pdir / "extra.md").write_text("Source: x\n")
+        self.assertIn("extra.md is in no index line", check_index(idx, pdir)[0])
+        idx.write_text("## Principles\n- ~/.agents/principles/real.md\n- ~/.agents/principles/gone.md\n")
+        self.assertTrue(any("gone" in e for e in check_index(idx, pdir)))
+
+    def test_index_missing_section(self):
+        root, pdir = self.tree()
+        idx = root / "AGENTS.md"
+        idx.write_text("# none\n")
+        self.assertTrue(check_index(idx, pdir))
+
+    def test_targets_check(self):
+        self.skill("Read ~/.agents/principles/real.md.\n")
+        self.assertEqual(check_targets(self.dir, ["real"]), [])
+        self.assertTrue(check_targets(self.dir, ["real", "other"]))
+
+    def test_principle_shape(self):
+        p = self.dir / "p.md"
+        p.write_text("Source: a\nbody\n")
+        self.assertEqual(check_principle_shape(p), [])
+        p.write_text("body\n")
+        self.assertTrue(check_principle_shape(p))
+        p.write_text("Source: a\n" + "x\n" * 40)
+        self.assertTrue(check_principle_shape(p))
+        p.write_text("Source: a\n" + EM_DASH + "\n")
+        self.assertTrue(check_principle_shape(p))
+
+    def test_plugin_names(self):
+        for bad in ("superpowers:tdd", "agent-skills:plan", "feature-dev:x", "a/plugins/cache/b"):
+            p = self.skill(bad + "\n")
+            self.assertTrue(check_plugin_refs([p]), bad)
+        self.assertEqual(check_plugin_refs([self.skill("clean\n")]), [])
+        p = self.skill("see superpowers `using-git-worktrees`\n")
+        self.assertEqual(check_plugin_refs([p]), [])
+        self.assertTrue(check_plugin_refs([p], STRICT_MARKERS))
 
 
 if __name__ == "__main__":

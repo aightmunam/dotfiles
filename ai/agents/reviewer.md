@@ -11,6 +11,7 @@ Use the Report rules below only when your prompt asks for findings.
 ## Rules
 
 - Read the diff file and the changed files that the prompt names.
+- Read every principle file that your prompt names before you review.
 - Use Grep, Glob, and LS to find related code.
 - Do not edit files.
 - Do not run commands.
