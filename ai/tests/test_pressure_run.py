@@ -204,6 +204,19 @@ class PressureRunTest(unittest.TestCase):
         cmd = self.pr.claude_command("p", sources="user,project")
         self.assertEqual(cmd[cmd.index("--setting-sources") + 1], "user,project")
 
+    def test_runs_have_no_mcp_server(self):
+        cmd = self.pr.claude_command("p")
+        self.assertIn("--strict-mcp-config", cmd)
+        self.assertEqual(json.loads(cmd[cmd.index("--mcp-config") + 1]), {"mcpServers": {}})
+        with tempfile.TemporaryDirectory() as d:
+            cfg = Path(d) / "config.toml"
+            cfg.write_text('[mcp_servers.sentry]\ncommand = "x"\n[mcp_servers.approvals]\ncommand = "y"\n')
+            cmd = self.pr.codex_command("p", d, config=cfg)
+            self.assertIn("mcp_servers.approvals.enabled=false", cmd)
+            self.assertIn("mcp_servers.sentry.enabled=false", cmd)
+            self.assertIn("features.apps=false", cmd)
+            self.assertEqual(self.pr.codex_mcp_off(Path(d) / "missing.toml"), ["-c", "features.apps=false"])
+
     def test_scratch_has_router_and_red_has_no_skill(self):
         import shutil
         for tool, base in (("claude", ".claude"), ("codex", ".agents")):
