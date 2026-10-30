@@ -66,6 +66,38 @@ Never put ";" in sequenceDiagram message text or note text. Use a comma.
 Use the real module, function, and file names.
 ```
 
+## Intent lens (if the criteria file is not `no criteria`)
+
+Add the criteria file path and the full text of the criteria.
+
+```
+Lens: the diff against the acceptance criteria of the PR. Criteria file: <path>.
+Report three kinds of findings:
+a) Missing: a criterion that the diff does not do, or does only in part.
+b) Not asked for: a behavior change in the diff that no criterion asks for.
+c) Wrong: a criterion that the diff seems to do, but the code does it wrong.
+Quote the criterion line in each finding. For b), quote the diff hunk.
+Category: intent.
+```
+
+## Migration lens (if the diff changes a file in the Alembic versions directory)
+
+Find the directory from `script_location` in `alembic.ini`. If that file is missing, look for `alembic/versions/` or `migrations/versions/`.
+
+```
+Lens: the Alembic revisions in the diff. Read only. Do not run alembic.
+Check each revision:
+- Lock scope: which statement takes which lock on which table. A table rewrite or a long ACCESS EXCLUSIVE lock on a busy table is a finding.
+- lock_timeout: a DDL statement on an existing table with no lock_timeout is a finding.
+- NOT NULL: a new NOT NULL column on an existing table with no server default and no backfill fails on a table with rows. Trace it.
+- Indexes: CREATE INDEX on an existing table without CONCURRENTLY (postgresql_concurrently=True, in an autocommit block) is a finding.
+- Backfill: a data update in the same revision as DDL. Put data statements before DDL, or in their own revision.
+- downgrade(): it exists and undoes upgrade(). Else the PR states fail-forward.
+- Heads: grep revision and down_revision. More than one head is a finding.
+- Expand before contract: a drop or rename of a column or table that the deployed code still reads is a finding. The code change ships first.
+Category: migration.
+```
+
 ## Bug and security lens (always)
 
 Fix the fault, not the place where it showed. The root cause is the first place the system did something wrong.

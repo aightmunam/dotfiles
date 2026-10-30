@@ -17,6 +17,8 @@ Grimoire and The Eye parse this doc. Keep each rule below, or the doc does not r
 - `# What was done` has the Before / After table and the user flow. `# How it was done` has the architecture, the primary flow, and the reading order.
 - No placeholder text stays in the doc.
 - `Principles applied:` lines go only in the reply, never in the doc.
+- `## Lens runs` in `# Summary` has one row for each lens: the lens, the prompt file, and the agent id. A lens that you did yourself has `self` and the reason. A lens that did not run has `no agent` and the reason. With no file write, the prompt cell is `not written`.
+- A critical or high finding has an `Evidence:` line in its body: the command and its exit code, or the file:line hops that you read.
 
 ## Template
 
@@ -37,6 +39,12 @@ status: review_complete
 # Summary
 
 <!-- optional: your own summary of the PR -->
+
+## Lens runs
+
+| Lens | Prompt file | Agent id |
+|---|---|---|
+| <lens> | <path, or not written> | <agent id, or self: reason, or no agent: reason> |
 
 # What was done
 
@@ -83,13 +91,14 @@ _Ladder step <n>: <what breaks and when, in plain words>_
 
 ~~~finding
 severity: <critical | high | medium | low>
-category: <correctness | regression | security | performance | quality | test | devex | flag | api>
+category: <correctness | regression | security | performance | quality | test | devex | flag | api | intent | migration>
 file: <repo-relative path>
 line: <integer>
 side: RIGHT
 ---
 <what is wrong>. <the failure path, with file:line for each hop>. <the fix>.
 Lenses: <lens names>. Source: <"review", or "comment by @<login>">
+Evidence: <for critical or high: the command and exit code, or the file:line hops that you read>
 
 ```suggestion
 <optional replacement code for that line>

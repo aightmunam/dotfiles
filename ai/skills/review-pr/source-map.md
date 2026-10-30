@@ -16,6 +16,9 @@
 - **eye:** `~/Developer/work-dashboard/eye/services/firefighter/review_play.py` and `review_documents.py` (read only).
 - **gr:** `~/Developer/grimoire/app/data/parser.py` (read only).
 - **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (the form bar).
+- **ia:** pstack-claude `plugins/pstack/skills/interrogate/SKILL.md`, lines 26-30 (verify each finding by its command, drop the rest).
+- **do:** `ai/skills/data-op/SKILL.md` line 36 (`lock_timeout`, data before DDL) and `data-op/paths.md` "Alembic data migration". **fmc:** `ai/skills/fix-merge-conflicts/SKILL.md` line 22 (heads from `revision` and `down_revision`).
+- **audit:** `.superpowers/sdd/2026-10-30-skill-rework/skill-audit.md`, items 1, 2, 3 and 10 (G1, G12), round 2.
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
 "Loop N" is a step in SKILL.md. "L" is `lenses.md`. "T" is `review-template.md`. "A" is `api-checklist.md`.
@@ -26,6 +29,9 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | 7 steps with the old numbers and names. `report_progress` at each step, total 7. | rp Process Steps. eye review_play (total=7, step names). | P | Loop. | Untested. No run had a `report_progress` tool. |
 | Never wait for input. No follow-up step. | spec 8.4 (no input waits). eye review_play. | D | Loop intro. | Forced by the scenario ("Nobody will answer"), not GREEN. |
 | Step 2 makes a worktree under `~/wt/<repo>/review/<name>` with `git worktree add` (was `local_review`, removed in Task 9.1). | rp Step 2. AGENTS.md worktree rule. | P | Loop 2. | Untested. The scenario skips step 2, as The Eye does. |
+| Step 1 finds a ticket key, reads the ticket read-only, and saves the criteria from the ticket and the body to a file. `no criteria` when none exist. | pcr lines 68-72 (the Spec prompt gets the spec). audit item 1 (G1: review-pr never read the linked ticket). | P | Definitions. Loop 1. | R2-GREEN |
+| Intent lens: missing, not asked for, wrong. Each finding quotes the criterion line. Category `intent`. | pcr lines 68-72. audit item 1. | P | L intent lens. T category. | R2-GREEN |
+| Migration lens on an Alembic versions change: lock scope, `lock_timeout`, NOT NULL on an existing table, CONCURRENTLY, backfill apart from DDL, `downgrade()`, one head, expand before contract. Read only, no alembic command. | audit item 2. do. fmc. | P | L migration lens. T category. | R2-GREEN |
 | Diff from `gh pr diff`, not `git diff main...HEAD`. | rp Step 3. | P | Loop 3. | GREEN-2 |
 | What and How walkthrough briefs, with the mermaid rules. | rp Step 3. | P | Loop 3. L walkthrough briefs. L mermaid rules. | GREEN-2 |
 | Lenses get the common header: the same scoped context, the lens is the task, no refusal. | spec 8.4 (reviewer conflict). Audit: reviewers ran as the old read-only analyzer agent and refused their lens. ag. | D | Loop 4. L common header. Red flags. | RED: audit. GREEN-2 (Claude). Codex sent no agent. |
@@ -42,19 +48,21 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Devex lens, if the diff changes settings, deploy config, or Alembic. | spec 8.4. | P | L devex lens. | Untested. The scenario has no settings or migrations. |
 | Feature-flag leak lens, if the diff reads a flag. | spec 8.4. | P | L feature-flag lens. | Untested. The scenario has no flag. |
 | API lens with the Zalando rules, the severity map, and the convention rules. An API-only review uses this skill. The description and the AGENTS.md row name the API trigger. | spec line 638. ra. rp Agent 7. | P | L API lens. A. Description. | Untested. The scenario has no route. |
+| One lens to one agent. Write each lens prompt to `<review root>/prompts/<slug>/<lens>.md` before you send it. Record the agent id. `## Lens runs` table in `# Summary`. Lens agents run on the session model, no `model` set, type `reviewer` or general-purpose. Red flag for each gap. | audit item 3 and G4 (debug/tenet-map.md:85 collapse). REAL-1 (2 batched haiku agents). R2-RED (Claude: 4 Explore agents on haiku for 8 lenses). | D | Loop 4. Red flags. T lens runs. Reply `Lens agents:`. | R2-GREEN |
+| Confirm each critical or high finding before the verdict: a targeted command as its own checks row, or read each hop of the traced path. `Evidence:` line in the body. Lower or remove a finding that the evidence does not show. Red flag for a C or H with no evidence. | ia lines 26-30. audit item 3. | D | Loop 5. Red flags. T `Evidence:` line. | R2-GREEN |
 | Open each principle file that the lenses name, then merge: one finding per cause, more weight when two lenses agree, read the code when they disagree. | spec 8.4 (dedupe, weight, conflicts). spec 8.7. rp consolidation. | P | Loop 4. | GREEN-2 |
 | PR comments only after the audit. A finding from a comment names its author. | spec 8.4. | D | Loop 4. Red flags. T body `Source:`. | GREEN-2 |
 | Each finding has a ladder step. Lens findings are 2 or 3. Ladder step 4 needs a command from Loop step 5. Never ladder step 5. | spec line 489. ag. | D | Definitions. Rules. Red flags. T summary line. | GREEN-2 for the ladder slot. The Loop step 5 wording was edited after GREEN-2: Untested. |
 | Severity is honest. High or critical needs a traced path. | spec 8.4 (never misreport priority). | D | Rules. | GREEN-2 |
 | Verdict: critical or high gives `request_changes`. | rp Step 6. | P | Rules. T frontmatter. | GREEN-2 |
 | Automated checks from the test card, with exit codes. No `tail`, no `\|\| true`. | rp Step 5. sr+prove test-card rule. | P | Loop 5. T checks table. | GREEN-2 |
-| Loop 5 can run one targeted command for a suspect finding, as its own row in `# Automated checks`. | The ladder row (spec line 489). Review finding 6: both GREEN-2 runs did this with no rule. | P | Loop 5. | Untested. Added after GREEN-2. |
+| Loop 5 runs one targeted command for each critical or high finding that a command can show, as its own row in `# Automated checks`. | The ladder row (spec line 489). Review finding 6. ia lines 26-30 (round 2 made it required for C and H). | P | Loop 5. | R2-GREEN |
 | Doc path `$(readlink thoughts/shared)/reviews/YYYY-MM-DD-pr-<n>-<title>.md`. No heredoc. If you cannot write, put the doc in the answer. | rp Step 6. eye review_documents (glob `*-pr-<n>-*.md`). | P | Loop 6. | REAL-1 wrote the doc with the file-write tool, not a heredoc, to the review root that the prompt named. The `readlink` resolution is Untested. The in-answer fallback was forced by the scenario. |
 | The C+ light format: frontmatter, H1 sections, `### <ID> - <title>`, `~~~finding` with `---`. | rp Step 6. gr parse_review. | O | T format rules. | GREEN-2. REAL-1. |
 | The italic summary starts with `Ladder step <n>:`. | spec line 509. Task 1.2 parked finding. sr+prove review-template. | O | T format rules. | GREEN-2 |
 | No body line starts with `# `, also in a fence. | gr parser.py:8 (the H1 split does not skip fences). | O | T format rules. | Untested. Added after GREEN-2. |
 | `Principles applied:` lines go only in the reply, never in the doc. | spec 8.7. Codex GREEN-2 put them in `# Automated checks`. | O | T format rules. | Untested. Added after GREEN-2. |
-| Sync and open the viewer. | rp Step 7. | P | Loop 7. | Untested. The runs cannot write or sync. |
+| Sync and open the viewer. `humanlayer thoughts sync` is the only humanlayer command that the skill runs. The user's thoughts repo needs it, so it stays. make-plan narrows its own ban. | rp Step 7. Round 2 brief item 4. audit item 10 (G12). | P | Loop 7. | Untested. The runs skip step 7. |
 | Reply template with `Principles applied:`. | spec 8.7. | O | Reply template. | GREEN-2 |
 | Never post to GitHub, never push. | rp safety rules. Brief ruling. | D | Repo Rules. Red flags. | GREEN-2: Claude, the fake gh log has 4 reads. Codex, the command list in `green-2/codex.jsonl` has 4 gh reads (pr view, repo view, pr diff, pr view --comments) and no push. The Codex sandbox blocked the fake gh log, so that log has only 2 lines. |
 | Four repo lines, verbatim. | Brief Global Constraints. | D | Repo Rules. | Untested. The runs cannot deploy or open a DB. |
@@ -64,16 +72,16 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 - rp: the greeting text, the "Would you like me to remove the worktree" question, and Step 8 follow-up questions. The spec says no input waits.
 - rp: the separate architecture agent. Its items go to the quality lens (layers, separation) and to the blast-radius lens (contract changes).
 - rp: the separate Python agent. Its idioms go to the bug lens (except, async, context managers) and to the quality lens (logging, pathlib, type hints).
-- rp: `model: opus` on the regression agent. The `reviewer` agent sets its own model.
+- rp: `model: opus` on the regression agent. Each lens agent runs on the session model. Round 2 forbids a cheaper model on a lens agent (REAL-1 and R2-RED used haiku).
 - rp: the security agent as a separate agent. Security goes in the bug and security lens, as spec 8.4 says.
 - rp: React re-render checks. The repos are Python.
 - ra: the stand-alone report format and `git diff main...HEAD`. The API lens uses the doc format and the saved diff.
 - tnr: its Final Response format. The doc format replaces it. thermos: the background launch and the platform mapping lines.
 - br: the edit and fix steps. The lens is read only.
 - ds and nc: the edit steps. The quality lens reports and does not edit.
-- pcr: the Spec axis and the rule that keeps the two axes apart. Spec checks belong to `prove`. The smell baseline stays in the quality lens.
+- pcr: the rule that keeps the two axes apart in the output. The doc has one findings list, so the Intent lens findings carry category `intent` and stay visible. The Spec axis itself is now the Intent lens (round 2, audit item 1: `prove` never runs on another person's PR). The smell baseline stays in the quality lens.
 - pcr: the smells Shotgun Surgery, Divergent Change, Message Chains, and Refused Bequest. Other lenses cover them, or they are rare in a single PR.
-- sp: the plan-alignment section and the Strengths section. Plan checks belong to `prove`.
+- sp: the plan-alignment section and the Strengths section. A colleague's PR has no plan in the reviewer's repo. The Intent lens checks the diff against the ticket criteria in its place.
 
 ## Pressure scenarios
 
