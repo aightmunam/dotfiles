@@ -5,6 +5,20 @@
 # GRIMOIRE_DIR overrides the Grimoire checkout (default ~/Developer/grimoire).
 set -u
 
+usage() {
+  cat <<'USAGE'
+usage: plan-lint FILE...
+Run Grimoire's plan parser on each FILE and print every warning as
+"FILE: warning". A file that does not start with a kind: plan manifest
+is a warning too. Exit 0 clean, 1 on any warning, 2 on setup error.
+GRIMOIRE_DIR overrides the Grimoire checkout (default ~/Developer/grimoire).
+USAGE
+}
+
+case "${1:-}" in
+  -h|--help) usage; exit 0 ;;
+esac
+
 if [ "$#" -eq 0 ]; then
   echo "usage: plan-lint FILE..." >&2
   exit 2

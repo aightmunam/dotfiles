@@ -87,6 +87,14 @@ class PlanLintEnvTest(unittest.TestCase):
         self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
         self.assertIn("internal error", r.stderr)
 
+    def test_help_exits_0_and_prints_usage(self):
+        for flag in ("-h", "--help"):
+            with self.subTest(flag=flag):
+                r = run(flag)
+                self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+                self.assertTrue(r.stdout.startswith("usage: plan-lint FILE..."), r.stdout)
+                self.assertEqual(r.stderr, "")
+
     def test_missing_input_file_exits_2(self):
         r = run(str(FIXTURES / "does_not_exist.md"))
         self.assertEqual(r.returncode, 2)
