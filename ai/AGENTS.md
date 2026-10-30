@@ -82,7 +82,7 @@ Pick the skill from this table by the situation. Read the skill before you act.
 | A claim that a change is faster or slower, or a measured regression | `performance` |
 | Your branch is ready for a PR, or your PR body needs an update | `pr` |
 | Write the text of a reply to a review comment | `reply` |
-| A reviewer asked for changes on your PR and each must be fixed | `address` |
+| A reviewer asked for changes on your PR and at least one needs a code change | `address` |
 | Create or change a named skill | `new-skill` |
 | Deploy a branch to staging and check it | `staging` |
 | A data change touches a real database or a live system | `data-op` |

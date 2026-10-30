@@ -1,6 +1,6 @@
 ---
 name: address
-description: Use when a reviewer asked for changes on your PR and each comment must be fixed, pushed back or answered. Use when the user asks you to address the review or the failing checks on a reviewed PR.
+description: Use when a reviewer asked for changes on your PR and at least one comment needs a code change. Use when the user asks you to address the review or the failing checks on a reviewed PR.
 ---
 
 # Address
@@ -13,7 +13,7 @@ description: Use when a reviewer asked for changes on your PR and each comment m
 - **Run:** a test or a command that you ran in this session. Its output shows a claim true or false.
 - **Decision item:** a security, data, migration, schema or plan change. It is always ask.
 - **Round:** fix, push, then fetch the checks again.
-- **Post:** any GitHub write. This includes a reply, `gh pr comment`, `gh pr review`, `gh pr ready` and a resolve mutation.
+- **Post:** a write through `gh` or the GitHub API. This includes a reply, `gh pr comment`, `gh pr review`, `gh pr ready` and a resolve mutation. A `git push` to the PR branch is not a post.
 
 ## The Loop
 
@@ -22,14 +22,14 @@ description: Use when a reviewer asked for changes on your PR and each comment m
 3. **Classify.** Give each item one class. An unclear comment is ask. Do not change the code that an unclear comment touches until the answer comes.
 4. **Find repeats.** When you write the same instruction a second time, encode it as a lint, a check, or a script. Read ~/.agents/principles/encode-lessons-in-structure.md before this step. Always do this step, also in round 1. Look for one pattern in two or more items, or in an earlier round. Write each repeat, or none. For each repeat, add an ask item that proposes a lint, a test or a script. Propose an AGENTS.md sentence only when no guard can hold the rule.
 5. **Fix.** Fix one item at a time. Use the `tdd` skill for a behavior bug. Run the touched tests. Commit each fix and record its SHA. Quote the comment in the commit message.
-6. **Draft.** Run the `reply` skill for each thread. It gives one draft. Give it the class, the run and the SHA as given facts. Draft a fix only after its commit exists. Do not draft an ask item.
+6. **Draft.** Run the `reply` skill for each push-back and done thread, and for each fix thread after its commit exists. Give it the class, the run and the SHA as given facts. For `reply`, push back is decline, and done is fix with the existing SHA. Do not draft an ask item.
 7. **Count rounds.** When two fixes that share one premise fail the same gate, test the premise. Read ~/.agents/principles/attack-the-premise.md before this step. Always do this step, also in round 1. Write the premise that this round's fixes share. Push the fixes to the PR branch, then fetch the checks again. After round 3, stop. Write the premise that the failed rounds shared. Then report.
 8. **Show.** Use the output template. Show all drafts and all ask items. Then wait for the user.
 9. **Post.** Post each draft that the user OKs in its own thread with `gh api repos/{o}/{r}/pulls/{pr}/comments/{id}/replies -f body=...`. Never resolve a thread with no reply.
 
 ## Posting Gate
 
-Post nothing until the user OKs that draft in this chat. This gate stays when other rules say to proceed without the user. An absent user does not give an OK.
+Post nothing until the user OKs that draft in this chat. A resolve is a post. It needs the same OK as its reply. This gate stays when other rules say to proceed without the user. An absent user does not give an OK.
 
 ## Hard Rules
 
