@@ -18,7 +18,7 @@ description: Use when the user asks for the text of a reply to a PR review comme
 ## The Loop
 
 1. **Classify.** Mark each thread as fix, decline or answer. One thread can need two classes.
-2. **Check facts.** List the given facts for each thread. A fix with no SHA is a gap. Ask the user one question for each gap, with a recommended answer.
+2. **Check facts.** List the given facts for each thread. A fix with no SHA is a gap. Ask the user about one gap in each message. Give a recommended answer.
 3. **Draft.** Write the outcome in the first sentence. Use 1 to 3 sentences. Use only given facts.
 4. **Unslop.** Run the unslop skill on each draft. Use its cleaned text as the new draft.
 5. **Red flags.** Read each draft once for each red flag below.
@@ -26,7 +26,7 @@ description: Use when the user asks for the text of a reply to a PR review comme
 
 ## Rules That Shape Each Draft
 
-- **Outcome first.** A fix starts with "Fixed in `<sha>`." A decline starts with the decision.
+- **Outcome first.** A fix starts with "Fixed in `<sha>`." A decline starts with the decision. An answer starts with the fact that answers the question.
 - **One SHA for each fix.** Put the SHA in backticks.
 - **Backticks for each identifier.** This includes a function, a file, a test, a rule code and a SHA.
 - **Decline with one reason and its cost.** Give the reason that decides it. Then give what the decision costs.
@@ -41,7 +41,8 @@ description: Use when the user asks for the text of a reply to a PR review comme
 
 - A draft thanks the reviewer. Go back to step 3.
 - A draft has more than 3 sentences, or a list. Go back to step 3.
-- A fix has no SHA, or the SHA is not in backticks. Go back to step 2.
+- A fix has no SHA. Go back to step 2.
+- A SHA is not in backticks. Go back to step 3.
 - "Good catch" with no run. Go back to step 3.
 - A decline with no reason or no cost. Go back to step 2.
 - An identifier with no backticks. Go back to step 3.

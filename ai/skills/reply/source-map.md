@@ -16,8 +16,8 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Rule | Source | Form | Where enforced | Scenario |
 |---|---|---|---|---|
 | Classify each thread as fix, decline or answer. | sp-rcr (response pattern, evaluate then respond). spec 8.4. | P | Definitions. Loop 1. | GREEN: three threads, three classes. |
-| Use only given facts. A fix with no SHA is a gap. Ask one question with a recommended answer. | brief (SHA per fix). Controller ruling (one question, recommended answer). sp-rcr ("I can't verify this without [X]"). | D | Loop 2. Rules. Red flags. | Untested. The scenario gives every SHA. |
-| Outcome first. A fix starts with "Fixed in `<sha>`." | sp-rcr ("Fixed. [what]"). spec 8.4 (outcome first). brief voice ruling. | D | Loop 3. Rules. | GREEN |
+| Use only given facts. A fix with no SHA is a gap. Ask about one gap in each message, with a recommended answer. | brief (SHA per fix). Controller ruling (one question, recommended answer). sp-rcr ("I can't verify this without [X]"). | D | Loop 2. Rules. Red flags. | Untested. The scenario gives every SHA. |
+| Outcome first. A fix starts with "Fixed in `<sha>`." An answer starts with the fact. | sp-rcr ("Fixed. [what]"). spec 8.4 (outcome first). brief voice ruling. | D | Loop 3. Rules. | GREEN |
 | 1 to 3 sentences. No list. | spec 8.4. brief voice ruling. | D | Loop 3. Rules. Red flags. | RED: both wrote 4-sentence replies. |
 | One SHA for each fix, in backticks. | spec 8.4 and section 7 (only the commit reference habit stays). brief. | D | Rules. Red flags. | RED: both left `abc1234` bare. |
 | Backticks for each identifier. | spec 8.4. | D | Rules. Red flags. | RED: SHA and rule code bare. |
@@ -28,7 +28,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Unslop rules 20 and 22 (chatbot phrases, flattery). | pstack 20, 22. sp-rcr (forbidden "You're absolutely right!", "Great point!"). | D | Rules. Loop 4. | GREEN |
 | Unslop rules 23 and 24 (filler, too much hedging). | pstack 23, 24. | D | Rules. Loop 4. | GREEN |
 | Run the unslop skill on each draft. `reply` keeps no copy of the rule text. | brief interfaces. spec 8.4. | P | Loop 4. Red flags. Roles. | RED: no run made a pass. GREEN: both read unslop. |
-| Output: each draft apart from the unslop change lines, as unslop wrote them. | unslop output contract (one line, one rule number). advisor review (the draft must be postable as is). | O | Output template. Red flags. | GREEN |
+| Output: each draft apart from the unslop change lines, as unslop wrote them. | unslop output contract (one line, one rule number). spec 8.4 (`address` posts the draft that the user OKs, so the draft stands alone). Audit: RED Claude used bold labels with colons (unslop rule 16). | O | Output template. Red flags. | GREEN |
 | Add no fact. | unslop (add nothing). sp-rcr (verify before claim). | D | Rules. | RED: Claude added a note after the drafts. |
 | Never post. The user or `address` posts after the user says yes. | spec 8.4 (address posting after the user OKs it). dispatch. | D | Roles. | RED and GREEN: no post. |
 | Run inline. Return only the template to `address`. Fallback path for unslop. | spec 8.4 (used by `address` and on its own). | O | Roles. | GREEN: unslop at a given path. |
@@ -54,3 +54,4 @@ Claude wrote "Good catch, thanks." and added a note after the drafts. Both wrote
 **GREEN** (skill, both CLIs, read-only, 2026-10-30):
 Iteration 1 (`scratch-6.3/reply-green-1/`) passed the harness for both. Both read unslop `SKILL.md` and `rules.md`. No draft thanks the reviewer, each has 1 to 3 sentences, and each SHA and identifier is in backticks. Codex kept a curly apostrophe ("I’m"), and its unslop pass listed no change. The fix adds a rule 19 red flag.
 Iteration 2 (`scratch-6.3/reply-green-2/`) passed for both. Each draft starts with its outcome, has at most 3 sentences, no list and no thanks. Each fix names `abc1234`. The decline gives the `UP032` reason and the mixed-style cost. Neither answer has a curly quote.
+After iteration 2, a review tightened the wording with no rerun. An answer now starts with its fact (Claude put it in sentence 3 of thread 3). Loop 2 asks about one gap in each message. The SHA red flag splits into a missing SHA (step 2) and a bare SHA (step 3).
