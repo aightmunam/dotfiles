@@ -22,7 +22,7 @@ description: Use when you finished your own change and runs must show that it wo
 5. **Rerun findings.** Run each adversary command again yourself. Replay each counterexample one step at a time against the real code. Keep a finding only when your run shows the failure and the failure breaks the intent. Drop the others, with the reason. Merge findings that have one cause.
 6. **Decide.** A fix that stays inside the plan and has one clear form: make it, run the affected checks again, and record the new `diff_hash`. A fix with two forms, or a fix that changes the plan: ask the user. Ask one question per message, in the decision template. With no user, write `Assumed: <value> (source: <file:line or spec section>)` only for a value with a source. Otherwise write `Open: <question>` and do not fix.
 7. **Write the doc.** Read `review-template.md` and fill it. The doc goes in `<review root>/YYYY-MM-DD-self-<topic>.md`. The review root is the target of the `thoughts/shared` link plus `/reviews`. If `thoughts/shared` is not a link, it is `thoughts/shared/reviews`. In a worktree, use the main checkout (`git rev-parse --git-common-dir`, then its parent). Do not write the doc with a shell heredoc. A shell hook removes each line whose first character is `#`. If you cannot write files, put the full doc in your answer and name its path.
-8. **Close the plan.** Tick each box that a VERIFIED check in the doc covers. Put the check name after the box. Add `## Deviations` if it is missing. Add one row for each difference between the plan and the change. Use the Deviation row of `build/SKILL.md`: rows are append-only, and the evidence is a pointer (SHA, `file:line`, PR number), not prose. Set `status: done` only when you ticked each box and no finding stays. Otherwise set `status: in-progress`. If you cannot write files, put the plan edits in your answer.
+8. **Close the plan.** Tick each box that a VERIFIED check in the doc covers. Put the check name after the box. Add `## Deviations` if it is missing. Add one row for each difference between the plan and the change. Use the Deviation row of `build/SKILL.md`: rows are append-only, and the evidence is a pointer (SHA, `file:line`, PR number), not prose. Set `status: done` only when you ticked each box, no finding stays, and both adversaries ran. Otherwise set `status: in-progress`. If you cannot write files, put the plan edits in your answer.
 9. **Reply.** Use the reply template.
 
 ## Repo Rules
@@ -48,6 +48,8 @@ description: Use when you finished your own change and runs must show that it wo
 - A ticked box with no VERIFIED check. Go back to step 8.
 - A fix with two forms that you made with no question. Go back to step 6.
 - No `Principles applied:` line, or a principle file that you did not open. Go back to step 3.
+- You did the adversary brief yourself, but you could make the worktrees and dispatch. Cost and time are not reasons. Go back to step 4.
+- Only the inline fallback ran, and the plan says `status: done`. Write `adversary: inline` on the Outcome line. Go back to step 8.
 
 ## Decision Template
 
@@ -61,7 +63,7 @@ description: Use when you finished your own change and runs must show that it wo
 
 ```
 Doc: <path>
-Outcome: <VERIFIED | NOT VERIFIED | INCONCLUSIVE> at base_sha <sha>, diff_hash <hash>
+Outcome: <VERIFIED | NOT VERIFIED | INCONCLUSIVE> at base_sha <sha>, diff_hash <hash>, adversary: <claude and codex | inline (<reason>) | <name> missing>
 Safety fact: <fact>, ladder step <n>
 Findings: <ids, or "none verified">. Dropped: <count and why>
 Plan: <path>, status <status>, <ticked>/<total> boxes ticked
