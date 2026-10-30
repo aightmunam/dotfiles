@@ -1,0 +1,288 @@
+#!/usr/bin/env python3
+"""pressure-run: run one scenario headless under Claude Code and Codex.
+
+Usage: pressure-run --scenario FILE [--skill NAME] [--principle NAME]...
+       [--tool claude|codex|both] [--write] [--red] --out DIR [--dry-run]
+
+Makes a scratch directory per tool (under the system temp dir), exposes the
+worktree skill there (not with --red), runs the scenario, and saves
+DIR/<tool>.jsonl (transcript) and DIR/<tool>.txt (final answer).
+GREEN passes, per tool, when the skill loaded, each --principle file was read
+and the answer has a "Principles applied:" line. With --red the skill is not
+exposed and no check runs; the transcripts are only saved.
+Exit 0 pass, 1 fail, 2 setup error.
+
+Other modules import skill_loaded(events, tool) and files_read(events, tool).
+"""
+
+import argparse
+import json
+import re
+import shlex
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+SKILLS_DIR = ROOT / "ai" / "skills"
+TOOLS = ("claude", "codex")
+DEFAULT_BUDGET = 0.5
+RUN_TIMEOUT = 900
+
+SKILL_PATH_RE = re.compile(r"/([\w.-]+)/SKILL\.md$")
+SKILL_CMD_RE = re.compile(r"skills/([\w.-]+)/SKILL\.md")
+PRINCIPLE_RE = re.compile(r"principles/([\w.-]+)\.md")
+LINE_RE = re.compile(r"(?im)^[\s>*_`-]*Principles applied:[*_`\s]*\S")
+
+
+class SetupError(Exception):
+    pass
+
+
+def load_events(path):
+    """Read a JSONL transcript, skipping lines that are not JSON."""
+    events = []
+    for line in Path(path).read_text(encoding="utf-8").splitlines():
+        try:
+            item = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(item, dict):
+            events.append(item)
+    return events
+
+
+def _claude_tool_uses(events):
+    for event in events:
+        if event.get("type") != "assistant":
+            continue
+        content = (event.get("message") or {}).get("content")
+        if not isinstance(content, list):
+            continue
+        for item in content:
+            if isinstance(item, dict) and item.get("type") == "tool_use":
+                yield item
+
+
+def _codex_commands(events):
+    for event in events:
+        item = event.get("item")
+        if isinstance(item, dict) and item.get("type") == "command_execution":
+            command = item.get("command")
+            if isinstance(command, str):
+                yield command
+
+
+def files_read(events, tool):
+    """Return the set of file paths the run read.
+
+    Claude: the file_path of each Read tool_use.
+    Codex: every token with a "/" in each shell command (the CLI reads files
+    through shell commands such as cat, head or sed).
+    """
+    found = set()
+    if tool == "claude":
+        for use in _claude_tool_uses(events):
+            path = (use.get("input") or {}).get("file_path")
+            if use.get("name") == "Read" and isinstance(path, str):
+                found.add(path)
+    elif tool == "codex":
+        for command in _codex_commands(events):
+            try:
+                tokens = shlex.split(command)
+            except ValueError:
+                tokens = command.split()
+            # A shell wrapper such as: /bin/zsh -lc 'cat x' carries the real command in one token.
+            for token in list(tokens):
+                try:
+                    tokens.extend(shlex.split(token))
+                except ValueError:
+                    tokens.extend(token.split())
+            found.update(t for t in tokens if "/" in t)
+    else:
+        raise ValueError(f"unknown tool: {tool}")
+    return found
+
+
+def skill_loaded(events, tool):
+    """Return the set of skill names the run loaded."""
+    names = set()
+    if tool == "claude":
+        for use in _claude_tool_uses(events):
+            if use.get("name") == "Skill":
+                name = (use.get("input") or {}).get("skill")
+                if isinstance(name, str):
+                    names.add(name)
+        for path in files_read(events, "claude"):
+            match = SKILL_PATH_RE.search(path)
+            if match:
+                names.add(match.group(1))
+    elif tool == "codex":
+        for command in _codex_commands(events):
+            names.update(SKILL_CMD_RE.findall(command))
+    else:
+        raise ValueError(f"unknown tool: {tool}")
+    return names
+
+
+def principles_read(events, tool):
+    """Return the set of principle names the run read."""
+    names = set()
+    for path in files_read(events, tool):
+        names.update(PRINCIPLE_RE.findall(path))
+    return names
+
+
+def final_answer(events, tool):
+    """Return the last answer text of the run ('' when there is none)."""
+    if tool == "claude":
+        for event in reversed(events):
+            if event.get("type") == "result" and isinstance(event.get("result"), str):
+                return event["result"]
+        return ""
+    if tool == "codex":
+        for event in reversed(events):
+            item = event.get("item")
+            if event.get("type") == "item.completed" and isinstance(item, dict) \
+                    and item.get("type") == "agent_message":
+                return item.get("text") or ""
+        return ""
+    raise ValueError(f"unknown tool: {tool}")
+
+
+def check(tool, events, skill, principles):
+    """Return a list of failure messages (empty list means pass)."""
+    failures = []
+    if skill and skill not in skill_loaded(events, tool):
+        failures.append(f"skill not loaded: {skill}")
+    read = principles_read(events, tool)
+    for name in principles:
+        if name not in read:
+            failures.append(f"principle not read: {name}")
+    if not LINE_RE.search(final_answer(events, tool)):
+        failures.append("answer has no 'Principles applied:' line")
+    return failures
+
+
+def claude_command(prompt, write=False, budget=DEFAULT_BUDGET):
+    # --setting-sources project: a user-level skill with the same name would win
+    # over the project one (probe 2026-10-30), so user settings stay out of the run.
+    return [
+        "claude", "-p", prompt,
+        "--output-format", "stream-json", "--verbose",
+        "--permission-mode", "acceptEdits" if write else "plan",
+        "--setting-sources", "project",
+        "--max-budget-usd", str(budget),
+    ]
+
+
+def codex_command(prompt, cwd, write=False):
+    return [
+        "codex", "exec", "--json", "--skip-git-repo-check",
+        "-s", "workspace-write" if write else "read-only",
+        "-C", str(cwd), prompt,
+    ]
+
+
+def build_command(tool, prompt, cwd, write, budget):
+    if tool == "claude":
+        return claude_command(prompt, write, budget)
+    return codex_command(prompt, cwd, write)
+
+
+def prepare_scratch(tool, skill, red):
+    """Make the scratch dir and link the worktree skill into it."""
+    scratch = Path(tempfile.mkdtemp(prefix=f"pressure-{tool}-"))
+    if skill and not red:
+        base = ".claude" if tool == "claude" else ".agents"
+        link = scratch / base / "skills" / skill
+        link.parent.mkdir(parents=True)
+        link.symlink_to(SKILLS_DIR / skill)
+    return scratch
+
+
+def run_tool(tool, prompt, args):
+    if shutil.which(tool) is None:
+        raise SetupError(f"{tool} not found on PATH")
+    scratch = prepare_scratch(tool, args.skill, args.red)
+    cmd = build_command(tool, prompt, scratch, args.write, args.budget)
+    try:
+        proc = subprocess.run(cmd, cwd=scratch, capture_output=True, text=True,
+                              stdin=subprocess.DEVNULL, timeout=RUN_TIMEOUT)
+    except subprocess.TimeoutExpired:
+        raise SetupError(f"{tool} run timed out after {RUN_TIMEOUT}s")
+    finally:
+        shutil.rmtree(scratch, ignore_errors=True)
+    out = Path(args.out)
+    (out / f"{tool}.jsonl").write_text(proc.stdout, encoding="utf-8")
+    events = []
+    for line in proc.stdout.splitlines():
+        try:
+            item = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(item, dict):
+            events.append(item)
+    answer = final_answer(events, tool)
+    (out / f"{tool}.txt").write_text(answer, encoding="utf-8")
+    if proc.returncode != 0 and not events:
+        raise SetupError(f"{tool} exited {proc.returncode}: {proc.stderr.strip()[-300:]}")
+    return events
+
+
+def parse_args(argv):
+    p = argparse.ArgumentParser(prog="pressure-run", description=__doc__.split("\n\n")[0])
+    p.add_argument("--scenario", required=True, help="file with the scenario prompt")
+    p.add_argument("--skill", help="skill under test (ai/skills/<name>)")
+    p.add_argument("--principle", action="append", default=[], help="principle that must be read (repeatable)")
+    p.add_argument("--tool", choices=["claude", "codex", "both"], default="both")
+    p.add_argument("--write", action="store_true", help="let the run edit files in the scratch dir")
+    p.add_argument("--red", action="store_true", help="do not expose the skill; save transcripts only")
+    p.add_argument("--out", required=True, help="directory for <tool>.jsonl and <tool>.txt")
+    p.add_argument("--dry-run", action="store_true", help="print the commands and exit")
+    p.add_argument("--budget", type=float, default=DEFAULT_BUDGET, help="Claude --max-budget-usd")
+    return p.parse_args(argv)
+
+
+def main(argv=None):
+    args = parse_args(sys.argv[1:] if argv is None else argv)
+    try:
+        scenario = Path(args.scenario)
+        if not scenario.is_file():
+            raise SetupError(f"scenario not found: {scenario}")
+        if args.skill and not args.red and not args.dry_run and not (SKILLS_DIR / args.skill / "SKILL.md").is_file():
+            raise SetupError(f"skill not found: {SKILLS_DIR / args.skill}/SKILL.md")
+        prompt = scenario.read_text(encoding="utf-8").strip()
+        tools = TOOLS if args.tool == "both" else (args.tool,)
+
+        if args.dry_run:
+            for tool in tools:
+                cwd = f"<scratch>/{tool}"
+                print(f"{tool}: " + shlex.join(build_command(tool, prompt, cwd, args.write, args.budget)))
+            return 0
+
+        Path(args.out).mkdir(parents=True, exist_ok=True)
+        status = 0
+        for tool in tools:
+            events = run_tool(tool, prompt, args)
+            if args.red:
+                print(f"{tool}: saved (red, no checks)")
+                continue
+            failures = check(tool, events, args.skill, args.principle)
+            if failures:
+                status = 1
+                print(f"{tool}: FAIL")
+                for failure in failures:
+                    print(f"  - {failure}")
+            else:
+                print(f"{tool}: PASS")
+        return status
+    except SetupError as exc:
+        print(f"pressure-run: {exc}", file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())

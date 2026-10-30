@@ -1,0 +1,1 @@
+{"type": "item.completed", "item": {"id": "item_1", "type": "command_execution", "command": "/bin/zsh -lc 'cat .agents/skills/pressure-probe/SKILL.md'", "aggregated_output": "(trimmed)", "exit_code": 0, "status": "completed"}}
