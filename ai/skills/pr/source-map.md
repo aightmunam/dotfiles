@@ -11,7 +11,7 @@
 - **brief:** task 6.1 brief (interfaces, Review Focus 4 and 7) and the Global Constraints (four repo lines, OK only for main/master and prod, a feature-branch push needs no OK).
 - **unslop:** `ai/skills/unslop/SKILL.md` (output contract: one change line for each changed pattern).
 - **prove:** `ai/skills/prove/SKILL.md` line 10 (`diff_hash`, `base_sha`), line 24 (review root) and `review-template.md` (frontmatter `branch:` and `outcome:`, finding heading and italic ladder line, `# Automated checks` outcome word in Notes). The merged prove skill is the contract (fix round 1 ruling).
-- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (the form bar).
+- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (removed after eec5ad9; read it in git history) (the form bar).
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
 "Loop N" is a step in SKILL.md. "tpl" is `description-template.md`.

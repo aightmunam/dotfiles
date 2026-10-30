@@ -2,8 +2,8 @@
 
 `ai/sources.lock` pins the sources. Paths are under `~/Developer/ref/`.
 
-- **rp:** `ai/skills/review_pr/SKILL.md`. The old skill. It gives the 7 steps, the arguments, the paths, the C+ light doc format, and the mermaid rules.
-- **ra:** `ai/skills/review_api/SKILL.md`. The Zalando rules, the severity words, and the convention rules.
+- **rp:** `ai/skills/review_pr/SKILL.md` (removed after eec5ad9; read it in git history). The old skill. It gives the 7 steps, the arguments, the paths, the C+ light doc format, and the mermaid rules.
+- **ra:** `ai/skills/review_api/SKILL.md` (removed after eec5ad9; read it in git history). The Zalando rules, the severity words, and the convention rules.
 - **br:** pstack-claude `plugins/pstack/skills/blast-radius/SKILL.md`.
 - **tnr:** pstack-claude `plugins/pstack/skills/thermo-nuclear-review/SKILL.md` and `thermos/SKILL.md`.
 - **tnq:** pstack-claude `plugins/pstack/skills/thermo-nuclear-code-quality-review/SKILL.md`.
@@ -15,7 +15,7 @@
 - **ag:** `ai/agents/reviewer.md`.
 - **eye:** `~/Developer/work-dashboard/eye/services/firefighter/review_play.py` and `review_documents.py` (read only).
 - **gr:** `~/Developer/grimoire/app/data/parser.py` (read only).
-- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (the form bar).
+- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (removed after eec5ad9; read it in git history) (the form bar).
 - **ia:** pstack-claude `plugins/pstack/skills/interrogate/SKILL.md`, lines 26-30 (verify each finding by its command, drop the rest).
 - **do:** `ai/skills/data-op/SKILL.md` line 36 (`lock_timeout`, data before DDL) and `data-op/paths.md` "Alembic data migration". **fmc:** `ai/skills/fix-merge-conflicts/SKILL.md` line 22 (heads from `revision` and `down_revision`).
 - **audit:** `.superpowers/sdd/2026-10-30-skill-rework/skill-audit.md`, items 1, 2, 3 and 10 (G1, G12), round 2.

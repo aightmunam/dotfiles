@@ -11,7 +11,7 @@
 - **elis:** pstack-claude `plugins/pstack/skills/principle-encode-lessons-in-structure/SKILL.md`, adapted in `ai/principles/encode-lessons-in-structure.md`.
 - **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md`, sections 8.2 (naming), 8.2a (source rule), 8.3a (house form), 8.3 (STE), 8.4 new-skill entry, 8.5 (router, routing eval, pressure harness, plugin lint), 8.7 (principles).
 - **brief:** Task 6.5 brief and its Global Constraints (repo lines, description shape, skill task template).
-- **fcd:** `ai/skills/fact-constrained-debugging/` (the form bar, provenance only). `house-form.md` names `ai/skills/debug/` as the model skill (final review M9).
+- **fcd:** `ai/skills/fact-constrained-debugging/` (removed after eec5ad9; read it in git history) (the form bar, provenance only). `house-form.md` names `ai/skills/debug/` as the model skill (final review M9).
 - **mp:** `ai/skills/make-plan/SKILL.md` (fallback when a tool is not on disk, repo lines).
 - **lint:** `ai/tests/test_skills_lint.py` (what the lint checks).
 - **pr:** `ai/bin/pressure-run` (what GREEN checks).

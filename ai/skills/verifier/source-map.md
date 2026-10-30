@@ -6,7 +6,7 @@
 - **mvs:** pstack-claude `plugins/pstack/skills/maintain-verification-skill/SKILL.md`.
 - **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md`, section 8.4 verifier entry.
 - **brief:** Task 5.2 brief and the dispatch for it (Global Constraints, the interface, the `prove` note).
-- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (the form bar).
+- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (removed after eec5ad9; read it in git history) (the form bar).
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
 "Loop N" is a step in SKILL.md. "T" is `verify-template.md`. "M" is `maintain.md`.

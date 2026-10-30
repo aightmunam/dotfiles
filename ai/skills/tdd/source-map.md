@@ -9,7 +9,7 @@
 - **brief:** task 4.2 brief and the controller dispatch (receipt line format, red definition).
 - **tbni:** `ai/principles/test-behavior-not-implementation.md`.
 - **bd:** `ai/principles/boundary-discipline.md`.
-- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (the form bar).
+- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (removed after eec5ad9; read it in git history) (the form bar).
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
 "Loop N" is a step in SKILL.md.

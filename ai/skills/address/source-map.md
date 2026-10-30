@@ -12,7 +12,7 @@
 - **brief:** task 6.4 brief and the parallel dispatch rules (interfaces, RED failure list, four repo lines, one question with a recommended answer).
 - **ketchup:** spec 8.4 ketchup entry and `ai/AGENTS.md` writing standard (an action item has its link, change, evidence and risk).
 - **agents:** `ai/AGENTS.md`, the `## Skill routing` row and the reply / address tie-break.
-- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (the form bar).
+- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (removed after eec5ad9; read it in git history) (the form bar).
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
 "Loop N" is a step in SKILL.md. Run directories are under `scratch-6.4/`.

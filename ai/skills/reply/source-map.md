@@ -8,7 +8,7 @@
 - **brief:** task 6.3 brief and dispatch (unslop interface, voice ruling: outcome first in 1 to 3 sentences, a SHA for each fix, past replies are not a style model).
 - **unslop:** `ai/skills/unslop/SKILL.md` (output contract: one change line for each changed pattern, with one rule number).
 - **agents:** `ai/AGENTS.md`, the `## Skill routing` row and the reply / address tie-break.
-- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (the form bar).
+- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (removed after eec5ad9; read it in git history) (the form bar).
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
 "Loop N" is a step in SKILL.md.

@@ -7,7 +7,7 @@
 - **elis:** `ai/principles/encode-lessons-in-structure.md`.
 - **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md`, section 8.4 automate-me entry, 8.3, 8.7.
 - **brief:** task 8.8 brief and the controller rulings for this task.
-- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (the form bar).
+- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (removed after eec5ad9; read it in git history) (the form bar).
 - **prove:** `ai/skills/prove/SKILL.md` step 6 (the no-user path).
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.

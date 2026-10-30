@@ -8,7 +8,7 @@
 - **brief:** task 5.3 brief (profiler py-spy, the cProfile fallback, the RED scenario, the repo lines).
 - **review:** task 5.3 review, fix round 1 (I-1 to I-3, M-1, M-4, M-5) and the controller rulings.
 - **py-spy docs:** Context7 `/benfred/py-spy` (root on macOS; `top` is a live view).
-- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (the form bar).
+- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (removed after eec5ad9; read it in git history) (the form bar).
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
 "Loop N" is a step in SKILL.md. "T" is the report template.

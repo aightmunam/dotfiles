@@ -23,8 +23,6 @@ MAX_SKILL_LINES = 80
 # Skills outside the house form.
 KEPT = {
     "commit", "design-system", "explain_code",
-    # kept until the Eye moves (Task 7.2)
-    "review_pr", "review_api", "fact-constrained-debugging",
 }
 PLANNED = {
     "research", "brainstorm", "make-plan", "build", "tdd", "debug", "prove", "verifier",

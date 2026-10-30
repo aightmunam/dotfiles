@@ -12,7 +12,7 @@
 - **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md`, section 8.4 make-plan entry, 8.5 (test cards, plan linter), 8.7 (principles).
 - **brief:** Task 3.6 brief and the controller notes for it (handoff ruling, same as brainstorm).
 - **rs:** `ai/skills/research/SKILL.md` (worktree path, no-write fallback, explorer fallback).
-- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (the form bar: an empty section says why).
+- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (removed after eec5ad9; read it in git history) (the form bar: an empty section says why).
 - **ketchup:** `ai/AGENTS.md` writing standard (item format: link, change, evidence, risk).
 - **review:** Task 3.6 review and the controller rulings for fix round 1.
 - **audit:** `.superpowers/sdd/2026-10-30-skill-rework/skill-audit.md` items 9 and 10, and final-review M3 (round 2).

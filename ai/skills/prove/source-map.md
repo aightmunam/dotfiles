@@ -14,7 +14,7 @@
 - **sp:** `~/Developer/ref/superpowers/skills/verification-before-completion/SKILL.md` (the gate: identify, run, read, then claim).
 - **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md`, section 8.4 prove entry, section 8.5 (adversary is a brief in `roles.md`), section 10 (uncommitted change, `kind: self-review`, base SHA plus diff hash). Section 10 also puts the ladder step in the italic summary line.
 - **brief:** task 5.1 brief (files, frontmatter keys, `git diff | shasum`, `~/wt/<repo>/prove-<n>`, Grimoire parse) and the controller dispatch (interfaces of `performance`, `verifier`, `tdd`).
-- **rpr:** old `ai/skills/review_pr/SKILL.md` Step 6 (review root, C+ light format rules, no shell heredoc).
+- **rpr:** old `ai/skills/review_pr/SKILL.md` (removed after eec5ad9; read it in git history) Step 6 (review root, C+ light format rules, no shell heredoc).
 - **perf:** `ai/skills/performance/SKILL.md` (dispatch line and report labels).
 - **ver:** `ai/skills/verifier/verify-template.md` (Launch, Doctor, Drive, Evidence, Cleanup).
 - **tdd:** `ai/skills/tdd/SKILL.md` Loop 3 (`Assumed:` and `Open:` lines).

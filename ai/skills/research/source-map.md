@@ -8,7 +8,7 @@
 - **pocock:** mattpocock-skills `skills/engineering/research/SKILL.md`.
 - **rc:** `ai/skills/research_codebase/SKILL.md` (only the thoughts path and the frontmatter).
 - **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md`, section 8.4 research entry and section 10.
-- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (the form bar).
+- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (removed after eec5ad9; read it in git history) (the form bar).
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
 "Loop N" is a step in SKILL.md. "T" is `document-template.md`.

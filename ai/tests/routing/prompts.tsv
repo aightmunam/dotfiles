@@ -64,8 +64,8 @@ pair-staging_data-op-staging	staging	staging/data-op	Put my feature branch on st
 pair-staging_data-op-data-op	data-op	staging/data-op	Backfill eta_date on the staging DB.
 pair-unslop_writing-standard-unslop	unslop	unslop/writing-standard	This email draft is finished. Run a pass to clean the AI tells out of it: "I hope this message finds you well. Let us leverage synergies."
 pair-unslop_writing-standard-writing-standard	none	unslop/writing-standard	Write two sentences for the README that say what this tool does.
-kept-debug-over-fcd	debug		Error spike on the planning API right after this morning's deploy. Here are the Sentry traces. It is a regression and nobody knows the cause yet.
-kept-review-pr-over-review_pr	review-pr		Review PR 512 on the subsidy service locally with a full code analysis. No GitHub actions.
+skill-debug-deploy-spike	debug		Error spike on the planning API right after this morning's deploy. Here are the Sentry traces. It is a regression and nobody knows the cause yet.
+skill-review-pr-local	review-pr		Review PR 512 on the subsidy service locally with a full code analysis. No GitHub actions.
 distract-explain_code	explain_code		Explain in chat, with a diagram, how the cache layer in this codebase works.
 distract-commit	commit		Commit these changes with a good message, I approve.
 distract-asd-ste100	asd-ste100		Rewrite this error message in Simplified Technical English.

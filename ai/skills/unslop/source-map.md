@@ -6,7 +6,7 @@
 - **agents:** `ai/AGENTS.md`, the `## Writing standard` section and the `## Skill routing` rows.
 - **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md`, section 8.4 unslop entry.
 - **brief:** task 6.2 brief (output shape, the rule 13 conflict, the RED scenario).
-- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (the form bar).
+- **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (removed after eec5ad9; read it in git history) (the form bar).
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
 "Loop N" is a step in SKILL.md. "R" is `rules.md`.
