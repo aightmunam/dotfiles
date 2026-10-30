@@ -67,7 +67,7 @@ class RoutingEvalTest(unittest.TestCase):
         self.assertEqual(len(prompts), len(set(prompts)))
         for r in self.rows:
             self.assertTrue(r["prompt"].strip(), r["id"])
-            self.assertNotIn("—", r["prompt"])
+            self.assertNotIn("\u2014", r["prompt"])
 
     def test_tsv_covers_every_planned_skill(self):
         planned = planned_skills()
