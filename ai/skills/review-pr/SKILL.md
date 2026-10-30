@@ -29,7 +29,7 @@ If a `report_progress` tool exists, call it at the start of each step: `step` is
 
 ## Roles
 
-Each brief goes to a `reviewer` agent. If no `reviewer` type exists, send a general-purpose agent the brief and the reviewer rules from `lenses.md`. With no dispatch tool, do each brief yourself, one at a time.
+Each brief goes to a `reviewer` agent. If no `reviewer` type exists, send a general-purpose agent the brief and the reviewer rules from `lenses.md`. A read-only session or plan mode does not stop a lens agent. Send it. If a dispatch fails, put the error in the agent id cell. With no dispatch tool, do each brief yourself, one at a time. Read the principle files also when you do the briefs yourself.
 
 ## Repo Rules
 
