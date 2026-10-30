@@ -46,16 +46,22 @@ fingerprint() {
 
 has_recipe() {
   [ -f "$ROOT/justfile" ] || [ -f "$ROOT/Justfile" ] || return 1
-  (cd "$ROOT" && just --summary 2>/dev/null) | tr ' ' '\n' | grep -qx "$1"
+  # Capture first: under pipefail, grep -q closing the pipe early would fail the pipeline.
+  local s; s=$(cd "$ROOT" && just --summary 2>/dev/null) || return 1
+  grep -qxF -- "$1" <<<"${s// /$'\n'}"
 }
 
+JUST_CI_RE='(^|[;&|[:space:]])just[[:space:]]+(check|ci)([^[:alnum:]_]|$)'
+JUST_LINT_RE='(^|[;&|[:space:]])just[[:space:]]+lint([^[:alnum:]_]|$)'
+JUST_TEST_RE='(^|[;&|[:space:]])just[[:space:]]+test([^[:alnum:]_]|$)'
 # Bare test runners that stamp `test`.
 RUNNER_RE='(^|[;&|[:space:]])(pytest|python[0-9.]*[[:space:]]+-m[[:space:]]+(pytest|unittest)|uv[[:space:]]+run[[:space:]]+pytest|tox|(npm|yarn|pnpm|bun)[[:space:]]+(run[[:space:]]+)?test|go[[:space:]]+test|cargo[[:space:]]+test)([^[:alnum:]_]|$)'
 
 # 0 when the exit code of the test runner in $CMD is hidden: between the runner
 # and the next `&&` there is a `|` (without pipefail), a `;`, or a `||`.
+# $1 is the regex (with a trailing boundary group) that finds the runner.
 hidden_exit() {
-  [[ "$CMD" =~ $RUNNER_RE ]] || return 1
+  [[ "$CMD" =~ $1 ]] || return 1
   # The last char of the match is the word boundary; keep it, it may be `;` or `|`.
   local m="${BASH_REMATCH[0]}" b="${BASH_REMATCH[${#BASH_REMATCH[@]}-1]}"
   local rest="$b${CMD#*"$m"}"
@@ -81,12 +87,12 @@ PostToolUse)
   # Only successful runs reach PostToolUse; skip interrupted ones defensively.
   [ "$(jq -r '.tool_response.interrupted // false' <<<"$INPUT")" = "true" ] && exit 0
   output_failed && exit 0
-  if grep -qE '(^|[;&|[:space:]])just[[:space:]]+(check|ci)\b' <<<"$CMD"; then
+  if hidden_exit "$JUST_CI_RE"; then :; elif [[ "$CMD" =~ $JUST_CI_RE ]]; then
     stamp lint; stamp test
   fi
-  grep -qE '(^|[;&|[:space:]])just[[:space:]]+lint\b' <<<"$CMD" && stamp lint
-  grep -qE '(^|[;&|[:space:]])just[[:space:]]+test\b' <<<"$CMD" && stamp test
-  if [[ "$CMD" =~ $RUNNER_RE ]] && ! hidden_exit; then stamp test; fi
+  if ! hidden_exit "$JUST_LINT_RE" && [[ "$CMD" =~ $JUST_LINT_RE ]]; then stamp lint; fi
+  if ! hidden_exit "$JUST_TEST_RE" && [[ "$CMD" =~ $JUST_TEST_RE ]]; then stamp test; fi
+  if ! hidden_exit "$RUNNER_RE" && [[ "$CMD" =~ $RUNNER_RE ]]; then stamp test; fi
   exit 0
   ;;
 PreToolUse)

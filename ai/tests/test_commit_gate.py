@@ -93,5 +93,46 @@ class CommitGateTest(unittest.TestCase):
         self.assertEqual(self._commit_exit("pytest -q && echo ok", "3 passed\nok"), 0)
 
 
+class CommitGateJustTest(CommitGateTest):
+    """Same harness, but the repo has a justfile with lint and test recipes."""
+
+    def setUp(self):
+        super().setUp()
+        (self.repo / "pytest.ini").unlink()
+        (self.repo / "justfile").write_text("lint:\n    true\n\ntest:\n    true\n")
+        env = {**os.environ, "HOME": str(self.home)}
+        subprocess.run(["git", "-C", str(self.repo), "add", "-A"], check=True, env=env)
+
+    # Inherited pytest tests do not apply here.
+    for _name in [n for n in dir(CommitGateTest) if n.startswith("test_")]:
+        locals()[_name] = None
+    del _name
+
+    def test_just_test_clean_stamps_both_needed(self):
+        self.assertEqual(self._commit_exit("just lint && just test", "ok"), 0)
+
+    def test_plain_just_test_with_lint_stamps_test(self):
+        self._commit_exit("just lint", "ok")
+        self.assertEqual(self._commit_exit("just test", "ok"), 0)
+
+    def test_just_test_piped_does_not_stamp(self):
+        self._commit_exit("just lint", "ok")
+        self.assertEqual(self._commit_exit("just test | tail -5", "ok"), 2)
+
+    def test_just_test_semicolon_true_does_not_stamp(self):
+        self._commit_exit("just lint", "ok")
+        self.assertEqual(self._commit_exit("just test; true", "ok"), 2)
+
+    def test_just_test_or_true_does_not_stamp(self):
+        self._commit_exit("just lint", "ok")
+        self.assertEqual(self._commit_exit("just test || true", "ok"), 2)
+
+    def test_just_check_semicolon_true_stamps_nothing(self):
+        self.assertEqual(self._commit_exit("just check; true", "ok"), 2)
+
+    def test_just_check_clean_stamps_both(self):
+        self.assertEqual(self._commit_exit("just check", "ok"), 0)
+
+
 if __name__ == "__main__":
     unittest.main()
