@@ -234,8 +234,13 @@ def run_row(tool, row, args):
     lines, events = [], []
     timed_out = []
     errfile = tempfile.TemporaryFile(mode="w+", encoding="utf-8")
-    proc = subprocess.Popen(cmd, cwd=scratch, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
-                            stderr=errfile, text=True, start_new_session=True)
+    try:
+        proc = subprocess.Popen(cmd, cwd=scratch, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                stderr=errfile, text=True, start_new_session=True)
+    except OSError as exc:
+        errfile.close()
+        shutil.rmtree(scratch, ignore_errors=True)
+        raise SetupError(f"{tool} did not start: {exc}") from exc
     with RUNNING_LOCK:
         RUNNING.add(proc)
 
@@ -354,8 +359,8 @@ def main(argv=None):
                 if outcome and (status == 0 or outcome == 2):
                     status = outcome
         except KeyboardInterrupt:
-            kill_all()
             pool.shutdown(wait=False, cancel_futures=True)
+            kill_all()
             print("routing-eval: interrupted", file=sys.stderr)
             return 2
         finally:
