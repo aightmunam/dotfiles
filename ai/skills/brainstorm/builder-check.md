@@ -33,6 +33,6 @@ Put each question from the builder in one of three groups:
 
 - **answered:** the conversation or the code already has the answer. Put the answer in the doc.
 - **minor:** a good builder can decide it, and the decision does not change what gets built. Decide it. Mark it in the doc as your call.
-- **theirs:** only the user can answer it, and the answer changes what gets built. Ask it with Loop step 3, one question per message, with a recommended answer.
+- **theirs:** only the user can answer it, and the answer changes what gets built. Ask it with Loop step 3, one question per message, with a recommended answer. Put each answer into the doc.
 
 The check gives one set of questions only. Do not run it again after the user answers.

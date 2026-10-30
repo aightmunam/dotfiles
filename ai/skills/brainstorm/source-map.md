@@ -29,10 +29,18 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | In a worktree, use the main checkout's `thoughts/`. Cannot write: the doc goes in the answer. | rs Loop 6. | P | Loop 5. | Untested. |
 | Builder check by a fresh agent. Three groups. One set of questions only. | sp builder-check-prompt.md and The Written Design. spec 8.4 Keep. | P | Loop 6. `builder-check.md`. | Untested. |
 | No dispatch tool: read the doc as the builder yourself. | sp (without a subagent tool). | P | Roles. `builder-check.md`. | Untested. |
-| Theirs questions go one per message, each with a recommended answer. | ruling (one per message). sp (bring them in one message) is overridden. | D | Loop 6. `builder-check.md`. | Untested. |
+| Theirs questions go one per message, each with a recommended answer. Their answers go into the doc. | ruling (one per message). sp (bring them in one message) is overridden. | D | Loop 6. `builder-check.md`. | Untested. |
 | Hard gate. Nothing gets built before the user approves the doc. It overrides never-block-on-the-human. | sp HARD-GATE. spec 8.4 Keep. spec never-block-on-the-human row. | D | Definitions (Build). Hard gate. Red flags. | RED |
 | Approval covers what the user saw. | sp Red flags ("sounds good"). | D | Rules. | Untested. |
 | After approval, hand off to `make-plan`. | sp HARD-GATE (next step is the plan). Task 3.5 brief. | P | Loop 7. | Untested. |
+| Several independent projects: say so, agree on an order with a recommended order, then one project at a time. | sp Size the Work (several independent projects). Review I1. | P | Loop 1. | Untested. The scenario is one project. |
+| Intent, success, and anti-goals are decisions and the user's. Only a how-it-gets-made choice can be your call. Never write a guessed why into the doc. | sp opening (what they want, and why), Ground to cover (why now, success, anti-goals), How it gets made (your call). Review I2. | D | Definitions. Rules. Red flags. | Untested. A headless run stops at the first question. |
+| Before you recommend, think of several options privately. Drop the weak ones and the ones that fight the why. | sp Think wide privately. Review I2. | P | Loop 3. | Untested. |
+| A playback invites corrections ("Correct any part of this.") and ends with the next question. | sp Play It Back (ask what is wrong or missing). ruling (one question per message). Review M3. | P | Loop 4. | Untested. |
+| Put each builder-check answer from the user into the doc. | sp The Written Design (update the document with their answers). Review M4. | P | Loop 6. `builder-check.md`. | Untested. |
+| Cannot write files: do the builder check yourself before you show the doc. | sp (do not hand over the document until the check is back). Review M5. | P | Loop 5. | Untested. |
+| Use the `thoughts/` of the repo where the change lands. In a worktree, find the main checkout with `git rev-parse --git-common-dir`. | rs Loop 6. Review M2. | P | Loop 5. | Untested. |
+| The design doc and throwaway scripts are not builds. Product code, scaffolds, and installs before approval send you back to the gate. | sp HARD-GATE (building list, reading and exploring are fine). Review I3. | D | Hard gate. Red flags. | GREEN-2: neither run changed the repo. |
 | Four repo lines, verbatim. | Brief Global Constraints. | D | Repo Rules. | Untested. |
 
 ## Cut
@@ -43,22 +51,27 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 - sp: the size table. The router sends only work that needs a design to this skill.
 - sp: `docs/superpowers/specs/` path. The spec puts the doc in `thoughts/shared/specs/`.
 - sp: the handoff to the writing-plans skill of superpowers. The handoff is `make-plan`.
+- sp: "Offer recon, they decide". Loop 1 explores without an offer. grill and spec 8.4 make facts the agent's job.
+- sp: "say a reviewer will read it first". The builder check is short, and a notice adds text before the one question.
+- sp: Ground to cover as a list, and "Get them describing" with open questions first. The ruling puts a recommended answer on each question. The why, success, and anti-goals stay as decisions (Definitions).
+- sp: match the user's vocabulary and plain language. The writing standard in `ai/AGENTS.md` and STE cover the text.
 - grill: the whole frontier in one numbered round. The ruling keeps one question per message.
 - grill: sub-agents for each fact. Loop 1 and Loop 2 get facts inline. The spec runs brainstorm in chat.
 - proto: variants behind a switcher, screenshots, and the reply shape. They are the prototype playbook's own output, not a design conversation.
 
 ## Principles
 
-No principle applies. The spec 8.7 table has no brainstorm row, and the lint has no `PRINCIPLE_TARGETS` entry. The skill has no pointer and no `Principles applied:` line. `pressure-run` checks for that line on every GREEN run, so its exit code is 1 by design here. The controller judges GREEN by hand against the failure from RED.
+No principle applies. The spec 8.7 table has no brainstorm row, and the lint has no `PRINCIPLE_TARGETS` entry. The skill has no pointer and no `Principles applied:` line. Since commit 4840ae0, `pressure-run` checks for that line only when the caller gives a `--principle`. The controller judges the questions by hand against the failure from RED.
 
 ## Pressure scenarios
 
 Scenario: "I want The Eye to post a Slack message when a review finds a blocker. Help me design it."
 
 **RED** (no skill, both CLIs, read-only, 2026-10-30):
-Claude explored the repo, then gave a full design and a plan before any answer from the user. It ended with three decisions in one message. It also wrote a plan file. Codex asked the user where The Eye's code lives. A search of `~/Developer` finds that fact.
+Claude explored the repo, then gave a full design and a plan before any answer from the user. It ended with three decisions in one message. It also wrote a plan file. Codex asked the user where The Eye's code lives. The Codex baseline was not skill-free: it read the superpowers brainstorming SKILL.md from its plugin cache, and still asked the fact. A search of `~/Developer` finds that fact.
 The failure: several decisions in one message, and a question about a fact that the agent can find.
 
 **GREEN** (skill, both CLIs, read-only, 2026-10-30):
 Iteration 1 passed for both on the manual checks. Claude loaded the skill with the Skill tool. Codex read `.agents/skills/brainstorm/SKILL.md`. Each run found `~/Developer/work-dashboard` and read the review code before it asked. Each answer ends with one decision (fire on `request_changes`), with a recommended answer. Neither run changed the repo. Claude wrote only its plan-mode file under `~/.claude/plans/`.
-The harness exit is 1 for both runs, with "answer has no 'Principles applied:' line". This is by design (see Principles).
+The harness exit is 1 for both runs, with "answer has no 'Principles applied:' line". Commit 4840ae0 removed that check for runs with no `--principle`.
+Iteration 2 ran after the changes from the review (I1 to I3, M2 to M8). The harness passed both runs (exit 0). Claude loaded the skill, read `review.py`, `review_store.py`, and `notifier.py`, and ended with one Decision and a Recommended answer. Codex read the skill, cited `review.py:68` and `notifier.py`, gave a recommendation with a reason, and ended with one question. Codex did not use the template labels. Neither run changed the repo. Claude wrote only its plan-mode file.
