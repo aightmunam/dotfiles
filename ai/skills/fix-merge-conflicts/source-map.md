@@ -28,7 +28,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Stage the resolved files and continue the rebase or merge. | fmc step 6. gw lines 113 to 115. | P | Loop 7. | GREEN |
 | No push, no force-push, no tag. Give the push command to the user. | fmc line 26. spec 8.4. | D | Rules. Red flags. Report For the user. | RED: both runs end with `git push --force-with-lease`. |
 | Cannot write: full resolved files and commands in the answer, `Status: proposed`. | rs Loop 6. Audit: headless runs cannot write. | O | Loop 8. Report Status. | GREEN |
-| Report: files resolved, choices, test outcome. | fmc output lines 30 to 32. | O | Report. | GREEN partial: Claude fills each slot. Codex gives Status, Tests, Alembic and For the user, but no State line. |
+| Report: files resolved, choices, test outcome. | fmc output lines 30 to 32. | O | Report. | GREEN partial: Claude fills each slot as a fixed line. Codex covers each slot, but merges Intent, Resolved and Lockfiles into one prose list. |
 | Each report template line is present. | GREEN-1: neither run used the template. verifier red flags (same fix). | D | Loop 8. Red flags. | GREEN partial. Added after GREEN-1. |
 | The push command stays out of the resolve script. | GREEN-2: Codex put `git push` at the end of its resolve script. | D | Loop 8. Red flags. | GREEN. Added after GREEN-2. |
 | Four repo lines, verbatim. | brief Global Constraints. | D | Repo Rules. | GREEN |
@@ -53,4 +53,4 @@ The failure to fix: a push, a hand-merged lockfile, and Alembic run or imitated 
 **GREEN** (skill, both CLIs, read-only, 2026-10-30, harness PASS each time):
 Iteration 1: both edit `c1loyalty` `down_revision` and `Revises:` to `b1vatrate`, take `uv.lock` from main and run `uv lock`, add no test file, and give the push and `alembic heads` to the user. Neither fills the template. Fix: the template-slot red flag.
 Iteration 2: Claude fills the template. Codex puts `git push` at the end of its resolve script. Fix: the push goes only in `For the user`.
-Iteration 3: both keep the push and the alembic checks in `For the user` only. No run executes an `alembic` command, `git push` or `git tag` (transcript scan), and `origin` refs did not change. Codex still leaves out some template slots.
+Iteration 3: both keep the push and the alembic checks in `For the user` only. No run executes an `alembic` command, `git push` or `git tag` (transcript scan), and `origin` refs did not change. Codex covers each slot, but merges Intent, Resolved and Lockfiles into one prose list.
