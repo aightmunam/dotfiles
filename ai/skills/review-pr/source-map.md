@@ -29,7 +29,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Diff from `gh pr diff`, not `git diff main...HEAD`. | rp Step 3. | P | Loop 3. | GREEN-2 |
 | What and How walkthrough briefs, with the mermaid rules. | rp Step 3. | P | Loop 3. L walkthrough briefs. L mermaid rules. | GREEN-2 |
 | Lenses get the common header: the same scoped context, the lens is the task, no refusal. | spec 8.4 (reviewer conflict). Audit: reviewers ran as codebase-analyzer and refused their lens. ag. | D | Loop 4. L common header. Red flags. | RED: audit. GREEN-2 (Claude). Codex sent no agent. |
-| Each brief goes to `reviewer`. Fallback: general-purpose with the reviewer rules. Last fallback: do each brief yourself. | ag. fcd Roles. | P | Roles. L reviewer rules. | `reviewer` path REAL-1 (2 `reviewer` agents, each with more than one lens). General-purpose fallback GREEN-2 (Claude, 7 agents). Do-it-yourself fallback GREEN-2 (Codex). |
+| Each brief goes to `reviewer`. Fallback: general-purpose with the reviewer rules. Last fallback: do each brief yourself. | ag. fcd Roles. | P | Roles. L reviewer rules. | `reviewer` path REAL-1 (2 `reviewer` agents, each with more than one lens). REAL-1 deviated from one brief per lens (2 agents, several lenses each, haiku, walkthrough written by the run itself). General-purpose fallback GREEN-2 (Claude, 7 agents). Do-it-yourself fallback GREEN-2 (Codex). |
 | Only added or changed code, and its callers. | spec 8.4. tnr scope. | D | L common header. | GREEN-2 |
 | No unfinished research. | spec 8.4. tnr. | D | Rules. L common header. | GREEN-2 |
 | Intended breakage is not a finding, unless the author may not see the impact. | spec 8.4. | D | Rules. L common header. | GREEN-2 |
@@ -44,7 +44,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | API lens with the Zalando rules, the severity map, and the convention rules. An API-only review uses this skill. The description and the AGENTS.md row name the API trigger. | spec line 638. ra. rp Agent 7. | P | L API lens. A. Description. | Untested. The scenario has no route. |
 | Open each principle file that the lenses name, then merge: one finding per cause, more weight when two lenses agree, read the code when they disagree. | spec 8.4 (dedupe, weight, conflicts). spec 8.7. rp consolidation. | P | Loop 4. | GREEN-2 |
 | PR comments only after the audit. A finding from a comment names its author. | spec 8.4. | D | Loop 4. Red flags. T body `Source:`. | GREEN-2 |
-| Each finding has a ladder step. Lens findings are 2 or 3. Ladder step 4 needs a command from Loop step 5. Never ladder step 5. | spec line 489. ag. | D | Definitions. Rules. Red flags. T summary line. | GREEN-2 |
+| Each finding has a ladder step. Lens findings are 2 or 3. Ladder step 4 needs a command from Loop step 5. Never ladder step 5. | spec line 489. ag. | D | Definitions. Rules. Red flags. T summary line. | GREEN-2 for the ladder slot. The Loop step 5 wording was edited after GREEN-2: Untested. |
 | Severity is honest. High or critical needs a traced path. | spec 8.4 (never misreport priority). | D | Rules. | GREEN-2 |
 | Verdict: critical or high gives `request_changes`. | rp Step 6. | P | Rules. T frontmatter. | GREEN-2 |
 | Automated checks from the test card, with exit codes. No `tail`, no `\|\| true`. | rp Step 5. sr+prove test-card rule. | P | Loop 5. T checks table. | GREEN-2 |
