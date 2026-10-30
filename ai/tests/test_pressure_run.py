@@ -210,5 +210,19 @@ class PressureRunTest(unittest.TestCase):
             self.assertEqual(self.pr.red_note("debug", home), [Path(home) / ".agents" / "skills" / "debug"])
 
 
+    def test_codex_compound_commands(self):
+        def cmd(command, code=0):
+            return [{"type": "item.completed", "item": {"type": "command_execution", "command": command,
+                                                        "exit_code": code}}]
+        for command in ("/bin/zsh -lc 'cd /x && cat .agents/skills/tdd/SKILL.md'",
+                        "/bin/zsh -lc 'ls x; cat .agents/skills/tdd/SKILL.md'",
+                        "/bin/zsh -lc 'ls x;cat .agents/skills/tdd/SKILL.md'"):
+            self.assertEqual(self.pr.skill_loaded(cmd(command), "codex"), {"tdd"}, command)
+        for command in ("/bin/zsh -lc 'cd /x && ls .agents/skills/tdd/SKILL.md'",
+                        "/bin/zsh -lc 'cd /x && grep a .agents/skills/tdd/SKILL.md | wc -l'"):
+            self.assertEqual(self.pr.skill_loaded(cmd(command), "codex"), set(), command)
+        self.assertEqual(self.pr.skill_loaded(cmd("/bin/zsh -lc 'cd /x && cat .agents/skills/tdd/SKILL.md'", 1), "codex"), set())
+
+
 if __name__ == "__main__":
     unittest.main()

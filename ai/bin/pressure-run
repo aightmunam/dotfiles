@@ -87,21 +87,35 @@ def _claude_error_ids(events):
 def _codex_read_paths(command):
     """Return path tokens of a command that is a plain reader (cat, head, ...).
 
-    Looks inside a `zsh -lc '...'` wrapper. Returns [] for any other command
+    Looks inside a `zsh -lc '...'` wrapper and checks each segment split on
+    && || ; |. Returns [] when no segment starts with a reader
     (ls, grep, rg, find, test, stat, ...).
     """
+    payload = command
     try:
         tokens = shlex.split(command)
     except ValueError:
         return []
     if len(tokens) >= 3 and tokens[1] in ("-c", "-lc", "-ic", "-l", "-i"):
-        try:
-            tokens = shlex.split(tokens[-1])
-        except ValueError:
-            return []
-    if not tokens or Path(tokens[0]).name not in READERS:
+        payload = tokens[-1]
+    # Split into segments on && || ; | (shlex keeps them as separate tokens when spaced,
+    # and punctuation_chars splits them when glued to a word).
+    try:
+        lex = shlex.shlex(payload, posix=True, punctuation_chars=";&|")
+        lex.whitespace_split = True
+        words = list(lex)
+    except ValueError:
         return []
-    return [t for t in tokens[1:] if "/" in t]
+    paths = []
+    segment = []
+    for word in words + [";"]:
+        if word and set(word) <= set(";&|"):
+            if segment and Path(segment[0]).name in READERS:
+                paths.extend(t for t in segment[1:] if "/" in t)
+            segment = []
+        else:
+            segment.append(word)
+    return paths
 
 
 def _codex_reads(events):
