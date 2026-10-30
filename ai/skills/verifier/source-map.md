@@ -19,13 +19,13 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Proven means ran once end to end, and evidence exists after cleanup. A draft is not a deliverable. | cvs step 4. spec 8.4 (counts after one run). | D | Definitions. Loop 5. Red flags. Report Status. | RED: neither run ran a skill. |
 | An existing verify skill gets the maintain pass. | mvs step 0. | P | Loop 1. M. | Untested. Grimoire has no verify skill. |
 | Interview the repo, not the user: surface, run, drive, observe, isolate. | cvs step 1. | P | Loop 2. | GREEN |
-| Launch via the repo command (just, make, compose). | cvs step 1 Run. spec 8.4. | P | Loop 2. T Launch. | GREEN |
+| Launch via the repo command (just, make, compose). | cvs step 1 Run. spec 8.4. | P | Loop 2. T Launch. | GREEN partial: the Codex draft starts uvicorn from its own `run.py`. The manual skill uses `run.sh`. |
 | Never drive an instance that you did not start. | cvs step 1 Isolate. cvs feature map README. | D | Loop 2. Rules, own instance. Red flags. | RED: Claude found the live 8790 instance itself. |
 | Fix or report a broken base before you write. | cvs step 1. | P | Loop 3. | GREEN |
 | Real commands, no placeholders. | cvs step 2 (no placeholders, real selectors). | D | Loop 4. Red flags. T intro. | GREEN |
 | Sections Launch, Doctor, Drive, Evidence, Cleanup, Helpers. | cvs step 2. | P | T. | GREEN |
 | Ready means usable. Launch works from an empty data dir. | cvs step 2 Launch. | P | T Launch. | GREEN |
-| Doctor is one read-only check, before the first drive and after a failed drive. | cvs step 2 Doctor. mvs step 4 invariant 1. | P | T Doctor. M step 4. | GREEN |
+| Doctor is one read-only check, before the first drive and after a failed drive. | cvs step 2 Doctor. mvs step 4 invariant 1. | P | T Doctor. M step 4. | GREEN partial: the Codex doctor does two list reads. |
 | Real user path, no test-only endpoints. Mocks only at a production boundary. Observe dry-runs. | cvs step 2 Evidence. | D | Rules, real user path. T Evidence. | GREEN |
 | Stop only your PID. Never kill by name. | cvs step 2 Cleanup. | D | Rules, own instance. T Cleanup. | GREEN |
 | Cleanup keeps the evidence. Read it after cleanup. | cvs step 2 Cleanup, step 4. mvs invariant 2. | D | Loop 5. Rules. Red flags. T Cleanup. | GREEN |
