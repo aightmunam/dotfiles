@@ -102,6 +102,7 @@ class PressureRunTest(unittest.TestCase):
             self.assertIn("claude -p", run.stdout)
             self.assertIn("--permission-mode plan", run.stdout)
             self.assertIn("--max-budget-usd", run.stdout)
+            self.assertIn("--setting-sources project", run.stdout)
             self.assertIn("codex exec --json", run.stdout)
             self.assertIn("-s read-only", run.stdout)
             self.assertFalse(out.exists(), "dry run must not write")
@@ -120,6 +121,92 @@ class PressureRunTest(unittest.TestCase):
                 capture_output=True, text=True,
             )
             self.assertEqual(run.returncode, 2)
+
+
+    # Detection counts only successful readers.
+    def test_codex_failed_or_non_reader_not_counted(self):
+        def cmd(command, code):
+            return {"type": "item.completed", "item": {"type": "command_execution", "command": command,
+                                                       "exit_code": code, "status": "completed"}}
+        failed_ls = [cmd("/bin/zsh -lc 'ls ~/.agents/principles/x.md'", 1)]
+        failed_cat = [cmd("/bin/zsh -lc 'cat ~/.agents/principles/x.md'", 1)]
+        grep = [cmd("/bin/zsh -lc 'grep -n foo .agents/skills/tdd/SKILL.md'", 0)]
+        started = [{"type": "item.started", "item": {"type": "command_execution",
+                    "command": "cat .agents/skills/tdd/SKILL.md", "exit_code": None}}]
+        for events in (failed_ls, failed_cat, grep, started):
+            self.assertEqual(self.pr.principles_read(events, "codex"), set())
+            self.assertEqual(self.pr.skill_loaded(events, "codex"), set())
+        ok = [cmd("/bin/zsh -lc 'sed -n 1,20p .agents/skills/tdd/SKILL.md'", 0)]
+        self.assertEqual(self.pr.skill_loaded(ok, "codex"), {"tdd"})
+
+    def test_claude_read_error_not_counted(self):
+        use = {"type": "assistant", "message": {"content": [
+            {"type": "tool_use", "id": "t1", "name": "Read",
+             "input": {"file_path": "/h/.agents/principles/x.md"}}]}}
+        err = {"type": "user", "message": {"content": [
+            {"type": "tool_result", "tool_use_id": "t1", "is_error": True, "content": "File does not exist"}]}}
+        self.assertEqual(self.pr.principles_read([use, err], "claude"), set())
+        self.assertEqual(self.pr.principles_read([use], "claude"), {"x"})
+
+    # Run errors are exit 2 with the cause, not exit 1.
+    def test_run_error_causes(self):
+        budget = {"type": "result", "subtype": "error_max_budget_usd", "is_error": True}
+        self.assertIn("error_max_budget_usd", self.pr.run_error([budget], "claude"))
+        self.assertIsNone(self.pr.run_error(fixture("claude_result.jsonl"), "claude"))
+        self.assertIn("turn.completed", self.pr.run_error(fixture("codex_message.jsonl"), "codex"))
+        self.assertIsNone(self.pr.run_error(fixture("codex_message.jsonl") + [{"type": "turn.completed"}], "codex"))
+
+    def _run_main_with_fake_cli(self, stdout, returncode, tool="claude"):
+        import contextlib, io
+        from unittest import mock
+        done = subprocess.CompletedProcess([], returncode, stdout=stdout, stderr="boom")
+        with tempfile.TemporaryDirectory() as tmp:
+            scenario = Path(tmp) / "s.md"
+            scenario.write_text("x")
+            err = io.StringIO()
+            with mock.patch.object(self.pr.subprocess, "run", return_value=done), \
+                    mock.patch.object(self.pr.shutil, "which", return_value="/bin/x"), \
+                    contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                code = self.pr.main(["--scenario", str(scenario), "--tool", tool, "--red", "--out", str(Path(tmp) / "o")])
+            return code, err.getvalue()
+
+    def test_budget_stop_exits_two_with_cause(self):
+        line = json.dumps({"type": "result", "subtype": "error_max_budget_usd", "is_error": True})
+        code, err = self._run_main_with_fake_cli(line + "\n", 1)
+        self.assertEqual(code, 2)
+        self.assertIn("error_max_budget_usd", err)
+
+    def test_cli_nonzero_exit_is_setup_error(self):
+        line = json.dumps({"type": "result", "subtype": "success", "is_error": False, "result": "ok"})
+        code, err = self._run_main_with_fake_cli(line + "\n", 1)
+        self.assertEqual(code, 2)
+        self.assertIn("exited 1", err)
+
+    def test_command_sources_flag(self):
+        self.assertIn("project", self.pr.claude_command("p"))
+        cmd = self.pr.claude_command("p", sources="user,project")
+        self.assertEqual(cmd[cmd.index("--setting-sources") + 1], "user,project")
+
+    def test_scratch_has_router_and_red_has_no_skill(self):
+        import shutil
+        for tool, base in (("claude", ".claude"), ("codex", ".agents")):
+            green = self.pr.prepare_scratch(tool, "tdd", red=False)
+            red = self.pr.prepare_scratch(tool, "tdd", red=True)
+            try:
+                self.assertEqual((green / base / "skills" / "tdd").readlink(), self.pr.SKILLS_DIR / "tdd")
+                self.assertFalse((red / base).exists())
+                for d in (green, red):
+                    self.assertEqual((d / "AGENTS.md").readlink(), ROOT / "ai" / "AGENTS.md")
+                    self.assertEqual((d / "CLAUDE.md").read_text(), "@AGENTS.md\n")
+            finally:
+                shutil.rmtree(green, ignore_errors=True)
+                shutil.rmtree(red, ignore_errors=True)
+
+    def test_red_note_names_user_level_skill(self):
+        with tempfile.TemporaryDirectory() as home:
+            self.assertEqual(self.pr.red_note("debug", home), [])
+            (Path(home) / ".agents" / "skills" / "debug").mkdir(parents=True)
+            self.assertEqual(self.pr.red_note("debug", home), [Path(home) / ".agents" / "skills" / "debug"])
 
 
 if __name__ == "__main__":
