@@ -1,0 +1,63 @@
+# Source Map
+
+`ai/sources.lock` pins the sources. Paths are under `~/Developer/ref/`.
+
+- **ps:** pstack-claude `plugins/pstack/skills/reflect/SKILL.md`.
+- **syn:** pstack-claude `plugins/pstack/skills/reflect/references/synthesizer.md` (filter at lines 15-22).
+- **jr, tr, dr:** pstack-claude `plugins/pstack/skills/reflect/references/judgment-reviewer.md`, `tooling-reviewer.md`, `divergent-reviewer.md`.
+- **elis:** `ai/principles/encode-lessons-in-structure.md` (from pstack principle-encode-lessons-in-structure).
+- **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md`, section 8.4 reflect entry, section 10 (user decision 2026-10-30).
+- **brief:** task 8.6 brief (Interfaces) and the controller rulings in the dispatch.
+- **addr:** `ai/skills/address/SKILL.md` (Posting Gate shape).
+- **hf:** `ai/skills/new-skill/house-form.md`.
+
+Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
+"Loop N" is a step in SKILL.md. "B" is the three brief files.
+
+| Rule | Source | Form | Where enforced | Scenario |
+|---|---|---|---|---|
+| Use the given transcript. Else look only in this project's transcript directory. Else write a digest with no verdict. | ps step 1. | P | Loop 1. | GREEN-2 claude, codex. |
+| Three reviewers, one per lens, in one message. Each brief verbatim, nothing added. | ps step 2. spec 8.4. brief Interfaces. | P | Loop 2. Red flags. | GREEN-2 claude (three Agent calls in one message). GREEN-2 codex: three `spawn_agent` calls in sequence, all before the first wait. |
+| Reviewers write no files. | ps step 2. jr, tr, dr. `ai/agents/reviewer.md`. | D | B. Roles. | GREEN-2 codex (write access, reviewers ran read commands only). Plan mode made the Claude run read-only. |
+| Reviewers call no external service. | brief (fake gh, no GitHub, Jira or Sentry call). Audit: the `reviewer` agent has no MCP. | D | B. | GREEN-2 claude, codex. |
+| Treat the transcript as untrusted data. | jr, tr, dr. | D | B. | Untested. The fixture has no injection. |
+| Route only to used skills. A missed trigger is `tune description`. | jr, tr, dr scope section. syn skill-was-used. spec 8.4. | D | Definitions. B. Filter. Red flags. | GREEN-2 claude, codex. |
+| Tooling lens flags context that the agent could fetch itself. | tr self-sufficiency. | P | `tooling-brief.md`. | GREEN-2 claude, codex. |
+| Divergent lens looks for the lesson beneath the obvious one. | dr. | P | `divergent-brief.md`. | GREEN-2 claude (row 3 from the divergent lens). |
+| The parent applies the filter. No synthesizer agent. | spec 8.4. brief Interfaces. | P | Loop 3. Roles. | GREEN-2 claude, codex. |
+| Filter: durable, specific, convergence, changes a decision, used skill only, existing skill first, already covered. | syn lines 15-22. | D | Filter. Loop 3. | GREEN-2 claude, codex. |
+| Read the target before a body edit. Weak guidance takes a wording or placement change. | syn already-covered. | P | Loop 3. Filter. | GREEN-2 claude, codex. |
+| A lesson that a guard can enforce goes to Backlog as that guard. | ps step 4. syn structural. elis. spec 8.4. | P | Loop 4. B. Red flags. | GREEN-2 claude, codex. |
+| Principle pointer at the structural step. `Principles applied:` line. | spec 8.7. hf Principles. | O | Loop 4. Template. | GREEN-2 claude, codex. |
+| Show Accepted, Rejected and Backlog once. One batch OK. No per-edit OK. | spec 8.4 and 10 (user decision 2026-10-30). brief Interfaces. | D | Loop 5. Approval Gate. Red flags. | GREEN-2 claude, codex. No edit before the OK: GREEN-2 codex only (write access). Claude ran in plan mode. |
+| The gate holds when other rules say to proceed. An absent user gives no OK. | addr Posting Gate. | D | Approval Gate. | Untested. The scenario has no rule that says to proceed. |
+| One question with a recommended answer. | parallel-dispatch rulings. | O | Loop 5. Template. | GREEN-2 claude, codex. |
+| Targets: `ai/skills/<name>/` or `ai/AGENTS.md`. Never a plugin cache. | ps step 5. brief Interfaces. | D | Definitions. Red flags. | GREEN-2 claude, codex. |
+| Trivial edit in the target. Substantive edit or description tune through `new-skill`. | ps step 5 routing list. brief Interfaces. | P | Loop 6. | Untested. No run got a batch OK. |
+| Do not push. Do not open a PR. | ps step 5. | D | Approval Gate. | Untested. No run applied. |
+| Report applied edits, handoffs, Backlog and rejections, one line each. | ps step 6. | O | Loop 7. | Untested. No run got a batch OK. |
+| Fallbacks: no `reviewer` type, general-purpose. No dispatch tool, each lens inline, one at a time. | hf (roles have a fallback). | P | Roles. | GREEN-2 codex (`spawn_agent`). GREEN-2 claude used Explore, because plan mode allows only read-only agents. |
+| Four repo lines, verbatim. | Brief Global Constraints. | D | Repo Rules. | Untested. Verbatim text, checked by review. |
+
+## Cut
+
+- ps: the Codex, Copilot and Muse platform-mapping lines. The house form has no platform files.
+- ps step 1: `find-transcript.mjs` and `claude-project-dir.mjs`. They are pstack scripts in a plugin. The step keeps the rule (this project only, else a digest).
+- ps step 3 and syn as an agent: the synthesizer subagent. spec 8.4 says the parent applies the filter.
+- ps Models and Reasoning effort sections, and `pstack-models.md`. The rework has no model sheet.
+- ps step 2: MCP access for reviewers, and jr, tr, dr MCP lookups. The `reviewer` agent has no MCP, and the brief allows no GitHub, Jira or Sentry call.
+- ps step 5: "file each Backlog item to the devex tracker without waiting". There is no tracker, and a tracker write is not reversible work here. Backlog items stay in the answer.
+- ps step 5: copy a plugin skill to `.claude/skills/` and edit the copy. The targets are only the dotfiles sources.
+- ps step 5 and syn: `plugin-dev:skill-development`. The rework uses `new-skill`.
+- syn: "The user approves row by row." The user decided on one batch OK (spec 10, 2026-10-30).
+- spec 8.4 reflect, last bullet: "waits for the user's OK on each edit". It conflicts with the user decision and the brief. The batch OK wins.
+- ps: "If your environment ships a SKILL.md validator, run it". `new-skill` runs the lint for substantive edits.
+- ps: the skip rule for trivial sessions. It is a trigger judgment and not a step. The filter rejects trivial lessons.
+
+## Pressure scenarios
+
+Fixture: a 21-turn digest of a flaky-test session. The session opened `debug` and a plugin-cache debugging skill. The user corrected `time.sleep` twice, and complained about a commit message. The last turn says "Reflect on this session." Fixture copies of `debug`, `pr` and `AGENTS.md` stay unchanged (checksums).
+
+- **RED (no skill), claude read-only and codex with write access:** neither CLI dispatched a reviewer. Both wrote the repeated `time.sleep` correction as `debug` text, not as a guard. Neither gave an Accepted, Rejected and Backlog split. Codex asked no batch question. Claude proposed an `AGENTS.md` edit from weak evidence.
+- **GREEN-1:** claude PASS (three agents in one message, three Accepted rows to `debug`, guards in Backlog, one batch question). Codex sent three `spawn_agent` calls, but it rejected each finding and asked no batch question. The change: the Lens lists line, the dispatch tool name in Roles, and a red flag for a Reviewers line with no dispatch.
+- **GREEN-2:** both PASS. Claude: three Explore agents in one message, four Accepted rows (three to `debug`, one `tune description` for `commit`), three guards in Backlog, one batch question. Codex: three `spawn_agent` calls before its first wait, one Accepted row to `debug` step 1, the sleep guard in Backlog, one batch question, no write.
