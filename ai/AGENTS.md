@@ -126,7 +126,6 @@ Not these. Use the kept skill and not a rework skill:
 | Make a git commit with no Claude attribution | `commit` |
 | Rewrite text in STE | `asd-ste100` |
 | UI work in personal apps | `design-system` |
-| Find an installable skill | `find-skills` |
 
 ## Principles
 

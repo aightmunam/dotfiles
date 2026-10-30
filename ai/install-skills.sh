@@ -26,9 +26,6 @@ mkdir -p "$HOME/.agents/skills"
 # the shared store is listed here so a fresh machine reinstalls the full set.
 SKILLS=(
   "upstash/context7:context7-mcp"          # official Upstash / Context7
-  "ast-grep/agent-skill:ast-grep"          # official ast-grep structural search
-  "vercel-labs/skills:find-skills"         # skills.sh discovery/installer
-  "cocoindex-io/cocoindex-code:ccc"        # semantic codebase search (ccc CLI)
   "danyuchn/asd-ste100-skill:asd-ste100"   # Simplified Technical English rewrites (skill at repo root)
 )
 
