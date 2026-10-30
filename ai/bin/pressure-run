@@ -2,15 +2,18 @@
 """pressure-run: run one scenario headless under Claude Code and Codex.
 
 Usage: pressure-run --scenario FILE [--skill NAME] [--principle NAME]...
-       [--tool claude|codex|both] [--write] [--red] --out DIR [--dry-run]
+       [--expect-command REGEX]... [--tool claude|codex|both] [--write] [--red]
+       --out DIR [--dry-run]
 
 Makes a scratch directory per tool (under the system temp dir), exposes the
 worktree skill there (not with --red), runs the scenario, and saves
 DIR/<tool>.jsonl (transcript) and DIR/<tool>.txt (final answer).
 GREEN passes, per tool, when the skill loaded, each --principle file was read
 and, when any --principle is given, the answer has a "Principles applied:"
-line. With --red the skill is not
-exposed and no check runs; the transcripts are only saved.
+line. Each --expect-command REGEX must match a shell command that ran: a
+tool call with its result (any exit code), not text that claims a run.
+With --red the skill is not exposed and no check runs; the transcripts are
+only saved. A setup error in one tool does not hide the other tool's line.
 Exit 0 pass, 1 fail, 2 setup error.
 
 Other modules import skill_loaded(events, tool) and files_read(events, tool).
@@ -18,9 +21,11 @@ Other modules import skill_loaded(events, tool) and files_read(events, tool).
 
 import argparse
 import json
+import os
 import re
 import shlex
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -37,7 +42,6 @@ RUN_TIMEOUT = 900
 SKILL_PATH_RE = re.compile(r"/([\w.-]+)/SKILL\.md$")
 SKILL_CMD_RE = re.compile(r"skills/([\w.-]+)/SKILL\.md")
 PRINCIPLE_RE = re.compile(r"principles/([\w.-]+)\.md")
-CODEX_CONFIG = Path.home() / ".codex" / "config.toml"
 LINE_RE = re.compile(r"(?im)^[\s>*_`-]*Principles applied:[*_`\s]*\S")
 
 
@@ -173,6 +177,47 @@ def _codex_reads(events):
             yield from _reads_despite_failure(item["command"], item.get("aggregated_output"))
 
 
+def _claude_result_ids(events):
+    """Return the tool_use ids that have a tool_result (error or not)."""
+    ids = set()
+    for event in events:
+        if event.get("type") != "user":
+            continue
+        content = (event.get("message") or {}).get("content")
+        if not isinstance(content, list):
+            continue
+        for item in content:
+            if isinstance(item, dict) and item.get("type") == "tool_result":
+                ids.add(item.get("tool_use_id"))
+    return ids
+
+
+def commands_run(events, tool):
+    """Return the shell commands that ran, with any exit code.
+
+    Claude: the command of each Bash tool_use that has a tool_result.
+    Codex: the command of each completed command_execution with an exit code.
+    A command in answer text, a call with no result, or a started item does not count.
+    """
+    found = []
+    if tool == "claude":
+        done = _claude_result_ids(events)
+        for use in _claude_tool_uses(events):
+            command = (use.get("input") or {}).get("command")
+            if use.get("name") == "Bash" and isinstance(command, str) and use.get("id") in done:
+                found.append(command)
+    elif tool == "codex":
+        for event in events:
+            item = event.get("item")
+            if event.get("type") == "item.completed" and isinstance(item, dict) \
+                    and item.get("type") == "command_execution" and isinstance(item.get("command"), str) \
+                    and item.get("exit_code") is not None:
+                found.append(item["command"])
+    else:
+        raise ValueError(f"unknown tool: {tool}")
+    return found
+
+
 def files_read(events, tool):
     """Return the set of file paths the run read successfully.
 
@@ -270,9 +315,13 @@ def run_error(events, tool):
     raise ValueError(f"unknown tool: {tool}")
 
 
-def check(tool, events, skill, principles):
+def check(tool, events, skill, principles, expect=()):
     """Return a list of failure messages (empty list means pass)."""
     failures = []
+    ran = commands_run(events, tool) if expect else []
+    for pattern in expect:
+        if not any(re.search(pattern, command) for command in ran):
+            failures.append(f"expected command not run: {pattern}")
     if skill and skill not in skill_loaded(events, tool):
         failures.append(f"skill not loaded: {skill}")
     read = principles_read(events, tool)
@@ -299,16 +348,24 @@ def claude_command(prompt, write=False, budget=DEFAULT_BUDGET, sources="project"
     ]
 
 
+def codex_config():
+    """The Codex config file: $CODEX_HOME/config.toml, else ~/.codex/config.toml."""
+    home = os.environ.get("CODEX_HOME")
+    return Path(home or Path.home() / ".codex") / "config.toml"
+
+
 def codex_mcp_off(config=None):
     """-c flags that disable each MCP server in the Codex config, and the apps connectors.
     -c mcp_servers={} merges and leaves the servers on (probe 2026-10-30)."""
     try:
-        servers = tomllib.loads(Path(config or CODEX_CONFIG).read_text()).get("mcp_servers", {})
+        servers = tomllib.loads(Path(config or codex_config()).read_text()).get("mcp_servers", {})
     except (OSError, tomllib.TOMLDecodeError):
         servers = {}
     flags = []
     for name in sorted(servers):
-        flags += ["-c", f"mcp_servers.{name}.enabled=false"]
+        # A name with a dot or other non-bare character must be a quoted TOML key.
+        key = name if re.fullmatch(r"[A-Za-z0-9_-]+", name) else json.dumps(name)
+        flags += ["-c", f"mcp_servers.{key}.enabled=false"]
     return flags + ["-c", "features.apps=false"]
 
 
@@ -348,25 +405,48 @@ def red_note(skill, home=None):
     return [p for p in paths if p.is_symlink() or p.exists()]
 
 
+def kill_group(proc):
+    """TERM the process group, wait 5 s for the leader, then KILL the group."""
+    try:
+        os.killpg(proc.pid, signal.SIGTERM)
+    except (ProcessLookupError, PermissionError):
+        pass
+    try:
+        proc.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        pass
+    try:
+        os.killpg(proc.pid, signal.SIGKILL)
+    except (ProcessLookupError, PermissionError):
+        pass
+    proc.wait()
+
+
 def run_tool(tool, prompt, args):
     if shutil.which(tool) is None:
         raise SetupError(f"{tool} not found on PATH")
     scratch = prepare_scratch(tool, args.skill, args.red)
     cmd = build_command(tool, prompt, scratch, args.write, args.budget, args.setting_sources)
     out = Path(args.out)
-    stdout = ""
-    returncode, stderr = 0, ""
+    proc = None
     try:
+        # Own session: a timeout or exit kills the whole group, so no child
+        # (shell command, node worker) lives on as an orphan.
+        proc = subprocess.Popen(cmd, cwd=scratch, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE, text=True, start_new_session=True)
         try:
-            proc = subprocess.run(cmd, cwd=scratch, capture_output=True, text=True,
-                                  stdin=subprocess.DEVNULL, timeout=RUN_TIMEOUT)
-            stdout, returncode, stderr = proc.stdout, proc.returncode, proc.stderr
-        except subprocess.TimeoutExpired as exc:
-            partial = exc.stdout
-            stdout = partial.decode("utf-8", "replace") if isinstance(partial, bytes) else (partial or "")
-            (out / f"{tool}.jsonl").write_text(stdout, encoding="utf-8")
+            stdout, stderr = proc.communicate(timeout=RUN_TIMEOUT)
+        except subprocess.TimeoutExpired:
+            kill_group(proc)
+            stdout, _ = proc.communicate()
+            (out / f"{tool}.jsonl").write_text(stdout or "", encoding="utf-8")
             raise SetupError(f"{tool} run timed out after {RUN_TIMEOUT}s")
+        returncode = proc.returncode
+    except OSError as exc:
+        raise SetupError(f"{tool} did not start: {exc}") from exc
     finally:
+        if proc is not None:
+            kill_group(proc)
         shutil.rmtree(scratch, ignore_errors=True)
     (out / f"{tool}.jsonl").write_text(stdout, encoding="utf-8")
     events = []
@@ -391,6 +471,8 @@ def parse_args(argv):
     p.add_argument("--scenario", required=True, help="file with the scenario prompt")
     p.add_argument("--skill", help="skill under test (ai/skills/<name>)")
     p.add_argument("--principle", action="append", default=[], help="principle that must be read (repeatable)")
+    p.add_argument("--expect-command", action="append", default=[], metavar="REGEX",
+                   help="a shell command that ran must match REGEX (repeatable)")
     p.add_argument("--tool", choices=["claude", "codex", "both"], default="both")
     p.add_argument("--write", action="store_true", help="let the run edit files in the scratch dir")
     p.add_argument("--red", action="store_true", help="do not expose the skill; save transcripts only")
@@ -409,6 +491,11 @@ def main(argv=None):
             raise SetupError(f"scenario not found: {scenario}")
         if args.skill and not args.red and not args.dry_run and not (SKILLS_DIR / args.skill / "SKILL.md").is_file():
             raise SetupError(f"skill not found: {SKILLS_DIR / args.skill}/SKILL.md")
+        for pattern in args.expect_command:
+            try:
+                re.compile(pattern)
+            except re.error as exc:
+                raise SetupError(f"bad --expect-command {pattern!r}: {exc}")
         prompt = scenario.read_text(encoding="utf-8").strip()
         tools = TOOLS if args.tool == "both" else (args.tool,)
 
@@ -432,13 +519,20 @@ def main(argv=None):
         with ThreadPoolExecutor(max_workers=len(tools)) as pool:
             futures = [(tool, pool.submit(run_tool, tool, prompt, args)) for tool in tools]
         for tool, future in futures:
-            events = future.result()
+            try:
+                events = future.result()
+            except SetupError as exc:
+                # Keep the loop: the other tool's line still prints.
+                status = 2
+                print(f"{tool}: SETUP ERROR {exc}")
+                print(f"pressure-run: {exc}", file=sys.stderr)
+                continue
             if args.red:
                 print(f"{tool}: saved (red, no checks)")
                 continue
-            failures = check(tool, events, args.skill, args.principle)
+            failures = check(tool, events, args.skill, args.principle, args.expect_command)
             if failures:
-                status = 1
+                status = max(status, 1)
                 print(f"{tool}: FAIL")
                 for failure in failures:
                     print(f"  - {failure}")

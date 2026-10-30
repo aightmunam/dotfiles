@@ -176,12 +176,24 @@ class PressureRunTest(unittest.TestCase):
     def _run_main_with_fake_cli(self, stdout, returncode, tool="claude"):
         import contextlib, io
         from unittest import mock
-        done = subprocess.CompletedProcess([], returncode, stdout=stdout, stderr="boom")
+
+        class FakePopen:
+            pid = 999999999  # no such process group: kill_group finds nothing
+
+            def __init__(self, *a, **k):
+                self.returncode = returncode
+
+            def communicate(self, timeout=None):
+                return stdout, "boom"
+
+            def wait(self, timeout=None):
+                return returncode
+
         with tempfile.TemporaryDirectory() as tmp:
             scenario = Path(tmp) / "s.md"
             scenario.write_text("x")
             err = io.StringIO()
-            with mock.patch.object(self.pr.subprocess, "run", return_value=done), \
+            with mock.patch.object(self.pr.subprocess, "Popen", FakePopen), \
                     mock.patch.object(self.pr.shutil, "which", return_value="/bin/x"), \
                     contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
                 code = self.pr.main(["--scenario", str(scenario), "--tool", tool, "--red", "--out", str(Path(tmp) / "o")])
@@ -216,6 +228,21 @@ class PressureRunTest(unittest.TestCase):
             self.assertIn("mcp_servers.sentry.enabled=false", cmd)
             self.assertIn("features.apps=false", cmd)
             self.assertEqual(self.pr.codex_mcp_off(Path(d) / "missing.toml"), ["-c", "features.apps=false"])
+
+    def test_codex_config_follows_codex_home(self):
+        import os
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "config.toml").write_text('[mcp_servers.only_here]\ncommand = "x"\n[mcp_servers."a.b"]\ncommand = "y"\n')
+            with mock.patch.dict(os.environ, {"CODEX_HOME": d}):
+                self.assertEqual(self.pr.codex_config(), Path(d) / "config.toml")
+                flags = self.pr.codex_mcp_off()
+            self.assertIn("mcp_servers.only_here.enabled=false", flags)
+            # A dotted server name is a quoted TOML key.
+            self.assertIn('mcp_servers."a.b".enabled=false', flags)
+        with mock.patch.dict(os.environ):
+            os.environ.pop("CODEX_HOME", None)
+            self.assertEqual(self.pr.codex_config(), Path.home() / ".codex" / "config.toml")
 
     def test_scratch_has_router_and_red_has_no_skill(self):
         import shutil
@@ -284,6 +311,115 @@ class PressureRunTest(unittest.TestCase):
                         "/bin/zsh -lc 'cd /x && grep a .agents/skills/tdd/SKILL.md | wc -l'"):
             self.assertEqual(self.pr.skill_loaded(cmd(command), "codex"), set(), command)
         self.assertEqual(self.pr.skill_loaded(cmd("/bin/zsh -lc 'cd /x && cat .agents/skills/tdd/SKILL.md'", 1), "codex"), set())
+
+    # --expect-command counts a command only when it ran (call plus result).
+    PROOF = r"(?s)^(?=.*\bshow\b)(?=.*ruff check)(?=.*\b(?!2d9d7a5)[0-9a-f]{7,40}[~^]?\d*:[\w./]+\.py)"
+
+    def test_expect_command_claude(self):
+        events = fixture("claude_expect_command.jsonl")
+        self.assertEqual(self.pr.check("claude", events, None, [], [self.PROOF]), [])
+        # The same call with no tool_result (a budget stop) did not run.
+        no_result = [e for e in events if e["type"] != "user"]
+        self.assertEqual(self.pr.check("claude", no_result, None, [], [self.PROOF]),
+                         [f"expected command not run: {self.PROOF}"])
+        # An error result still counts: the proof exits 1 by design.
+        failed = json.loads(json.dumps(events))
+        failed[1]["message"]["content"][0]["is_error"] = True
+        self.assertEqual(self.pr.check("claude", failed, None, [], [self.PROOF]), [])
+        # The command only in the answer text does not count.
+        text = [claude_text("I ran git show 7f387a1^:app/routers/invoices.py | ruff check -")]
+        self.assertEqual(len(self.pr.check("claude", text, None, [], [self.PROOF])), 1)
+
+    def test_expect_command_codex(self):
+        claim = fixture("codex_expect_command.jsonl")
+        # Codex claims a past-commit proof in its answer but ran ruff only at HEAD.
+        self.assertIn("git show e6f3445", self.pr.final_answer(claim, "codex"))
+        self.assertEqual(self.pr.check("codex", claim, None, [], [self.PROOF]),
+                         [f"expected command not run: {self.PROOF}"])
+        self.assertEqual(self.pr.check("codex", claim, None, [], [r"ruff check .*DTZ005 \."]), [])
+        cmd = ("/bin/zsh -lc 'git show e6f3445:app/routers/shipments.py | "
+               "ruff check --select DTZ --stdin-filename app/routers/shipments.py -'")
+        started = {"type": "item.started", "item": {"type": "command_execution", "command": cmd, "exit_code": None}}
+        done = {"type": "item.completed", "item": {"type": "command_execution", "command": cmd, "exit_code": 1}}
+        self.assertEqual(len(self.pr.check("codex", claim + [started], None, [], [self.PROOF])), 1)
+        self.assertEqual(self.pr.check("codex", claim + [started, done], None, [], [self.PROOF]), [])
+        # A HEAD-only run does not match the past-commit pattern.
+        head = {"type": "item.completed", "item": {"type": "command_execution", "exit_code": 1,
+                "command": cmd.replace("e6f3445", "2d9d7a5")}}
+        self.assertEqual(len(self.pr.check("codex", claim + [head], None, [], [self.PROOF])), 1)
+
+    def test_expect_command_flag_and_bad_regex(self):
+        args = self.pr.parse_args(["--scenario", "s", "--out", "o", "--expect-command", "a", "--expect-command", "b"])
+        self.assertEqual(args.expect_command, ["a", "b"])
+        with tempfile.TemporaryDirectory() as tmp:
+            scenario = Path(tmp) / "s.md"
+            scenario.write_text("x")
+            run = subprocess.run([sys.executable, str(SCRIPT), "--scenario", str(scenario), "--out", str(Path(tmp) / "o"),
+                                  "--expect-command", "(", "--dry-run"], capture_output=True, text=True)
+            self.assertEqual(run.returncode, 2)
+            self.assertIn("bad --expect-command", run.stderr)
+
+    def test_one_setup_error_keeps_other_line(self):
+        import contextlib, io
+        from unittest import mock
+        ok = fixture("claude_skill_tool.jsonl") + [claude_text("done")]
+
+        def fake_run(tool, prompt, args):
+            if tool == "codex":
+                raise self.pr.SetupError("codex not found on PATH")
+            return ok
+
+        with tempfile.TemporaryDirectory() as tmp:
+            scenario = Path(tmp) / "s.md"
+            scenario.write_text("x")
+            out, err = io.StringIO(), io.StringIO()
+            with mock.patch.object(self.pr, "run_tool", fake_run), \
+                    contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                code = self.pr.main(["--scenario", str(scenario), "--tool", "both",
+                                     "--out", str(Path(tmp) / "o")])
+        self.assertEqual(code, 2)
+        self.assertIn("claude: PASS", out.getvalue())
+        self.assertIn("codex: SETUP ERROR codex not found on PATH", out.getvalue())
+        self.assertIn("codex not found on PATH", err.getvalue())
+
+    def test_timeout_kills_child_processes(self):
+        import contextlib, io, os, textwrap, time
+        from unittest import mock
+        fake = textwrap.dedent(f"""\
+            #!{sys.executable}
+            import subprocess, sys, time
+            child = subprocess.Popen(["sleep", "60"])
+            open(sys.argv[0] + ".pid", "w").write(str(child.pid))
+            print('{{"type": "system"}}', flush=True)
+            time.sleep(60)
+        """)
+        with tempfile.TemporaryDirectory() as tmp:
+            exe = Path(tmp) / "claude"
+            exe.write_text(fake)
+            exe.chmod(0o755)
+            scenario = Path(tmp) / "s.md"
+            scenario.write_text("x")
+            out = Path(tmp) / "o"
+            err = io.StringIO()
+            start = time.time()
+            with mock.patch.dict(os.environ, {"PATH": tmp + os.pathsep + os.environ["PATH"]}), \
+                    mock.patch.object(self.pr, "RUN_TIMEOUT", 2), \
+                    mock.patch.object(self.pr, "build_command", lambda *a, **k: [str(exe)]), \
+                    contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                code = self.pr.main(["--scenario", str(scenario), "--tool", "claude", "--red", "--out", str(out)])
+            self.assertLess(time.time() - start, 20)
+            self.assertEqual(code, 2)
+            self.assertIn("timed out", err.getvalue())
+            self.assertIn('"system"', (out / "claude.jsonl").read_text())
+            pid = int((Path(tmp) / "claude.pid").read_text())
+            for _ in range(30):
+                try:
+                    os.kill(pid, 0)
+                except ProcessLookupError:
+                    break
+                time.sleep(0.1)
+            else:
+                self.fail(f"child {pid} survived the timeout")
 
 
 if __name__ == "__main__":
