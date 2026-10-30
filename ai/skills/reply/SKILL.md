@@ -19,7 +19,7 @@ description: Use when the user asks for the text of a reply to a PR review comme
 
 1. **Classify.** Mark each thread as fix, decline or answer. One thread can need two classes.
 2. **Check facts.** List the given facts for each thread. A fix with no SHA is a gap. Ask the user about one gap in each message. Give a recommended answer.
-3. **Draft.** Write the outcome in the first sentence. Use 1 to 3 sentences. Use only given facts.
+3. **Draft.** Write the outcome in the first sentence. Use 1 to 3 sentences. One sentence is often enough. Use only given facts.
 4. **Unslop.** Run the unslop skill on each draft. Use its cleaned text as the new draft.
 5. **Red flags.** Read each draft once for each red flag below.
 6. **Reply.** Use the output template. Write nothing before it or after it.
@@ -29,7 +29,7 @@ description: Use when the user asks for the text of a reply to a PR review comme
 - **Outcome first.** A fix starts with "Fixed in `<sha>`." A decline starts with the decision. An answer starts with the fact that answers the question.
 - **One SHA for each fix.** Put the SHA in backticks.
 - **Backticks for each identifier.** This includes a function, a file, a test, a rule code and a SHA.
-- **Decline with one reason and its cost.** Give the reason that decides it. Then give what the decision costs.
+- **Decline with one reason and its effect.** Give the reason that decides it. Then state the effect in plain words, for example "The module will mix both styles until ...". Do not write "The cost is".
 - **No thanks.** Do not thank the reviewer for the review or for the comment.
 - **"Good catch" needs a run.** Write it only when a run showed the bug. Then name the run.
 - **No list.** Write prose. A draft has no bullet, number or heading.
@@ -46,7 +46,7 @@ description: Use when the user asks for the text of a reply to a PR review comme
 - "Good catch" with no run. Go back to step 3.
 - A decline with no reason or no cost. Go back to step 2.
 - An identifier with no backticks. Go back to step 3.
-- A draft did not go through unslop. Go back to step 4.
+- A draft did not go through unslop, and you could read unslop. Go back to step 4.
 - A draft has a curly quote or a curly apostrophe (unslop rule 19). Go back to step 4.
 - An unslop change line is inside a draft. Go back to step 6.
 - Text after the `Principles applied:` line. Go back to step 6.
@@ -56,10 +56,10 @@ description: Use when the user asks for the text of a reply to a PR review comme
 ```
 Thread <n> (<reviewer>, `<path>:<line>`)
 
-<the draft>
+<outcome sentence>. <0 to 2 more sentences>
 
 Unslop changes:
-- <one unslop change line, as unslop wrote it, or none>
+- <one unslop change line, as unslop wrote it, or none, or unslop file not found>
 
 Principles applied: none
 ```
@@ -68,4 +68,4 @@ Repeat the block before `Principles applied:` for each thread.
 
 ## Roles
 
-Run inline. Do not dispatch an agent. Do not post a reply. The user or `address` posts it after the user says yes. When `address` calls this skill, return only the template. If no `unslop` skill loads, read `SKILL.md` and `rules.md` in `~/.agents/skills/unslop/`, or in the path that the caller gives.
+Run inline. Do not dispatch an agent. Do not post a reply. The user or `address` posts it after the user says yes. When `address` calls this skill, return only the template. If no `unslop` skill loads, read `SKILL.md` and `rules.md` in `~/.agents/skills/unslop/`, or in the path that the caller gives. If you cannot read unslop at either path, do the unslop checks from memory. Then write "unslop file not found" in the unslop changes of each thread. Do not read .env files.

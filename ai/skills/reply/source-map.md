@@ -17,21 +17,24 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 |---|---|---|---|---|
 | Classify each thread as fix, decline or answer. | sp-rcr (response pattern, evaluate then respond). spec 8.4. | P | Definitions. Loop 1. | GREEN: three threads, three classes. |
 | Use only given facts. A fix with no SHA is a gap. Ask about one gap in each message, with a recommended answer. | brief (SHA per fix). Controller ruling (one question, recommended answer). sp-rcr ("I can't verify this without [X]"). | D | Loop 2. Rules. Red flags. | Untested. The scenario gives every SHA. |
-| Outcome first. A fix starts with "Fixed in `<sha>`." An answer starts with the fact. | sp-rcr ("Fixed. [what]"). spec 8.4 (outcome first). brief voice ruling. | D | Loop 3. Rules. | GREEN |
-| 1 to 3 sentences. No list. | spec 8.4. brief voice ruling. | D | Loop 3. Rules. Red flags. | RED: both wrote 4-sentence replies. |
+| Outcome first. A fix starts with "Fixed in `<sha>`." An answer starts with the fact. | sp-rcr ("Fixed. [what]"). spec 8.4 (outcome first). brief voice ruling. | D | Loop 3. Rules. Output template. | Partial. GREEN-2 for fix and decline. The answer clause came in c776ca5 after GREEN-2, with no rerun, so it is Untested. |
+| 1 to 3 sentences. No list. | spec 8.4. brief voice ruling. | D | Loop 3. Rules. Red flags. Output template. | RED: both wrote 4-sentence replies. |
+| The cap is a ceiling. One sentence is often enough. | Review M2: all six GREEN-2 drafts had exactly 3 sentences. | D | Loop 3. | Untested (added in fix round 1). |
 | One SHA for each fix, in backticks. | spec 8.4 and section 7 (only the commit reference habit stays). brief. | D | Rules. Red flags. | RED: both left `abc1234` bare. |
 | Backticks for each identifier. | spec 8.4. | D | Rules. Red flags. | RED: SHA and rule code bare. |
 | A curly quote sends the draft back to unslop. | pstack 19. RED and GREEN-1: Codex kept a curly apostrophe. | D | Red flags. | GREEN-2: no curly quote. |
-| Decline with one reason and its cost. | spec 8.4 (push back with the decision plus one reason, a decline states its cost). sp-rcr (technical reasoning). | D | Definitions. Rules. Red flags. | RED and GREEN: both gave the UP032 reason and the mixed-style cost. |
+| Decline with one reason and its cost. | spec 8.4 (push back with the decision plus one reason, a decline states its cost). sp-rcr (technical reasoning). | D | Definitions. Rules. Red flags. | RED and GREEN: both gave the UP032 reason and the mixed-style cost. The plain-speech form (no "The cost is") is Untested (fix round 1, from review M2: GREEN-2 Claude wrote "The cost is that ...", Codex did not). |
 | No thanks. | sp-rcr ("ANY gratitude expression" is forbidden). spec 8.4. | D | Rules. Red flags. | RED: Claude wrote "Good catch, thanks." |
-| "Good catch" needs a run, and names it. | spec 8.4. sp-rcr ("Good catch - [specific issue]"). | D | Definitions. Rules. Red flags. | RED: allowed in thread 1 (the scenario gives a failing test). |
+| "Good catch" needs a run, and names it. | spec 8.4. sp-rcr ("Good catch - [specific issue]"). | D | Definitions. Rules. Red flags. | Untested. The scenario gives a run for thread 1, and no run had a draft with "Good catch" and no run. |
 | Unslop rules 20 and 22 (chatbot phrases, flattery). | pstack 20, 22. sp-rcr (forbidden "You're absolutely right!", "Great point!"). | D | Rules. Loop 4. | GREEN |
 | Unslop rules 23 and 24 (filler, too much hedging). | pstack 23, 24. | D | Rules. Loop 4. | GREEN |
 | Run the unslop skill on each draft. `reply` keeps no copy of the rule text. | brief interfaces. spec 8.4. | P | Loop 4. Red flags. Roles. | RED: no run made a pass. GREEN: both read unslop. |
 | Output: each draft apart from the unslop change lines, as unslop wrote them. | unslop output contract (one line, one rule number). spec 8.4 (`address` posts the draft that the user OKs, so the draft stands alone). Audit: RED Claude used bold labels with colons (unslop rule 16). | O | Output template. Red flags. | GREEN |
 | Add no fact. | unslop (add nothing). sp-rcr (verify before claim). | D | Rules. | RED: Claude added a note after the drafts. |
-| Never post. The user or `address` posts after the user says yes. | spec 8.4 (address posting after the user OKs it). dispatch. | D | Roles. | RED and GREEN: no post. |
+| Never post. The user or `address` posts after the user says yes. | spec 8.4 (address posting after the user OKs it). dispatch. | D | Roles. | Untested. The scenario text itself forbids posting. |
 | Run inline. Return only the template to `address`. Fallback path for unslop. | spec 8.4 (used by `address` and on its own). | O | Roles. | GREEN: unslop at a given path. |
+| unslop not found at either path: run the checks from memory and say "unslop file not found". The step-4 red flag applies only when unslop was readable. | Review M3 (the red flag looped with no exit). spec 8.4 (reply runs unslop on each draft). | D | Roles. Red flags. Output template. | Untested (fix round 1). |
+| Do not read .env files. | AGENTS.md repo line. Review M4: a given fact can come from a file that reply reads. | D | Roles. | Untested. |
 | `Principles applied:` line. | spec 8.7. reply has no principle targets. | O | Output template. | GREEN |
 
 ## Cut
@@ -42,7 +45,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 - sp-rcr `gh api .../replies` posting line: posting belongs to `address` after the user says yes.
 - sp-rcr "Gracefully correcting your pushback" and the uncomfortable pushback advice: `reply` drafts from given facts and does not change a decision.
 - pstack rules other than 20, 22, 23 and 24: `unslop` applies all of them in Loop 4. `reply` names only the rules that shape the reply voice.
-- The four repo lines: `reply` runs no command in a repo. `address` does the repo work.
+- Three of the four repo lines (Salesforce, alembic, worktrees): `reply` runs no command in a repo. `address` does the repo work. The .env line stays because `reply` can read files.
 
 ## Pressure scenarios
 
