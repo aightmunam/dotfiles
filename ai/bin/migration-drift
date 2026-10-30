@@ -5,8 +5,9 @@ Usage: migration-drift <repo> <staging heads>...
 
 <staging heads> is the text of the staging alembic_version rows (revision ids
 separated by whitespace, commas or newlines; extra argv words are joined).
-Only hex ids of 4 or more characters count, so psql headers, dashes and
-"(N rows)" lines are ignored. The user pastes it from a
+Ids match [A-Za-z0-9_]+. The psql header word version_num, dash rules and
+"(N rows)" lines are skipped. For alembic output the first token of each
+line counts, and INFO or WARNING log lines are skipped. The user pastes it from a
 read-only query. This script never connects to a DB. It only runs
 `alembic heads` in <repo>, which reads the revision files.
 Prints "in sync", "staging behind: <revs>" or "staging ahead: <revs>".
@@ -18,16 +19,29 @@ import subprocess
 import sys
 from pathlib import Path
 
-REV_RE = re.compile(r"[0-9a-f]{4,}")
+ID_RE = re.compile(r"[A-Za-z0-9_]+")
+LOG_PREFIXES = ("INFO", "WARNING")
 
 
-def parse_revisions(text):
-    """Revision ids from alembic output or pasted rows. Drops '(head)' markers."""
+def parse_alembic_heads(text):
+    """First token of each non-blank alembic line. Skips INFO and WARNING log lines."""
     revs = set()
     for line in text.splitlines():
-        line = re.sub(r"\(.*?\)", " ", line)
-        revs.update(w for w in line.replace(",", " ").split() if REV_RE.fullmatch(w))
+        words = line.split()
+        if not words or words[0].startswith(LOG_PREFIXES):
+            continue
+        if ID_RE.fullmatch(words[0]):
+            revs.add(words[0])
     return revs
+
+
+def parse_staging(text):
+    """Ids from pasted text. Skips the psql header, dash rules and '(N rows)'."""
+    text = re.sub(r"\(.*?\)", " ", text)
+    return {
+        w for w in text.replace(",", " ").split()
+        if w != "version_num" and ID_RE.fullmatch(w)
+    }
 
 
 def repo_heads(repo):
@@ -36,7 +50,7 @@ def repo_heads(repo):
     )
     if result.returncode != 0:
         raise RuntimeError(f"alembic heads failed: {result.stderr.strip()}")
-    return parse_revisions(result.stdout)
+    return parse_alembic_heads(result.stdout)
 
 
 def main(argv):
@@ -55,7 +69,7 @@ def main(argv):
     if not repo_revs:
         print("alembic heads printed no revisions", file=sys.stderr)
         return 2
-    staging = parse_revisions("\n".join(argv[2:]))
+    staging = parse_staging("\n".join(argv[2:]))
     if not staging:
         print("no revision ids found in the staging heads", file=sys.stderr)
         return 2

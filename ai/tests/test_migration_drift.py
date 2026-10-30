@@ -91,6 +91,26 @@ class MigrationDriftTest(unittest.TestCase):
         r = self.run_script("INFO [alembic.runtime.migration] Context\nabc123 (head)", "abc123")
         self.assertEqual(r.stdout.strip(), "in sync")
 
+    def test_non_hex_revision_drifts(self):
+        r = self.run_script("abc123 (head)\nrzw8na1ie16p (head)", "abc123")
+        self.assertEqual(r.returncode, 1, r.stderr)
+        self.assertEqual(r.stdout.strip(), "staging behind: rzw8na1ie16p")
+
+    def test_non_hex_ids_in_sync_with_psql_paste(self):
+        psql = " version_num \n--------------\n media_001\n fix_plan_idx\n(2 rows)\n"
+        r = self.run_script("media_001 (head)\nfix_plan_idx (head)", psql)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(r.stdout.strip(), "in sync")
+
+    def test_only_non_hex_heads_in_sync(self):
+        r = self.run_script("dap_tables_001 (head)", "dap_tables_001")
+        self.assertEqual(r.stdout.strip(), "in sync")
+
+    def test_alembic_log_lines_ignored(self):
+        out = "INFO  [alembic.runtime.migration] Context impl\nWARNING deadbeef\nabc123 (head)"
+        r = self.run_script(out, "abc123")
+        self.assertEqual(r.stdout.strip(), "in sync")
+
     def test_missing_dir_exits_2(self):
         r = self.run_script("abc123", "abc123", repo=self.repo / "nope")
         self.assertEqual(r.returncode, 2)
