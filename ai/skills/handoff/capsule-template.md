@@ -11,7 +11,7 @@ Each thread line starts with exactly one tag. Run the check before you write the
 | `[merged #N]` | `gh pr view N --json state,mergedAt` shows `MERGED`. `git log <base> --oneline --grep "#N"` shows no revert of #N. |
 | `[open PR #N]` | `gh pr view N --json state` shows `OPEN`. |
 | `[in flight <branch>]` | The branch has commits or changes, and no PR is open or merged for it. Unchecked changes also get this tag. |
-| `[verified, uncommitted]` | `git status --short` shows the change. You ran its check in this session and the check passed. Name the command. |
+| `[verified, uncommitted]` | `git status --short` shows the change. You ran its check in this session and the check passed. The check exercises the change. A test that does not reach the change is not its check. Name the command. |
 | `[reverted #N]` | `git log <base>` shows a commit that reverts #N. N is the PR that the commit reverted. Name the revert PR or commit on the line. |
 | `[planned, not started]` | No branch, commit, or PR matches the thread. Name the searches: `git branch -a`, `git log --all --grep`, `gh pr list --state all`. |
 

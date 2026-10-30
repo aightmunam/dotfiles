@@ -44,7 +44,7 @@ description: Use when a session ends and the next session needs its state. Use w
 
 - A thread has no tag, or more than one tag. Go back to step 3.
 - A tag has no command and result next to it. Go back to step 2.
-- `[verified, uncommitted]` with no test or check that you ran in this session. Go back to step 2.
+- `[verified, uncommitted]` with no check that you ran in this session, or with a check that does not reach the change. Go back to step 2.
 - `[merged #N]` and you did not search `git log` for a revert of #N. Go back to step 2.
 - A reverted fix is not in Threads or in Problems. Go back to step 1.
 - The Capsule has more than 5 bullets, or Problems has more than 5 lines. Go back to step 4.
