@@ -23,6 +23,16 @@ phases:
 - [ ] **Step 4: Implement** `parse_limit(raw: str) -> int`.
 - [ ] **Step 5: Run** the tests. Expected: PASS.
 - [ ] Implement the parser.
+- [ ] Create tests for the parser.
+- [ ] Write `ai/example/one.py`.
+- [ ] Add `parse_limit` to `ai/example/one.py`.
+- [ ] Define the parser.
+
+```python
+def parse_limit(raw):
+```
+
+- [ ] Cover the empty case. Test `parse_limit("")`.
 
 #### Automated verification
 - [ ] `python3 -m unittest` passes.

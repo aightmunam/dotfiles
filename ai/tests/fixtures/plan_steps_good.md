@@ -39,6 +39,11 @@ def clamp(value: int, high: int) -> int:
 
 - [ ] **Step 8: Write the four test cards.** Each card has a prerequisites line.
 - [ ] Write the failing test `test_zero`. Assert `parse_limit("0") == 0`.
+- [ ] Add a test harness. Loader only.
+- [ ] Write `ai/skills/example/SKILL.md`. Keep it short.
+- [ ] Implement the rules in `ai/skills/example/SKILL.md`.
+- [ ] Create the test `test_zero_limit`. Assert `parse_limit("0") == 0`.
+- [ ] Run `bash ai/example/run.sh`. Expected: exit `0`.
 - [ ] **Step 9: Commit** with message `one: parse the limit`.
 
 #### Automated verification
