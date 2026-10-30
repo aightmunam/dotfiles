@@ -8,22 +8,22 @@ description: Use when the user asks to create, write, or change a skill, or to e
 ## Definitions
 
 - **Pressure scenario:** a real task prompt that tempts the failure. It names real paths and asks the agent to act.
-- **RED:** a run of the scenario with no skill (or with the old skill, for an edit). Its failure line is what the skill must fix.
-- **GREEN:** the same scenario with the skill, under Claude and Codex. Both must pass, and the RED failure must be gone.
+- **RED:** the scenario with no skill, or with the old skill for an edit. Its failure line is what the skill must fix.
+- **GREEN:** the same scenario with the skill, under Claude and Codex. Both pass, and the RED failure is gone.
 - **Source:** a rule in pstack, superpowers or Pocock (pinned in `ai/sources.lock`), an audit finding, or the user's words. A rule with no source is cut.
 - **Guard:** a lint, test, hook or script that enforces a rule. A guard is not text.
 
 ## The Loop
 
-**First, read `house-form.md`.** Your skill must pass each line of it.
+Run each command from the dotfiles root: the root of your dotfiles worktree, or `cd "$(git -C ~/dotfiles rev-parse --show-toplevel)"`. Put run output in a scratch dir of this session.
 
-1. **Guard first.** If a lint, test, or script can enforce the rule, use only that guard. Read ~/.agents/principles/encode-lessons-in-structure.md before this step. Read that file with its own command. Build the guard, or give it in full when you cannot write. A skill keeps only the part that needs judgment. If no part needs judgment, write no skill and stop at step 9.
-2. **Name.** Do the name check in `house-form.md`. Read the `## Skill routing` table in `~/dotfiles/ai/AGENTS.md`. If a skill already covers the case, change that skill.
+1. **Guard first.** If a lint, test, or script can enforce the rule, use only that guard. Read ~/.agents/principles/encode-lessons-in-structure.md before this step, as a read of that file alone. Build the guard, or give it in full when you cannot write. A skill keeps only the part that needs judgment. If no part needs judgment, write no skill and stop at step 9.
+2. **Name.** Read `house-form.md`. Your skill must pass each line of it. Do the name check in it. Read the `## Skill routing` table in `ai/AGENTS.md`. If a skill already covers the case, change that skill.
 3. **Sources.** Search `~/Developer/ref/` for skills with the same purpose. Read each match in full. List each rule with its source. Apply the filter in the rules below. Cut each rule that fails it.
-4. **RED.** Write the scenario to a scratch file. Run `ai/bin/pressure-run --red --skill <name> --scenario <file> --out <dir> --tool both`. Read both saved answers. Write one failure line from them.
+4. **RED.** Write the scenario to a scratch file. Run `ai/bin/pressure-run --red --skill <name> --scenario <file> --out <scratch>/red --tool both`. Read both saved answers. Write one failure line from them.
 5. **Write.** Write `SKILL.md`, the reference files, and `source-map.md` against `house-form.md`. Each rule fixes a RED failure or has a source row.
 6. **Route.** Add the row and the tie-break lines in `## Skill routing`. Add the eval prompts (see `house-form.md`).
-7. **GREEN.** Run `ai/bin/pressure-run --scenario <file> --skill <name> --principle <p> --tool both --out <dir>`. Give one `--principle` for each pointer. Read both answers. Change the skill and run again until both pass.
+7. **GREEN.** Run `ai/bin/pressure-run --scenario <file> --skill <name> --principle <p> --tool both --out <scratch>/green-<n>`. Give one `--principle` for each pointer. Read both answers. Change the skill and run again until both pass.
 8. **Check.** Run `python3 -m unittest ai.tests.test_skills_lint -v` and `python3 ai/vendor/ste-lint.py --baseline 0 <SKILL.md>`. Record RED and GREEN in `source-map.md` under `## Pressure scenarios`.
 9. **Hand off.** Fill the output template, also when you write no skill. The template is the full answer. Its last line is the `Principles applied:` line.
 
@@ -38,7 +38,7 @@ description: Use when the user asks to create, write, or change a skill, or to e
 
 ## Roles
 
-`ai/bin/pressure-run` runs each scenario in a fresh agent. It shows the agent only the scenario. If it is not on disk, give the scenario to a fresh agent with no skill and no hint of the failure. With no dispatch tool, put the scenario and both commands in the handoff. Set the status to `untested`.
+`ai/bin/pressure-run` runs each scenario in a fresh agent. It shows the agent only the scenario. First go to the dotfiles root. If `ai/bin/pressure-run` does not exist there, give the scenario to a fresh agent with no skill and no hint of the failure. With no dispatch tool, put the scenario and both commands in the handoff. Set the status to `untested`.
 
 ## Output Template
 
@@ -64,8 +64,9 @@ Principles applied: encode-lessons-in-structure -> <choice it changed>
 ## Red Flags
 
 - You wrote a text rule that a guard can enforce. Go back to step 1.
-- A `SKILL.md` exists and no RED failure line exists. Delete the draft. Go back to step 4.
+- You wrote or changed skill text before a RED failure line exists. Remove your new text. For an edit, revert only your change. Go back to step 4.
 - The description says what the skill does. Go back to step 5.
+- The skill has no `## Repo Rules` with the four lines verbatim. Go back to step 5.
 - A rule has no source row and fixes no RED failure. Cut it. Go back to step 3.
 - One CLI passed, or you judged GREEN from the check line only. Go back to step 7.
 - The status says `green` with no saved GREEN answers. Go back to step 7.

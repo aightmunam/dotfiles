@@ -1,12 +1,13 @@
 # House Form
 
 Check each line. A line that does not apply says why in the handoff.
+Run each command from the dotfiles root (see the SKILL.md loop).
 The model skill is `ai/skills/fact-constrained-debugging/`. Finished examples are `ai/skills/research/`, `ai/skills/brainstorm/`, `ai/skills/make-plan/` and `ai/skills/unslop/`.
 
 ## Name check
 
 - [ ] The name is full English words in kebab-case. It has no abbreviation and no prefix.
-- [ ] The name is not a Claude Code built-in command. Type `/` in Claude Code, or read the built-in list in the Claude Code docs.
+- [ ] The name is not a Claude Code built-in command. In an interactive session, type `/` and read the menu. In a headless run, the menu is not available. Check the name against the built-in command list in the Claude Code docs, or write `built-in check: unverified` in the handoff.
 - [ ] The name is not a bundled skill or an installed skill. Read the skill list in your session. Run `ls ~/.agents/skills ~/.claude/skills ~/.codex/skills ~/.codex/skills/.system ai/skills`.
 - [ ] The name is not a plugin skill. Run `find ~/.claude/plugins -path '*/skills/<name>/SKILL.md'`.
 - [ ] On a collision, use a longer full-word name (`plan` became `make-plan`, `review` became `review-pr`).
@@ -34,7 +35,7 @@ The model skill is `ai/skills/fact-constrained-debugging/`. Finished examples ar
 - [ ] Each red flag sends the agent back to a named step.
 - [ ] A required output template has fixed sections. An empty section says why.
 - [ ] Each subagent role has its exact prompt contents, sees only its inputs, and has a fallback when no dispatch tool exists.
-- [ ] A skill that works in a repo has the four repo lines, verbatim, as in `ai/skills/make-plan/SKILL.md`.
+- [ ] Each skill has `## Repo Rules` with the four lines, verbatim, as in `ai/skills/make-plan/SKILL.md`. There is no exception for a skill that seems to touch no repo.
 - [ ] The text names no plugin skill and no plugin store path. `ai/tests/test_skills_lint.py` holds the list of forbidden names.
 
 ## Writing
@@ -48,7 +49,7 @@ The model skill is `ai/skills/fact-constrained-debugging/`. Finished examples ar
 ## Principles
 
 - [ ] Each principle for the skill (its `PRINCIPLE_TARGETS` entry in `ai/tests/test_skills_lint.py`) has a pointer at the step it governs.
-- [ ] The pointer form is the key sentence inline, then `Read ~/.agents/principles/<name>.md before this step.`
+- [ ] The pointer form is the key sentence (or the principle rule that the step applies) inline, then `Read ~/.agents/principles/<name>.md before this step, as a read of that file alone.`
 - [ ] The output template has the line `Principles applied: <name> -> <choice it changed>`.
 - [ ] It cites only principle files that the run read in this session.
 - [ ] A new skill with principles gets an entry in `PRINCIPLE_TARGETS`.
@@ -57,7 +58,7 @@ The model skill is `ai/skills/fact-constrained-debugging/`. Finished examples ar
 
 - [ ] `## Skill routing` in `ai/AGENTS.md` has one row for the skill. Change the row in the same commit as the triggers.
 - [ ] Each skill that overlaps has one tie-break line that names both sides.
-- [ ] `ai/tests/routing/prompts.tsv` has one prompt for the skill and one for each side of each new tie-break. If the file does not exist yet, list the prompts in the handoff.
+- [ ] `ai/tests/routing/prompts.tsv` has one prompt for the skill and one for each side of each new tie-break. If the file does not exist yet, list the prompts in the handoff. Task 8.9 creates the file and adds the listed prompts.
 
 ## Tests
 
