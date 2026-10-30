@@ -10,7 +10,7 @@ description: Use when a repo needs its own verify skill. Use when the user asks 
 - **Verify skill:** `<repo>/.claude/skills/verify/SKILL.md` plus `features/`. In a monorepo, put it in the package that the user touches. You write it for an agent that never saw the app.
 - **Evidence:** a response body, a DB row, a file, or an event that a second read shows. A log line, a status code, or a "saved" message alone is not evidence.
 - **Proven:** the verify skill ran end to end once in this session, and its evidence exists after cleanup.
-- **Draft:** a verify skill that did not run. A draft is not a deliverable.
+- **Draft:** a verify skill that did not run. A draft is a fallback, never `proven`.
 
 ## The Loop
 
@@ -19,7 +19,7 @@ description: Use when a repo needs its own verify skill. Use when the user asks 
 3. **Try the base.** Launch the app as-is. If it does not launch, fix the cause or report it exactly. Do not write a skill for a broken base.
 4. **Write.** Read `verify-template.md`. Write `SKILL.md` and `features/` from it. Use real commands, routes, and names from this repo. Leave no placeholder.
 5. **Prove.** Do the verify skill once: launch, doctor, drive one feature, capture evidence, clean up. Then read the evidence at its named path. After each failed try, run its cleanup, fix the skill, and try again.
-6. **Hand over.** Leave the files uncommitted for the user to review. Fill the report template. If you cannot write to the repo or launch a process, put the full text of each file in your answer. A link to a file outside the repo is not enough. Set `Status: draft`, and list the commands that prove it.
+6. **Hand over.** Leave the files uncommitted for the user to review. Run `git check-ignore -v` on each written path. Do not run `git add -f`. Fill each line of the report template. If you cannot write to the repo or launch a process, put the full text of each file in your answer. A link to a file outside the repo is not enough. Set `Status: draft`, and list the commands that prove it.
 
 ## Repo Rules
 
@@ -44,7 +44,9 @@ description: Use when a repo needs its own verify skill. Use when the user asks 
 - A proof is a log line, a status code, or "ok". Go back to step 4.
 - The skill can drive or stop an instance that it did not launch. Go back to step 2.
 - Cleanup removes the evidence, or you did not read the evidence after cleanup. Go back to step 5.
-- A placeholder such as `<port>` or "for example" is in the verify skill. Go back to step 4.
+- A placeholder such as `<port>` or "for example" is in the verify skill, or its `description:` has no `Use when` as its first words. Go back to step 4.
+- The report has no line for a template slot. Go back to step 6.
+- You remove a worktree that holds ignored verify files. Stop. Copy the files out first, or keep the worktree. Then go back to step 6.
 
 ## Report Template
 
@@ -54,6 +56,7 @@ Files: <each path written, uncommitted>
 Run: <launch, doctor, drive, and cleanup commands, each with its exit code>
 Evidence: <path>, then the first 5 to 15 lines of the saved body
 After cleanup: <evidence path still exists: yes or no>, <port free: yes or no>
+Ignored: <file:line from git check-ignore, or no>; to commit: git add -f <paths>
 Stand-in gaps: <steps the real target did not get, or none>
 Principles applied: none
 ```

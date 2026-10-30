@@ -21,7 +21,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Interview the repo, not the user: surface, run, drive, observe, isolate. | cvs step 1. | P | Loop 2. | GREEN |
 | Launch via the repo command (just, make, compose). | cvs step 1 Run. spec 8.4. | P | Loop 2. T Launch. | GREEN partial: the Codex draft starts uvicorn from its own `run.py`. The manual skill uses `run.sh`. |
 | Never drive an instance that you did not start. | cvs step 1 Isolate. cvs feature map README. | D | Loop 2. Rules, own instance. Red flags. | RED: Claude found the live 8790 instance itself. |
-| Fix or report a broken base before you write. | cvs step 1. | P | Loop 3. | GREEN |
+| Fix or report a broken base before you write. | cvs step 1. | P | Loop 3. | Untested. The grimoire base was never broken. |
 | Real commands, no placeholders. | cvs step 2 (no placeholders, real selectors). | D | Loop 4. Red flags. T intro. | GREEN |
 | Sections Launch, Doctor, Drive, Evidence, Cleanup, Helpers. | cvs step 2. | P | T. | GREEN |
 | Ready means usable. Launch works from an empty data dir. | cvs step 2 Launch. | P | T Launch. | GREEN |
@@ -29,18 +29,23 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Real user path, no test-only endpoints. Mocks only at a production boundary. Observe dry-runs. | cvs step 2 Evidence. | D | Rules, real user path. T Evidence. | GREEN |
 | Stop only your PID. Never kill by name. | cvs step 2 Cleanup. | D | Rules, own instance. T Cleanup. | GREEN |
 | Cleanup keeps the evidence. Read it after cleanup. | cvs step 2 Cleanup, step 4. mvs invariant 2. | D | Loop 5. Rules. Red flags. T Cleanup. | GREEN |
-| Helpers are executable and their call is in the skill. | cvs step 2 Helpers. | P | T Helpers. | GREEN |
+| Helpers are executable and their call is in the skill. | cvs step 2 Helpers. | P | T Helpers. | GREEN partial: the Codex draft shows the call of `run.py`, but the file is mode 644. |
 | Feature map: README plus 3 to 5 files, four H2s in order. | cvs step 3. cvs feature-map-example. | P | Loop 4. T feature files. | GREEN |
 | Never weaken a journey. Put the reason in Gotchas. | cvs step 3. | D | Rules. | Untested. |
-| Run cleanup after each failed try. | cvs step 4. mvs invariant 3. | P | Loop 5. M step 4. | GREEN |
-| Name each stand-in step that the real target does not get. | cvs step 4. | O | Rules. Report Stand-in gaps. | Manual run used a worktree. |
+| Run cleanup after each failed try. | cvs step 4. mvs invariant 3. | P | Loop 5. M step 4. | Untested. No try failed in GREEN or in the manual run. |
+| Name each stand-in step that the real target does not get. | cvs step 4. | O | Rules. Report Stand-in gaps. | Untested in GREEN. The manual run named one gap (`.venv` provisioning). |
 | Leave the skill uncommitted for review. | brief interface. | D | Loop 6. Rules, never commit. | RED: Claude planned a commit. |
-| Cannot write or run: full skill in the answer, `Status: draft`. | research Loop 6 (cannot write). Audit: headless runs cannot write or start a process. | O | Loop 6. Report. | GREEN |
+| Cannot write or run: full skill in the answer, `Status: draft`. A draft is a fallback, never `proven`. | research Loop 6 (cannot write). Audit: headless runs cannot write or start a process. | O | Definitions. Loop 6. Report. | GREEN partial: both give `Status: draft`. Codex gives the full files. Claude gives a plan. |
 | Maintain: edit only the verify skill directory. | mvs Edit scope. | D | M Edit scope. | Untested. |
-| Maintain: index, source read per feature, missing features, live pass, triage. | mvs steps 1 to 5. | P | M Steps. | Untested. |
+| Maintain: index, source read per feature, missing features, live pass, triage. Read each changed file again before you stop. | mvs steps 1 to 6. | P | M Steps. | Untested. |
 | Maintain: unreachable needs its precondition and the route tried. | mvs step 4. cvs feature-map README. | D | M. T README. | Untested. |
 | Maintain outcome clean, changed, or blocked. | mvs Outcomes. | O | M Outcome. | Untested. |
-| `Principles applied:` line. | Dispatch common rules. verifier has no PRINCIPLE_TARGETS entry. | O | Report. | GREEN |
+| `Principles applied:` line. | Dispatch common rules. verifier has no PRINCIPLE_TARGETS entry. | O | Report. Red flags. | Untested. No GREEN answer has the line. The harness checks it only with `--principle`. |
+| Each report template line is present. | Review M1 (task-5.2-review.md): GREEN-2 Claude gave only `Status:`. | D | Red flags. | Untested. Added after GREEN. |
+| Evidence slot: the first 5 to 15 lines of the saved body. | cvs step 4 (confirm the evidence exists). Review M3. | O | Report Evidence. | GREEN (manual run printed the body). |
+| Run `git check-ignore -v` on each written path. Report the ignore source and the `git add -f` command. Never run `git add -f`. | Audit: `~/.gitignore_global:41` ignores `.claude/`. Review I2 and controller ruling. | O | Loop 6. Report Ignored. | Untested. Added after GREEN. |
+| Do not remove a worktree that holds ignored verify files. | Audit: `git worktree remove` deletes ignored files without `--force`. Review I2. | D | Red flags. | Untested. Added after GREEN. |
+| The generated `description:` starts with `Use when`. | Review M4. Dispatch common rules (description form). | D | T frontmatter. Red flags. | GREEN partial: the Codex draft does not. Red flag added after GREEN. |
 | Four repo lines, verbatim. | Brief Global Constraints. | D | Repo Rules. | GREEN |
 
 ## Cut
