@@ -109,6 +109,9 @@ Tie-break lines, one per set:
 - research / explain_code: a written study before a change, `research`. Explain code to the user in chat, `explain_code`.
 - bro / ketchup: restate one message, `bro`. Catch up on many changes, `ketchup`.
 - bro / unslop: say the last message again in plain words, `bro`. Clean a given finished text, `unslop`.
+- recall / what-did-i-get-done: catch up so you can keep working, `recall`. A standup summary of finished work, `what-did-i-get-done`.
+- prove / verifier / performance: show that your own change works, `prove`. Build a repo's own verify skill, `verifier`. A speed claim or a measured regression, `performance`.
+- pr / unslop: write or update a PR body, `pr`. Clean a text that you already wrote, `unslop`.
 - unslop / the writing standard: the `## Writing standard` section in this file guides text while it is written. `unslop` is a pass over a text that is already written.
 
 Not these. Use the kept skill and not a rework skill:
