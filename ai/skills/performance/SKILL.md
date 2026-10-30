@@ -16,13 +16,13 @@ description: Use when a change claims to make code faster or slower. Use when yo
 
 ## The Loop
 
-1. **Decide.** Do this before any command. Read the principle file alone, with your file read tool when you have one. Then write the claim. Write the result that would change the decision. Write the noise floor that you expect. Key sentence: before you trust, report, or act on a measured number, find what limits it, and rule out that it measured something else. Read ~/.agents/principles/explain-the-number.md before this step.
-2. **Check the machine.** Run `uptime` and `sysctl -n hw.ncpu` (Linux: `nproc`). If the load is high, find the cause. If you cannot stop it, alternate the sides and say so. Read the timing code. Write what it times and what it ignores.
-3. **Check the work.** Run both sides on the same input. Compare the outputs. Count the errors. The timed region must do the full work, and the code must use the result.
-4. **Time.** Run each side at least 5 times, alternated (A, B, A, B). Discard one warmup run per side. Record the median and the range per side. Use the production settings and the same data for both sides.
-5. **Profile.** Use a separate run. Do not report its times. Use py-spy: `py-spy record -o profile.svg -- python3 <script>`. With no file writes, use `py-spy top -- python3 <script>`. If `command -v py-spy` finds nothing, use `python3 -m cProfile -s cumtime <script>`. Write the py-spy command in the report, also when you use cProfile. Name the limiter from the profiler output.
+1. **Decide.** Do this before the first timed run. Write the claim. Write the result that would change the decision. Write the noise floor that you expect. Key sentence: before you trust, report, or act on a measured number, find what limits it, and rule out that it measured something else. Use your file read tool, in a call of its own. Read ~/.agents/principles/explain-the-number.md before this step.
+2. **Check the machine.** Before the first timed run, run `uptime` and `python3 -c 'import os; print(os.cpu_count())'`. Copy the `uptime` line into the report as printed. If the load is high, find the cause. If you cannot stop it, alternate the sides and say so.
+3. **Build the sides.** Record the SHA of each side. For an uncommitted diff, the after side is the working tree, and the before side is a worktree at HEAD under ~/wt/<repo>/<name>. If you cannot write files, load the before side from `git show HEAD:<path>`. Run both sides on the same input. Compare the outputs. Count the errors. The timed region must do the full work, and the code must use the result.
+4. **Time.** Run each side at least 5 times, alternated (A, B, A, B). Discard one warmup run per side. Record the median and the range per side. Use the production settings and the same data for both sides. Keep the exact timing command for the report.
+5. **Profile.** Use a separate run. Do not report its times. On Linux without sudo, use `py-spy record -o <scratch>/profile.svg -- python3 <script>`. On macOS, if py-spy is missing, or if it exits with an error, use `python3 -m cProfile -s cumtime <script>`. Name the limiter from the profiler output.
 6. **Scope.** Find the callers of the changed code. Time the path that a user waits on. Give the change as a share of that path. With no caller, write "function alone, no caller found".
-7. **Report.** Copy the template block into your answer. Keep each label as written, also `Principles applied:`. Fill each slot. If a caller dispatched you, reply with the template only.
+7. **Report.** Copy the template block into your answer. Keep each label as written, also `Principles applied:`. Map the verdict to the outcome: the claimed direction, past the noise floor, is VERIFIED. The opposite direction, past the noise floor, is NOT VERIFIED. An effect inside the noise floor, or the verdict "inconclusive", is INCONCLUSIVE. If a caller (`prove`) dispatched you, reply with the template only.
 
 ## Repo Rules
 
@@ -42,7 +42,9 @@ description: Use when a change claims to make code faster or slower. Use when yo
 ## Red Flags
 
 - Your first timed run came before the claim and the noise floor. Go back to step 1.
-- No `uptime` output. Go back to step 2.
+- Your first timed run came before the `uptime` output. Go back to step 2.
+- The report has a load value that no command printed. Go back to step 2.
+- You did not compare the outputs of the two sides. Go back to step 3.
 - Fewer than 5 runs per side, or no range. Go back to step 4.
 - The limiter comes from reading code, not from a profile. Go back to step 5.
 - The verdict has no scope. Go back to step 6.
@@ -51,13 +53,17 @@ description: Use when a change claims to make code faster or slower. Use when yo
 
 ```
 Verdict: <faster | slower | no measurable difference | inconclusive>, <scope>
+Outcome: <VERIFIED | NOT VERIFIED | INCONCLUSIVE>
 Claim (written before the run): <sentence>
+Before SHA: <sha>
+After SHA: <sha> | <HEAD sha> plus uncommitted diff <git diff | shasum, first 12 chars>
+Command: <exact timing command, so a caller can run it again>
 Number: <before> -> <after> <unit>, median of <N> runs per side, range <lo> to <hi>
 Noise floor: <value>. Effect: <value>.
-Machine: load <uptime values>, <cores> cores
+Machine: <uptime line as printed, taken before the first timed run>, <cores> cores
 Work check: <outputs equal, error count>
 Limiter: <from the profile>
-Profiler: py-spy command: <py-spy command for this script>. Ran: <the command that ran>, <why>
+Profiler: <the command that ran>. <why py-spy or cProfile>
 End-to-end share: <share of the caller path> | function alone, no caller found
 Principles applied: explain-the-number -> <choice it changed>
 ```
