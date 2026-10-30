@@ -34,7 +34,7 @@ You own the run. The implementer writes the code of a phase.
 - **Touched tests per step.** The full suite runs once, at the end, before the merge point.
 - **Reach the assertion.** If the new test stops before its assertion, add the smallest stub (the name, or the new parameter). Run it again. Only then write the receipt.
 - **Use the sibling skills.** Each test-first step uses `tdd`. A failure with a cause that is not known uses `debug`.
-- **A gamed gate is a reset.** If an implementer weakens a test or skips a check, reset the branch to the base SHA. Make the brief stricter. Dispatch again.
+- **A gamed gate is a reset.** If an implementer weakens a test or skips a check, reset the branch to the base SHA. Make the brief stricter. Dispatch again. This counts as a fix round.
 - **A wrong gate gets its own change.** Fix the gate in a separate commit, with a Deviation row. Never go around it.
 - **Proceed on reversible work.** Only a merge or push to main/master, and a production write, need the user's OK.
 - **No dispatch tool.** Do each phase yourself. The brief is your instruction. Read each principle file that it names.
