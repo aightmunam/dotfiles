@@ -40,7 +40,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Delete code that you wrote before its test. | sp Iron Law. | D | Rules. Red flags. | Untested. |
 | Run only the touched tests per step. | spec 8.4 build (repo test card). Brief Global Constraints (touched tests per task). | P | Loop 4, Loop 5. | GREEN |
 | `build` runs tdd per slice. The approved plan confirms the seams and facts that it names. | spec 8.4 build ("Calls tdd"). AGENTS.md tie-break tdd / build. fcd roles with a fallback. | P | Roles. | Untested. No run came from `build`. |
-| Open each principle file first, in its own read, with the Read tool when it exists. | spec 8.7. Audit: GREEN-1 Claude skipped the files, GREEN-2 Claude read them in one Bash `cat` that the harness does not count. | P | Loop 2. Red flags. | GREEN-3: both runs read both files. |
+| Open each principle file first, in its own read. Controller ruling: the Read-tool clause was cut once pressure-run dece90d counted shell reads (review M7). | spec 8.7. Audit: GREEN-1 Claude skipped the files, GREEN-2 Claude read them in one Bash `cat` that the harness does not count. | P | Loop 2. Red flags. | GREEN-3: both runs read both files. |
 | `Principles applied:` line in both templates. | spec 8.7. | O | Question template. Report template. | GREEN |
 | Four repo lines, verbatim. | Brief Global Constraints. | D | Repo Rules. | Untested. The runs cannot write. |
 
