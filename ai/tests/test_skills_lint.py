@@ -1,7 +1,7 @@
 """Lint for new-form skills and new agents (stdlib only).
 
 Checks run on NEW_FORM (skill dirs with source-map.md or tenet-map.md, minus
-LEGACY) and on the NEW_AGENTS files that exist.
+KEPT) and on the NEW_AGENTS files that exist.
 """
 
 import re
@@ -20,8 +20,12 @@ STE_LINT = ROOT / "ai" / "vendor" / "ste-lint.py"
 
 EM_DASH = chr(0x2014)
 MAX_SKILL_LINES = 80
-# Excluded until P9 removes it.
-LEGACY = {"fact-constrained-debugging"}
+# Skills outside the house form.
+KEPT = {
+    "commit", "design-system", "explain_code", "be-ambitious",
+    # kept until the Eye moves (Task 7.2)
+    "review_pr", "review_api", "fact-constrained-debugging",
+}
 PLANNED = {
     "research", "brainstorm", "make-plan", "build", "tdd", "debug", "prove", "verifier",
     "performance", "pr", "unslop", "reply", "address", "new-skill", "handoff", "recall", "bro",
@@ -76,7 +80,7 @@ def new_form(skills_dir=SKILLS_DIR):
 
 
 NEW_FORM = new_form()
-SKILLS_UNDER_TEST = [n for n in NEW_FORM if n not in LEGACY]
+SKILLS_UNDER_TEST = [n for n in NEW_FORM if n not in KEPT]
 
 
 def frontmatter(text):
@@ -243,6 +247,15 @@ class SkillsLint(unittest.TestCase):
             with self.subTest(skill=name):
                 errors = check(SKILLS_DIR / name)
                 self.assertEqual(errors, [], "\n".join(errors))
+
+    def test_every_custom_skill_has_house_form(self):
+        for d in sorted(SKILLS_DIR.iterdir()):
+            if not d.is_dir() or d.name in KEPT:
+                continue
+            with self.subTest(skill=d.name):
+                self.assertIn(d.name, PLANNED, f"{d.name} is not a planned skill and not in KEPT")
+                self.assertTrue((d / "SKILL.md").is_file(), f"{d.name}: missing SKILL.md")
+                self.assertEqual(check_source_map(d), [])
 
     def test_name_matches_dir(self):
         self.each(lambda d: check_name(d / "SKILL.md", d.name))

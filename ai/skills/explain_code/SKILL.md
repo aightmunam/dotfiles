@@ -45,7 +45,7 @@ I'll provide a thorough explanation with diagrams.
 
 ### Step 2: Deep Analysis
 
-Spawn **3 parallel Task agents** using `codebase-analyzer`:
+Spawn **3 parallel Task agents** using the `explorer` agent:
 
 #### Agent 1: Structure Analysis
 ```

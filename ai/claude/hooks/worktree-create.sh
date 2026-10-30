@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
 # WorktreeCreate hook: put every Claude Code worktree (--worktree, EnterWorktree,
-# subagent isolation, background sessions) at ~/wt/<repo>/<name>, the same place
-# /create_worktree and /local_review use, instead of <repo>/.claude/worktrees/.
+# subagent isolation, background sessions) at ~/wt/<repo>/<name>, the worktree
+# rule in AGENTS.md, instead of <repo>/.claude/worktrees/.
 #
 # Contract: JSON on stdin ({cwd, name, ...}); print the absolute worktree path as
 # the LAST stdout line; everything else goes to stderr. A hook replaces native
@@ -53,7 +53,7 @@ if [ -f "$main/.worktreeinclude" ]; then
     done
 fi
 
-# Same convention as /create_worktree: share thoughts/ with the main checkout.
+# Same worktree rule: share thoughts/ with the main checkout.
 if [ -d "$main/thoughts" ] && [ ! -e "$dir/thoughts" ]; then
   ln -s "$main/thoughts" "$dir/thoughts"
 fi

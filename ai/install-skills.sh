@@ -29,17 +29,6 @@ SKILLS=(
   "ast-grep/agent-skill:ast-grep"          # official ast-grep structural search
   "vercel-labs/skills:find-skills"         # skills.sh discovery/installer
   "cocoindex-io/cocoindex-code:ccc"        # semantic codebase search (ccc CLI)
-  "kambleakash0/agent-skills:code-review"
-  "kambleakash0/agent-skills:deep-codebase-audit"
-  "kambleakash0/agent-skills:domain-glossary"
-  "kambleakash0/agent-skills:english-humanizer"
-  "kambleakash0/agent-skills:git-workflow"
-  "kambleakash0/agent-skills:grill-master"
-  "kambleakash0/agent-skills:incremental-tdd"
-  "kambleakash0/agent-skills:script-writer"
-  "kambleakash0/agent-skills:slice-the-spec"
-  "kambleakash0/agent-skills:spec-to-plan"
-  "kambleakash0/agent-skills:spec-writer"
 )
 
 echo "Installing ${#SKILLS[@]} agent skills into ~/.agents/skills"
