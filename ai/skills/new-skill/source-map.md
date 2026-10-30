@@ -23,7 +23,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 |---|---|---|---|---|
 | Guard first. If a lint, test, or script can enforce a rule, use only the guard. | elis (corollary). spec 8.4 new-skill entry. ws When to Create (mechanical constraints: automate it). | D | Definitions. Loop 1. Pointer. Red flags. | RED: both runs wrote the reminder as prose. |
 | No part needs judgment: write no skill. | elis. ws Don't create for. | P | Loop 1. Output Guard line. | GREEN |
-| Name: full words, kebab-case, no prefix. Check built-ins, bundled, installed, and plugin skills. Longer name on a collision. | spec 8.2. brief (naming collision check). review 6.5 M3 (headless built-in check). | P | Loop 2. HF Name check. Output Name check. | RED: neither run checked the name. GREEN 4: both checked, built-in check `unverified` headless. |
+| Name: full words, kebab-case, no prefix. Check built-ins, bundled, installed, and plugin skills. Longer name on a collision. | spec 8.2. brief (naming collision check). review 6.5 M3 (headless built-in check). | P | Loop 2. HF Name check. Output Name check. | RED: neither run checked the name. GREEN 4: both drafts wrote `Built-in check: unverified` (headless). |
 | A rule for one repo goes in that repo's AGENTS.md or a guard. | ws Don't create for (project-specific conventions). | P | HF Name check. | Untested. No run hit this branch. |
 | An existing skill covers the case: change that skill. | syn (existing-skill-first, already-covered). | P | Loop 2. | Untested. |
 | Read the primary sources in full and start from their mechanisms. | spec 8.2a. | P | Loop 3. HF Source rule. | Partial. Only Codex GREEN 3 read a source in full. |
