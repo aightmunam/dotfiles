@@ -226,9 +226,18 @@ class RoutingEvalTest(unittest.TestCase):
                     self.assertTrue((scratch / "AGENTS.md").is_file())
                 finally:
                     shutil.rmtree(scratch, ignore_errors=True)
+        with tempfile.TemporaryDirectory() as root:
+            live = self.re.prepare_scratch("claude", live=True, live_root=root)
+            self.assertEqual(live.parent, Path(root))
+            self.assertEqual(list(live.iterdir()), [])
+
+    def test_live_scratch_sits_in_a_trusted_folder(self):
+        """Claude skips the user CLAUDE.md @AGENTS.md import in an untrusted folder,
+        so a live run in the system temp dir never sees the router."""
         live = self.re.prepare_scratch("claude", live=True)
         try:
-            self.assertEqual(list(live.iterdir()), [])
+            self.assertEqual(live.parent, self.re.LIVE_ROOT)
+            self.assertFalse(str(live).startswith(tempfile.gettempdir()))
         finally:
             live.rmdir()
 

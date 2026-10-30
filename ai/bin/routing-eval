@@ -46,6 +46,10 @@ ROOT = Path(__file__).resolve().parents[2]
 TSV = ROOT / "ai" / "tests" / "routing" / "prompts.tsv"
 DEFAULT_OUT = Path.home() / "dotfiles" / "thoughts" / "shared" / "research" / "routing-eval"
 USER_SKILLS = Path.home() / ".agents" / "skills"
+# Live runs start here, not in the system temp dir. Claude skips the user
+# CLAUDE.md @AGENTS.md import in an untrusted folder, so the router would be absent.
+# ~/Developer is trusted and holds no CLAUDE.md, AGENTS.md or project settings.
+LIVE_ROOT = Path.home() / "Developer"
 DEFAULT_BUDGET = 0.30
 RUN_TIMEOUT = 300
 TOOLS = ("claude", "codex")
@@ -167,10 +171,10 @@ def third_party_skills(user_dir=None, exclude=()):
             if not e.name.startswith(".") and e.name not in exclude and (e / "SKILL.md").is_file()]
 
 
-def prepare_scratch(tool, live, user_dir=None):
-    scratch = Path(tempfile.mkdtemp(prefix=f"routing-{tool}-"))
+def prepare_scratch(tool, live, user_dir=None, live_root=None):
     if live:
-        return scratch
+        return Path(tempfile.mkdtemp(prefix=f".routing-{tool}-", dir=live_root or LIVE_ROOT))
+    scratch = Path(tempfile.mkdtemp(prefix=f"routing-{tool}-"))
     # The router is present in every run, as in pressure-run.
     shutil.copyfile(ROOT / "ai" / "AGENTS.md", scratch / "AGENTS.md")
     (scratch / "CLAUDE.md").write_text("@AGENTS.md\n", encoding="utf-8")
