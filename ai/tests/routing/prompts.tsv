@@ -1,0 +1,72 @@
+id	expected	pair	prompt
+skill-research	research		Study how the retry logic in our billing service works before I change it. Write what you find to thoughts, no recommendations.
+skill-brainstorm	brainstorm		I have a vague idea for letting customers reschedule installs themselves. Help me turn it into a design.
+skill-make-plan	make-plan		The spec for the invoice export is approved. Turn it into ordered, checkable tasks.
+skill-build	build		The plan in thoughts/shared/plans/2026-10-30-export.md is ready. Execute it.
+skill-tdd	tdd		Fix the off-by-one in paginate(). Write the failing test first. There is no plan, it is one small change.
+skill-debug	debug		The nightly sync job crashes with a KeyError and I do not know why. Find the cause.
+skill-prove	prove		My change to the quote rounding is done. Show with real runs that it works before I open a PR.
+skill-verifier	verifier		This repo has no verify skill of its own. Create one for it.
+skill-performance	performance		I think my new query cache made the dashboard faster. Measure whether that is true.
+skill-pr	pr		My branch is ready. Open the PR with a proper description.
+skill-reply	reply		Write the text of a reply to this review comment: "Why not use a dict here?" No code change is needed.
+skill-address	address		The reviewer asked me to rename the helper and add a null check on my PR. Work through the comments.
+skill-new-skill	new-skill		Create a new skill called changelog-writer for our release notes.
+skill-staging	staging		Deploy my branch to staging and check it works.
+skill-data-op	data-op		Backfill a column on prod for 3k rows.
+skill-data-op-2	data-op		Delete duplicate plan rows in orders-service prod.
+skill-review-pr	review-pr		Review my colleague's PR 482 on the planning service. Read-only, do not post anything.
+skill-handoff	handoff		I am done for today. Write the state down so the next session can continue.
+skill-recall	recall		I am starting work. Catch me up on what happened across my sessions and repos.
+skill-bro	bro		I did not follow your last message. Say it again in plain words.
+skill-ketchup	ketchup		I stepped away. What changed in this chat since my last message, and what is waiting on me?
+skill-reflect	reflect		Turn the lessons from this session into edits to our skills or AGENTS.md.
+skill-correct	correct		Agents keep forgetting to pass the tenant id in this repo. Add a guard in the repo code so it cannot repeat.
+skill-automate-me	automate-me		Capture how I like to work: terse answers, tests first, no summaries. Save it as my working style.
+skill-fix-merge-conflicts	fix-merge-conflicts		My rebase stopped with conflicts in two files. Sort them out.
+skill-what-did-i-get-done	what-did-i-get-done		What did I get done yesterday? I need it for standup.
+skill-unslop	unslop		Here is my finished PR description. Clean the AI tells out of it: "This PR seamlessly delivers a robust, comprehensive fix."
+pair-reply_address-reply	reply	reply/address	Draft my answer to the reviewer who asked why I named it retry_count. Text only, I keep the name.
+pair-reply_address-address	address	reply/address	The reviewer wants the loop moved into a helper and a test added. Make the changes on my PR and answer each comment.
+pair-debug_prove-debug	debug	debug/prove	The export returns an empty file for some users and I have no idea why. Find out.
+pair-debug_prove-prove	prove	debug/prove	I finished the export fix. Run it and show evidence that it works before I hand it over.
+pair-pr_review-pr-pr	pr	pr/review-pr	I pushed my branch feat/export-csv. Create the pull request for it.
+pair-pr_review-pr-review-pr	review-pr	pr/review-pr	Look at Anna's open PR on the fulfillment service and tell me what you find. Do not touch her branch.
+pair-recall_ketchup_handoff-recall	recall	recall/ketchup/handoff	Where did I leave off last week? Pull it together across my repos and sessions.
+pair-recall_ketchup_handoff-ketchup	ketchup	recall/ketchup/handoff	Catch me up on what you did in this chat while I was in a meeting.
+pair-recall_ketchup_handoff-handoff	handoff	recall/ketchup/handoff	Write a note for the next session that picks this work up tomorrow.
+pair-reflect_correct_automate-me_new-skill-reflect	reflect	reflect/correct/automate-me/new-skill	Look back at this session and put what we learned into our skills and AGENTS.md.
+pair-reflect_correct_automate-me_new-skill-correct	correct	reflect/correct/automate-me/new-skill	The same mistake keeps happening in this repo: agents run migrations on the wrong database. Guard against it in the repo's own code.
+pair-reflect_correct_automate-me_new-skill-automate-me	automate-me	reflect/correct/automate-me/new-skill	Write down my personal working style so every agent follows it: short replies, no emojis, ask nothing reversible.
+pair-reflect_correct_automate-me_new-skill-new-skill	new-skill	reflect/correct/automate-me/new-skill	Write a skill named release-notes that drafts our changelog, and add it to the repo.
+pair-tdd_build-tdd	tdd	tdd/build	Add a validator for IBAN fields. Test first, one change, no plan file.
+pair-tdd_build-build	build	tdd/build	We have an approved plan with six tasks in thoughts/shared/plans/. Implement it task by task.
+pair-research_explain_code-research	research	research/explain_code	Before I touch the scheduler, research how it works and write the study to thoughts. No advice.
+pair-research_explain_code-explain_code	explain_code	research/explain_code	Explain to me in chat how this decorator in utils/retry.py works.
+pair-bro_ketchup-bro	bro	bro/ketchup	Your last answer was too dense. Restate that one message simply.
+pair-bro_ketchup-ketchup	ketchup	bro/ketchup	You ran many steps while I was away. Summarize everything that changed and what needs me.
+pair-bro_unslop-bro	bro	bro/unslop	What did you just say? Put your last message in plain words.
+pair-bro_unslop-unslop	unslop	bro/unslop	Take this Slack message I wrote and remove the AI tone from it: "I am thrilled to delve into this pivotal update."
+pair-recall_what-did-i-get-done-recall	recall	recall/what-did-i-get-done	I want to keep working on the billing task. Catch me up on where it stands.
+pair-recall_what-did-i-get-done-what-did-i-get-done	what-did-i-get-done	recall/what-did-i-get-done	Summarize my finished work from the last two days for the standup.
+pair-prove_verifier_performance-prove	prove	prove/verifier/performance	I changed the address parser. Check that it works with real runs before I open the PR.
+pair-prove_verifier_performance-verifier	verifier	prove/verifier/performance	Build a verify skill for this repo so agents know how to check their own changes here.
+pair-prove_verifier_performance-performance	performance	prove/verifier/performance	The report page feels slower since my change. Measure the regression and explain the number.
+pair-pr_unslop-pr	pr	pr/unslop	Write the body of the PR for my branch.
+pair-pr_unslop-unslop	unslop	pr/unslop	I wrote this commit message already. Strip the AI patterns from it: "This commit leverages a holistic approach to streamline things."
+pair-pr_address-pr	pr	pr/address	Only the PR description needs an update with the new test results. No code changes.
+pair-pr_address-address	address	pr/address	Reviewers asked for two code changes on my PR. Make them and reply.
+pair-staging_prove-staging	staging	staging/prove	Ship this branch to the staging environment and verify it there.
+pair-staging_prove-prove	prove	staging/prove	Prove my change works before I open the PR.
+pair-staging_data-op-staging	staging	staging/data-op	Put my feature branch on staging and make sure the deploy is healthy.
+pair-staging_data-op-data-op	data-op	staging/data-op	Backfill eta_date on the staging DB.
+pair-unslop_writing-standard-unslop	unslop	unslop/writing-standard	This email draft is finished. Run a pass to clean the AI tells out of it: "I hope this message finds you well. Let us leverage synergies."
+pair-unslop_writing-standard-writing-standard	none	unslop/writing-standard	Write two sentences for the README that say what this tool does.
+distract-explain_code	explain_code		Walk me through what this class does. Explain it here in chat.
+distract-commit	commit		Commit these changes with a good message, I approve.
+distract-be-ambitious	be-ambitious		Be more ambitious with this prompt, raise the bar.
+distract-asd-ste100	asd-ste100		Rewrite this error message in Simplified Technical English.
+distract-design-system	design-system		Style the settings page of my work dashboard with my design system.
+distract-find-skills	find-skills		Is there an installable skill that can lint YAML?
+none-1	none		What is the capital of Portugal?
+none-2	none		Convert 3.5 miles to kilometers.

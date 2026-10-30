@@ -1,0 +1,263 @@
+#!/usr/bin/env python3
+"""routing-eval: check that the right skill loads for a prompt, under Claude and Codex.
+
+Usage: routing-eval [--tool claude|codex|both] [--id ID] [--skill NAME]
+       [--pair NAME] [--dry-run] [--live] [--budget USD] [--out DIR] [--jobs N]
+
+Reads ai/tests/routing/prompts.tsv (columns id, expected, pair, prompt). Each
+prompt runs read-only in a scratch working directory. Default mode exposes
+every directory of ai/skills there (Claude <scratch>/.claude/skills/<name>,
+Codex <scratch>/.agents/skills/<name>), as pressure-run does for one skill.
+--live links nothing: the CLIs use the installed user-level skills.
+The runner stops each process at the first skill load or the end of the first
+turn. "got" is the skill that loaded first, or "none".
+Results: DIR/<YYYY-MM-DD>-<tool>.tsv (id, expected, got, pass) and
+DIR/raw/<id>-<tool>.jsonl. Default DIR is
+~/dotfiles/thoughts/shared/research/routing-eval.
+Threshold, per tool: every row with a pair passes, and at most 1 miss in total.
+Exit 0 threshold met, 1 not met, 2 setup error.
+"""
+
+import argparse
+import csv
+import datetime
+import importlib.machinery
+import importlib.util
+import json
+import shlex
+import shutil
+import subprocess
+import sys
+import tempfile
+import threading
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+TSV = ROOT / "ai" / "tests" / "routing" / "prompts.tsv"
+DEFAULT_OUT = Path.home() / "dotfiles" / "thoughts" / "shared" / "research" / "routing-eval"
+DEFAULT_BUDGET = 0.30
+RUN_TIMEOUT = 300
+TOOLS = ("claude", "codex")
+MAX_MISSES = 1
+
+
+class SetupError(Exception):
+    pass
+
+
+def _load_pressure_run():
+    path = ROOT / "ai" / "bin" / "pressure-run"
+    loader = importlib.machinery.SourceFileLoader("pressure_run", str(path))
+    spec = importlib.util.spec_from_loader("pressure_run", loader)
+    module = importlib.util.module_from_spec(spec)
+    loader.exec_module(module)
+    return module
+
+
+PR = _load_pressure_run()
+
+
+def load_rows(path=TSV):
+    with open(path, encoding="utf-8", newline="") as handle:
+        return [dict(row) for row in csv.DictReader(handle, delimiter="\t")]
+
+
+def select(rows, id=None, skill=None, pair=None):
+    out = []
+    for row in rows:
+        if id and row["id"] != id:
+            continue
+        if skill and row["expected"] != skill:
+            continue
+        if pair and row["pair"] != pair:
+            continue
+        out.append(row)
+    return out
+
+
+def first_loaded(events, tool):
+    """Return the skill that loaded first, or None. Claude order is the stream order."""
+    loaded = PR.skill_loaded(events, tool)
+    if not loaded:
+        return None
+    if tool == "claude":
+        for use in PR._claude_tool_uses(events):
+            name = (use.get("input") or {}).get("skill")
+            if use.get("name") == "Skill" and name in loaded:
+                return name
+    return sorted(loaded)[0]
+
+
+def got_skill(events, tool, expected):
+    """Return the skill name to record: the expected one when it is among those loaded."""
+    loaded = PR.skill_loaded(events, tool)
+    if expected in loaded:
+        return expected
+    return first_loaded(events, tool) or "none"
+
+
+def turn_ended(event, tool):
+    if tool == "claude":
+        return event.get("type") == "result"
+    return event.get("type") in ("turn.completed", "turn.failed", "error")
+
+
+def threshold(results):
+    """Return (ok, reasons) for one tool. results: dicts with pair, pass."""
+    reasons = []
+    misses = [r for r in results if not r["pass"]]
+    for r in misses:
+        if r.get("pair"):
+            reasons.append(f"pair row missed: {r['id']} (expected {r['expected']}, got {r['got']})")
+    if len(misses) > MAX_MISSES:
+        reasons.append(f"{len(misses)} misses, at most {MAX_MISSES} allowed")
+    return (not reasons, reasons)
+
+
+def prepare_scratch(tool, live):
+    scratch = Path(tempfile.mkdtemp(prefix=f"routing-{tool}-"))
+    if live:
+        return scratch
+    # The router is present in every run, as in pressure-run.
+    shutil.copyfile(ROOT / "ai" / "AGENTS.md", scratch / "AGENTS.md")
+    (scratch / "CLAUDE.md").write_text("@AGENTS.md\n", encoding="utf-8")
+    base = ".claude" if tool == "claude" else ".agents"
+    target = scratch / base / "skills"
+    target.mkdir(parents=True)
+    for skill in sorted(PR.SKILLS_DIR.iterdir()):
+        if skill.is_dir():
+            (target / skill.name).symlink_to(skill)
+    return scratch
+
+
+def build_command(tool, prompt, cwd, budget, live):
+    return PR.build_command(tool, prompt, cwd, False, budget, "user,project" if live else "project")
+
+
+def run_row(tool, row, args):
+    """Run one prompt. Return (events, raw_text). Stops at the first skill load or turn end."""
+    if shutil.which(tool) is None:
+        raise SetupError(f"{tool} not found on PATH")
+    scratch = prepare_scratch(tool, args.live)
+    cmd = build_command(tool, row["prompt"], scratch, args.budget, args.live)
+    lines, events = [], []
+    proc = subprocess.Popen(cmd, cwd=scratch, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE, text=True)
+    timer = threading.Timer(RUN_TIMEOUT, proc.kill)
+    timer.start()
+    detected = False
+    try:
+        for line in proc.stdout:
+            lines.append(line)
+            try:
+                event = json.loads(line)
+            except ValueError:
+                continue
+            if not isinstance(event, dict):
+                continue
+            events.append(event)
+            if PR.skill_loaded(events, tool):
+                detected = True
+                break
+            if turn_ended(event, tool):
+                break
+    finally:
+        timer.cancel()
+        if proc.poll() is None:
+            proc.kill()
+        stderr = proc.stderr.read() if proc.stderr else ""
+        proc.wait()
+        shutil.rmtree(scratch, ignore_errors=True)
+    raw = "".join(lines)
+    if not detected:
+        cause = PR.run_error(events, tool)
+        if cause:
+            raise SetupError(f"{row['id']} {tool}: {cause} {stderr.strip()[-200:]}")
+    return events, raw
+
+
+def write_results(out, tool, results, date):
+    out.mkdir(parents=True, exist_ok=True)
+    with open(out / f"{date}-{tool}.tsv", "w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+        writer.writerow(["id", "expected", "got", "pass"])
+        for r in results:
+            writer.writerow([r["id"], r["expected"], r["got"], "yes" if r["pass"] else "no"])
+
+
+def parse_args(argv):
+    p = argparse.ArgumentParser(prog="routing-eval", description=__doc__.split("\n\n")[0])
+    p.add_argument("--tool", choices=["claude", "codex", "both"], default="both")
+    p.add_argument("--id", help="run one row by id")
+    p.add_argument("--skill", help="run the rows whose expected skill is NAME")
+    p.add_argument("--pair", help="run the rows of one tie-break set, e.g. staging/data-op")
+    p.add_argument("--dry-run", action="store_true", help="print the commands and exit")
+    p.add_argument("--live", action="store_true", help="no scratch links; use the installed user-level skills")
+    p.add_argument("--budget", type=float, default=DEFAULT_BUDGET, help="Claude --max-budget-usd per prompt")
+    p.add_argument("--out", default=str(DEFAULT_OUT), help="results directory")
+    p.add_argument("--jobs", type=int, default=4, help="prompts run at the same time")
+    return p.parse_args(argv)
+
+
+def main(argv=None):
+    args = parse_args(sys.argv[1:] if argv is None else argv)
+    try:
+        rows = select(load_rows(), args.id, args.skill, args.pair)
+        if not rows:
+            raise SetupError("no row matches the filters")
+        tools = TOOLS if args.tool == "both" else (args.tool,)
+        if args.dry_run:
+            for row in rows:
+                for tool in tools:
+                    cmd = build_command(tool, row["prompt"], f"<scratch>/{tool}", args.budget, args.live)
+                    print(f"{row['id']} {tool} expected={row['expected']}: {shlex.join(cmd)}")
+            return 0
+
+        out = Path(args.out)
+        date = datetime.date.today().isoformat()
+        (out / "raw").mkdir(parents=True, exist_ok=True)
+
+        def work(tool, row):
+            events, raw = run_row(tool, row, args)
+            (out / "raw" / f"{row['id']}-{tool}.jsonl").write_text(raw, encoding="utf-8")
+            got = got_skill(events, tool, row["expected"])
+            ok = got == row["expected"]
+            return {"id": row["id"], "expected": row["expected"], "pair": row["pair"],
+                    "got": got, "pass": ok}
+
+        with ThreadPoolExecutor(max_workers=max(1, args.jobs)) as pool:
+            futures = {tool: [pool.submit(work, tool, row) for row in rows] for tool in tools}
+        status = 0
+        for tool in tools:
+            results, errors = [], []
+            for future in futures[tool]:
+                try:
+                    results.append(future.result())
+                except SetupError as exc:
+                    errors.append(str(exc))
+            if results:
+                write_results(out, tool, results, date)
+            for message in errors:
+                print(f"routing-eval: {message}", file=sys.stderr)
+            if errors:
+                status = 2
+                continue
+            ok, reasons = threshold(results)
+            passed = sum(1 for r in results if r["pass"])
+            print(f"{tool}: {'PASS' if ok else 'FAIL'} ({passed}/{len(results)})")
+            for r in results:
+                if not r["pass"]:
+                    print(f"  miss {r['id']}: expected {r['expected']}, got {r['got']}")
+            for reason in reasons:
+                print(f"  - {reason}")
+            if not ok and status == 0:
+                status = 1
+        return status
+    except SetupError as exc:
+        print(f"routing-eval: {exc}", file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())
