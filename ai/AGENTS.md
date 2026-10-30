@@ -124,7 +124,6 @@ Not these. Use the kept skill and not a rework skill:
 |---|---|
 | Explain code in chat | `explain_code` |
 | Make a git commit with no Claude attribution | `commit` |
-| Raise the bar of a task or prompt | `be-ambitious` |
 | Rewrite text in STE | `asd-ste100` |
 | UI work in personal apps | `design-system` |
 | Find an installable skill | `find-skills` |

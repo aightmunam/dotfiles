@@ -66,7 +66,6 @@ pair-unslop_writing-standard-unslop	unslop	unslop/writing-standard	This email dr
 pair-unslop_writing-standard-writing-standard	none	unslop/writing-standard	Write two sentences for the README that say what this tool does.
 distract-explain_code	explain_code		Explain in chat, with a diagram, how the cache layer in this codebase works.
 distract-commit	commit		Commit these changes with a good message, I approve.
-distract-be-ambitious	be-ambitious		Be more ambitious with this prompt, raise the bar.
 distract-asd-ste100	asd-ste100		Rewrite this error message in Simplified Technical English.
 distract-design-system	design-system		Style the settings page of my work dashboard with my design system.
 distract-find-skills	find-skills		Is there an installable skill that can lint YAML?
