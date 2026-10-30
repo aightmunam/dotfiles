@@ -277,8 +277,6 @@ class SkillsLint(unittest.TestCase):
         errors = check_pointers(paths)
         self.assertEqual(errors, [], "\n".join(errors))
 
-    # Task 3.3 adds the ## Principles index to ai/AGENTS.md.
-    @unittest.expectedFailure
     def test_principles_index_matches_files(self):
         self.assertTrue(principle_names(), "no principle files")
         errors = check_index(AGENTS_MD)
@@ -305,8 +303,6 @@ class SkillsLint(unittest.TestCase):
         errors += check_plugin_refs(agent_files(), STRICT_MARKERS)
         self.assertEqual(errors, [], "\n".join(errors))
 
-    # Task 3.3 removes the superpowers name from ai/AGENTS.md.
-    @unittest.expectedFailure
     def test_no_plugin_references_in_agents_md(self):
         errors = check_plugin_refs([AGENTS_MD], STRICT_MARKERS)
         self.assertEqual(errors, [], "\n".join(errors))
