@@ -322,13 +322,24 @@ class PressureRunTest(unittest.TestCase):
         no_result = [e for e in events if e["type"] != "user"]
         self.assertEqual(self.pr.check("claude", no_result, None, [], [self.PROOF]),
                          [f"expected command not run: {self.PROOF}"])
-        # An error result still counts: the proof exits 1 by design.
+        # A non-zero exit still counts: the proof exits 1 by design.
         failed = json.loads(json.dumps(events))
         failed[1]["message"]["content"][0]["is_error"] = True
+        failed[1]["message"]["content"][0]["content"] = "Exit code 1\nDTZ005 found"
         self.assertEqual(self.pr.check("claude", failed, None, [], [self.PROOF]), [])
         # The command only in the answer text does not count.
         text = [claude_text("I ran git show 7f387a1^:app/routers/invoices.py | ruff check -")]
         self.assertEqual(len(self.pr.check("claude", text, None, [], [self.PROOF])), 1)
+
+    def test_expect_command_claude_denied_does_not_count(self):
+        events = fixture("claude_expect_command.jsonl")
+        for text in ["Claude requested permissions to use Bash, but you haven't granted it yet.",
+                     [{"type": "text", "text": "This command requires approval"}]]:
+            denied = json.loads(json.dumps(events))
+            denied[1]["message"]["content"][0]["is_error"] = True
+            denied[1]["message"]["content"][0]["content"] = text
+            self.assertEqual(self.pr.check("claude", denied, None, [], [self.PROOF]),
+                             [f"expected command not run: {self.PROOF}"])
 
     def test_expect_command_codex(self):
         claim = fixture("codex_expect_command.jsonl")
@@ -381,6 +392,78 @@ class PressureRunTest(unittest.TestCase):
         self.assertIn("claude: PASS", out.getvalue())
         self.assertIn("codex: SETUP ERROR codex not found on PATH", out.getvalue())
         self.assertIn("codex not found on PATH", err.getvalue())
+
+    def test_other_exception_keeps_other_line(self):
+        import contextlib, io
+        from unittest import mock
+        ok = fixture("claude_skill_tool.jsonl") + [claude_text("done")]
+
+        def fake_run(tool, prompt, args):
+            if tool == "codex":
+                raise OSError("disk full")
+            return ok
+
+        with tempfile.TemporaryDirectory() as tmp:
+            scenario = Path(tmp) / "s.md"
+            scenario.write_text("x")
+            out, err = io.StringIO(), io.StringIO()
+            with mock.patch.object(self.pr, "run_tool", fake_run), \
+                    contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                code = self.pr.main(["--scenario", str(scenario), "--tool", "both",
+                                     "--out", str(Path(tmp) / "o")])
+        self.assertEqual(code, 2)
+        self.assertIn("claude: PASS", out.getvalue())
+        self.assertIn("codex: SETUP ERROR", out.getvalue())
+        self.assertIn("disk full", out.getvalue())
+
+    def _child_is_gone(self, pid):
+        import os, time
+        for _ in range(30):
+            try:
+                os.kill(pid, 0)
+            except ProcessLookupError:
+                return True
+            time.sleep(0.1)
+        return False
+
+    def test_normal_exit_kills_child_processes(self):
+        import contextlib, io, os, textwrap
+        from unittest import mock
+        fake = textwrap.dedent(f"""\
+            #!{sys.executable}
+            import subprocess, sys
+            child = subprocess.Popen(["sleep", "60"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            open(sys.argv[0] + ".pid", "w").write(str(child.pid))
+            print('{{"type": "result", "subtype": "success"}}', flush=True)
+        """)
+        with tempfile.TemporaryDirectory() as tmp:
+            exe = Path(tmp) / "claude"
+            exe.write_text(fake)
+            exe.chmod(0o755)
+            scenario = Path(tmp) / "s.md"
+            scenario.write_text("x")
+            out = Path(tmp) / "o"
+            with mock.patch.dict(os.environ, {"PATH": tmp + os.pathsep + os.environ["PATH"]}), \
+                    mock.patch.object(self.pr, "build_command", lambda *a, **k: [str(exe)]), \
+                    contextlib.redirect_stderr(io.StringIO()), contextlib.redirect_stdout(io.StringIO()):
+                code = self.pr.main(["--scenario", str(scenario), "--tool", "claude", "--red", "--out", str(out)])
+            self.assertEqual(code, 0)
+            pid = int((Path(tmp) / "claude.pid").read_text())
+            self.assertTrue(self._child_is_gone(pid), f"child {pid} survived a normal exit")
+
+    def test_kill_group_skips_own_group_and_reaped_leader(self):
+        import os
+        from unittest import mock
+        own = mock.Mock(pid=os.getpgrp(), returncode=None)
+        with mock.patch.object(self.pr.os, "killpg") as killpg:
+            self.pr.kill_group(own)
+            killpg.assert_not_called()
+        # A reaped leader gets one TERM for the rest of its group, and no KILL.
+        done = subprocess.Popen(["true"], start_new_session=True)
+        done.wait()
+        with mock.patch.object(self.pr.os, "killpg") as killpg:
+            self.pr.kill_group(done)
+            killpg.assert_called_once_with(done.pid, self.pr.signal.SIGTERM)
 
     def test_timeout_kills_child_processes(self):
         import contextlib, io, os, textwrap, time

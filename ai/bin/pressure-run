@@ -178,7 +178,12 @@ def _codex_reads(events):
 
 
 def _claude_result_ids(events):
-    """Return the tool_use ids that have a tool_result (error or not)."""
+    """Return the tool_use ids whose command ran.
+
+    A result without is_error ran. A result with is_error ran only when its
+    text starts with "Exit code " (a real non-zero exit). A permission denial
+    or other error before the command started does not count.
+    """
     ids = set()
     for event in events:
         if event.get("type") != "user":
@@ -187,15 +192,17 @@ def _claude_result_ids(events):
         if not isinstance(content, list):
             continue
         for item in content:
-            if isinstance(item, dict) and item.get("type") == "tool_result":
+            if isinstance(item, dict) and item.get("type") == "tool_result" and not item.get("is_error"):
                 ids.add(item.get("tool_use_id"))
+    ids.update(i for i, text in _claude_error_ids(events).items() if text.startswith("Exit code "))
     return ids
 
 
 def commands_run(events, tool):
     """Return the shell commands that ran, with any exit code.
 
-    Claude: the command of each Bash tool_use that has a tool_result.
+    Claude: the command of each Bash tool_use whose result shows it ran
+    (no error, or an error that starts with "Exit code ").
     Codex: the command of each completed command_execution with an exit code.
     A command in answer text, a call with no result, or a started item does not count.
     """
@@ -406,13 +413,21 @@ def red_note(skill, home=None):
 
 
 def kill_group(proc):
-    """TERM the process group, wait 5 s for the leader, then KILL the group."""
+    """TERM the process group. KILL it only when the leader is still alive after 5 s.
+
+    Never signal our own group. After the leader is reaped, do not send a
+    second signal: its pid can go to an unrelated process.
+    """
+    if proc.pid == os.getpgrp():
+        return
     try:
         os.killpg(proc.pid, signal.SIGTERM)
     except (ProcessLookupError, PermissionError):
-        pass
+        proc.wait()
+        return
     try:
         proc.wait(timeout=5)
+        return
     except subprocess.TimeoutExpired:
         pass
     try:
@@ -429,23 +444,26 @@ def run_tool(tool, prompt, args):
     cmd = build_command(tool, prompt, scratch, args.write, args.budget, args.setting_sources)
     out = Path(args.out)
     proc = None
+    killed = False
     try:
         # Own session: a timeout or exit kills the whole group, so no child
         # (shell command, node worker) lives on as an orphan.
-        proc = subprocess.Popen(cmd, cwd=scratch, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE, text=True, start_new_session=True)
+        try:
+            proc = subprocess.Popen(cmd, cwd=scratch, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE, text=True, start_new_session=True)
+        except OSError as exc:
+            raise SetupError(f"{tool} did not start: {exc}") from exc
         try:
             stdout, stderr = proc.communicate(timeout=RUN_TIMEOUT)
         except subprocess.TimeoutExpired:
             kill_group(proc)
+            killed = True
             stdout, _ = proc.communicate()
             (out / f"{tool}.jsonl").write_text(stdout or "", encoding="utf-8")
             raise SetupError(f"{tool} run timed out after {RUN_TIMEOUT}s")
         returncode = proc.returncode
-    except OSError as exc:
-        raise SetupError(f"{tool} did not start: {exc}") from exc
     finally:
-        if proc is not None:
+        if proc is not None and not killed:
             kill_group(proc)
         shutil.rmtree(scratch, ignore_errors=True)
     (out / f"{tool}.jsonl").write_text(stdout, encoding="utf-8")
@@ -521,8 +539,10 @@ def main(argv=None):
         for tool, future in futures:
             try:
                 events = future.result()
-            except SetupError as exc:
+            except Exception as exc:  # noqa: BLE001
                 # Keep the loop: the other tool's line still prints.
+                if not isinstance(exc, SetupError):
+                    exc = f"{type(exc).__name__}: {exc}"
                 status = 2
                 print(f"{tool}: SETUP ERROR {exc}")
                 print(f"pressure-run: {exc}", file=sys.stderr)
