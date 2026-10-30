@@ -36,7 +36,6 @@ description: Use when the user says bro, or asks you to say the last message aga
 
 ```
 <the plain restatement>
-Principles applied: none
 ```
 
 ## Roles
