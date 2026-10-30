@@ -191,7 +191,7 @@ if hash direnv &>/dev/null; then
 fi
 
 # bun completions
-[ -s "/Users/munammubashir/.bun/_bun" ] && source "/Users/munammubashir/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # Syntax highlighting wraps every ZLE widget defined before it, so it loads last.
 [[ -r $ZSH_PLUGINS/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh ]] && source $ZSH_PLUGINS/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh

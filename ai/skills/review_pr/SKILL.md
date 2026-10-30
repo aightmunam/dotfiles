@@ -43,6 +43,17 @@ I will:
 
 ## Process Steps
 
+**Progress reporting**: if a `report_progress` tool is available (you are running inside The Eye), call it at the start of each step below with `step` = the step number, `total` = 7, and `label` = the step's short name:
+1. PR info
+2. Environment
+3. Walkthrough
+4. Code review
+5. Automated checks
+6. Write-up
+7. Sync
+
+If the tool is not available, skip this. Step 8 (follow-up questions) is not reported.
+
 ### Step 1: Get PR Information
 
 1. **For PR number or URL, fetch details**:
