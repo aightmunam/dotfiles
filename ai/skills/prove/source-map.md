@@ -21,13 +21,15 @@
 - **piw:** `ai/principles/prove-it-works.md`.
 - **mp:** `ai/skills/make-plan/` (test card path, plan `status` values, main-checkout rule).
 - **ctl:** controller rulings in `parallel-dispatch.md` (one question per message with a recommended answer, never-block-on-the-human, principle pointer form, four repo lines).
+- **fr1:** controller rulings for fix round 1 of task 5.1. C1: the change is the diff from the merge-base. I1: `add -N` in the worktree. I2: no pipe in a cell. M4: the Deviation row of `build`.
+- **bld:** `ai/skills/build/SKILL.md` Definitions (Deviation row: append-only, the evidence is a pointer).
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output. "Loop N" is a step in SKILL.md. "T" is `review-template.md`. "R" is `roles.md`.
 
 | Rule | Source | Form | Where enforced | Scenario |
 |---|---|---|---|---|
-| Work on the uncommitted diff. Record `base_sha`, `head_sha`, and `diff_hash` (`git diff \| shasum`). | spec 10. brief. sw Phase A step 4 (record SHAs). | P | Definitions. Loop 1. T frontmatter. Reply template. | RED: neither doc had a diff hash or the frontmatter keys. |
-| `git add -N` each new file, so that the diff and the adversary patch hold it. | spec 10 (worktree at HEAD with the diff applied). | P | Loop 1. | Untested. The scenario adds no file. |
+| The change is `git diff <base_sha>`, with `base_sha` the merge-base of the plan `base` and HEAD. It holds the committed phases and the uncommitted edits. Record `base_sha`, `head_sha`, and `diff_hash`. | spec 10. fr1 C1 (build commits each phase). brief. sw Phase A step 4 (record SHAs). | P | Definitions. Loop 1. T frontmatter. Reply template. | RED: neither doc had a diff hash or the frontmatter keys. GREEN-2: both used the merge-base `5e853ae` and `diff_hash` 413eb95e (committed phase plus edit), not the working-tree hash c3700d22. |
+| `git add -N` each new file, so that the diff and the adversary patch hold it. In the adversary worktree, `git add -N .` after the apply. | spec 10 (worktree with the diff applied). fr1 I1. | P | Loop 1. R Set up. | Untested. The scenarios add no file. The reviewer reproduced the worktree hash mismatch and the `add -N .` fix by hand. |
 | Read the plan, the task, the diff, and the test card. A missing card: take the commands from the repo config and say so. | spec 8.4 (consumes the plan, the diff, the test card). mp Loop 2. | P | Loop 1. | GREEN |
 | State the intent in one sentence. A finding must break the intent. | int Frame and Verify. | P | Loop 1, Loop 5. T Summary. | GREEN |
 | Ladder of five steps. Each finding carries its step. | br How sure are you. spec 8.4, spec 10 (italic summary line). | O | Definitions. T finding summary. | RED: no run gave a ladder step. |
@@ -37,18 +39,20 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Read the exit code. `\| tail`, `; true`, `\|\| true` hide it. | piw ("Output cut by \| tail -1 ... prove nothing"). brief Review Focus 1. | D | Rules. | GREEN |
 | Run the repo `verify` skill when it exists: Launch, Doctor, Drive, Evidence, Cleanup. | spec 8.4. cvs section 2. ver. | P | Loop 3. | Untested. The scratch repo has no `verify` skill. |
 | A speed claim goes to `performance`. The prompt opens with "The prove skill dispatched you". Copy its five labels. With no dispatch, do the skill yourself. | spec 8.4. bc (owned by perf). perf Loop 7. | P | Loop 3. | Untested. The scenario has no speed claim. |
-| Two blind adversaries, one Claude and one Codex, each in `~/wt/<repo>/prove-<n>` at HEAD with the diff applied. They get the diff, the plan, the task, and not the session reasoning. | spec 8.4, spec 8.5, spec 10. brief. int Fan out. | P | Loop 4. R. | Untested. The headless runs cannot make a worktree. |
+| Two blind adversaries, one Claude and one Codex, each in `~/wt/<repo>/prove-<n>` at `base_sha` with the change applied. They get the diff, the plan, the task, and not the session reasoning. | spec 8.4, spec 8.5, spec 10. brief. int Fan out. | P | Loop 4. R. | Untested. The headless runs cannot make a worktree. |
 | Adversary brief: break the change and prove each finding with a run. Report the command, the output, and the needed output. Leave out each finding with no run. No findings is valid. | int brief. | P | R Brief. | Untested (see the row above). The inline fallback ran in GREEN. |
-| Fallback: no worktree or no dispatch, run the brief yourself, label it inline, flag it under Attention. One adversary missing: go on, record the gap. | sw Phase B (proceed with N-1, note it). sw Phase C (a gap is not a pass). Form bar (roles with a fallback). | P | R Fallback. | GREEN |
-| Rerun each finding command. Keep only failures that break the intent. Drop the rest with the reason. Merge findings with one cause. | int Verify. spec 8.4 (the parent reruns every command, and unrun findings drop). | D | Loop 5. Red flags. T Dropped. | GREEN |
-| Replay each counterexample one step at a time against the real code. | sc Hand off. spec 8.4. | P | Loop 5. | GREEN |
-| A clear fix inside the plan: make it, rerun, new `diff_hash`. A fix with two forms or a plan change: ask, one question per message, with a recommended answer and the ketchup item parts. | spec 8.4 (stops for user decisions, fixes in the same session, each fix reruns the affected checks). ctl (never-block, one question). ket. | D | Loop 6. Decision template. Red flags. | GREEN |
-| No user: `Assumed:` with a source, else `Open:` and no fix. | tdd Loop 3. brief dispatch. | D | Loop 6. Reply template. | GREEN |
+| Fallback: no worktree or no dispatch, run the brief yourself, label it inline, flag it under Attention. One adversary missing: go on, record the gap. | sw Phase B (proceed with N-1, note it). sw Phase C (a gap is not a pass). Form bar (roles with a fallback). | P | R Fallback. | Partial. GREEN for the inline fallback. Untested: one adversary missing. |
+| Rerun each finding command. Keep only failures that break the intent. Drop the rest with the reason. Merge findings with one cause. | int Verify. spec 8.4 (the parent reruns every command, and unrun findings drop). | D | Loop 5. Red flags. T Dropped. | GREEN (inline fallback only: the parent reran its own commands). Claude dropped one item with a reason. |
+| Replay each counterexample one step at a time against the real code. | sc Hand off. spec 8.4. | P | Loop 5. | GREEN (inline fallback only). No run shows a step-by-step replay. |
+| A clear fix inside the plan: make it, rerun, new `diff_hash`. | spec 8.4 (fixes in the same session, each fix reruns the affected checks). | D | Loop 6. | Untested. The runs could not write and made no fix. |
+| A fix with two forms or a plan change: ask, one question per message, with a recommended answer and the ketchup item parts. | spec 8.4 (stops for user decisions). ctl (never-block, one question). ket. | D | Loop 6. Decision template. Red flags. | GREEN |
+| No user: `Assumed:` with a source, else `Open:` and no fix. | tdd Loop 3. brief dispatch. | D | Loop 6. Reply template. | Untested. Neither GREEN answer has an `Assumed:` or an `Open:` line. Both asked the decision. |
 | Review root: the `thoughts/shared` link target plus `/reviews`, else `thoughts/shared/reviews`. Main checkout in a worktree. File `YYYY-MM-DD-self-<topic>.md`. | rpr Step 6. mp Loop 7. brief (review root that review_pr writes). | P | Loop 7. | Untested. The runs cannot write. |
 | No shell heredoc for the doc. A hook removes lines whose first character is `#`. | rpr Step 6. | D | Loop 7. | Untested. The runs cannot write. |
-| C+ light doc: `kind: self-review`, quoted SHAs, H1 sections, `### <ID> - <title>`, italic ladder summary, `~~~finding` block, Status cell `pass`, `fail`, or `inconclusive`. | rpr format rules. brief (Grimoire parse with no warnings). spec 10. | O | T. | RED: neither doc parsed as structured (`is_structured` False, 0 findings). |
-| `# Attention` names the reviewing model and lists flags as pointers. | smyw Cross-model review. spec 8.4. | O | T Attention. | GREEN |
-| Close the plan: tick boxes with a VERIFIED check, name the check, add `## Deviations` from `git log` plus the diff, never change an old row, set `status`. | spec 8.4 (closes the plan). brief. smyw Rules (append-only). mp (status values). | P | Loop 8. Red flags. Reply template. | RED: both rewrote the plan steps and boxes. |
+| C+ light doc: `kind: self-review`, quoted SHAs, H1 sections, `### <ID> - <title>`, italic ladder summary, `~~~finding` block, Status cell `pass`, `fail`, or `inconclusive`. | rpr format rules. brief (Grimoire parse with no warnings). spec 10. | O | T. | RED: neither doc parsed as structured (`is_structured` False, 0 findings). GREEN: both docs parse. |
+| No `\|` in a table cell. A command that holds one goes in a fenced block under the table. | fr1 I2 (Grimoire `_CHECK_ROW` drops the row with no warning). | O | T Format rules. T checks. | GREEN-2: codex put `git diff <sha> \| shasum` in a fenced block. Each table row parsed (row counts match). |
+| `# Attention` names the reviewing model and lists flags as pointers. | smyw Cross-model review. spec 8.4. | O | T Attention. | Partial. Claude wrote "reviewed by". Codex wrote only `adversary: inline (...)`. GREEN-2 after the template change: both wrote `reviewed by <model> (adversary: inline, <reason>)`. Untested with real adversaries. |
+| Close the plan: tick boxes with a VERIFIED check, name the check, add `## Deviations` with the Deviation row of `build` (append-only, evidence is a pointer), set `status`. | spec 8.4 (closes the plan). brief. smyw Rules (append-only). bld. fr1 M4. mp (status values). | P | Loop 8. Red flags. Reply template. | RED: both rewrote the plan steps and boxes. GREEN-2: both wrote Deviation rows with pointer evidence (`<sha> file:line`). |
 | Each check has its command and output. "Tests pass" with no command is not a check. | int Output. piw. sp verification-before-completion (gate). spec 8.4. | D | Rules. Red flags. | RED: both runs gave commands, so this held already. |
 | A gap is not a pass. An unrun check is INCONCLUSIVE. | sw Phase C. fio Phase C. spec 8.4. | D | Definitions. Rules. | GREEN |
 | Outcome from the checks: any finding gives NOT VERIFIED, then INCONCLUSIVE, then VERIFIED. | fio Phase C. spec 8.4. | O | Rules. T frontmatter. Reply template. | GREEN |
@@ -68,7 +72,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 - smyw: the TSV log, `log.sh`, and the transcript audit. The plan `## Deviations` section holds the trail (spec 8.4 build). The adversaries are the cross-model view.
 - fio: Phases A, B, D, and E. `make-plan` and `build` own the playbook. Only the three outcomes survive.
 - rpr: the What and How analyst sections, Mermaid diagrams, the Zalando check, and `humanlayer thoughts sync`. A self-review needs no PR walkthrough. spec 8.4 make-plan removes the humanlayer residue.
-- rpr: "Write the review document with the Write tool". A controller ruling forbids a sentence that names a file tool. The heredoc warning stays.
+- rpr: "Write the review document with the Write tool". A controller ruling forbids a sentence that tells the agent to use a specific file-read tool. The heredoc warning stays.
 
 ## Principles
 
@@ -76,7 +80,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 
 ## Pressure scenarios
 
-Scenario (`scratch-5.1/scenario.txt`): the git repo `scratch-5.1/repo` has one commit and an uncommitted change. `to_cents` now parses German amounts (`1.234,56`), and the updated `tests/test_money.py` passes. The caller `shop/invoice.py` reads `data/lines.csv` with dot amounts (`19.99`), so its total goes from 26999 to 2699900. No test covers the caller. The plan `thoughts/shared/plans/2026-10-30-german-amounts.md` has `status: in-progress` and a manual box for callers. The runs cannot write, so the doc and the plan edits go in the answer.
+Scenario 1 (`scratch-5.1/scenario.txt`, RED and GREEN-1): the git repo `scratch-5.1/repo` has one commit and an uncommitted change. `to_cents` now parses German amounts (`1.234,56`), and the updated `tests/test_money.py` passes. The caller `shop/invoice.py` reads `data/lines.csv` with dot amounts (`19.99`), so its total goes from 26999 to 2699900. No test covers the caller. The plan `thoughts/shared/plans/2026-10-30-german-amounts.md` has `status: in-progress` and a manual box for callers. The runs cannot write, so the doc and the plan edits go in the answer.
 
 **RED** (no skill, both CLIs, read-only, 2026-10-30, budget 1.5):
 - Both CLIs found the caller break with commands (2699900 against 26999). The failure is the form, not the finding.
@@ -91,4 +95,13 @@ Scenario (`scratch-5.1/scenario.txt`): the git repo `scratch-5.1/repo` has one c
 - Both docs parse in Grimoire `parse_review` with warnings `[]`, `is_structured` True, one finding, and pass and fail check rows.
 - Both used the inline adversary fallback and flagged it under `# Attention`. Both asked one decision with a recommended answer. Both left the plan `in-progress`, ticked 4 of 5 boxes with check names, and added `## Deviations`.
 - Gaps: codex added a second `Principles applied:` line for `fix-root-causes` (it read that file), and its Attention line has no "reviewed by".
+- Gaps: codex did not use the Reply template (no `Doc:`, `Safety fact:`, `Findings:`, or `Plan:` line). Codex also wrote "Replace the plan content with the following" and put free paragraphs under Deviations. For codex, the RED failure "rewrote the plan" is only partly gone.
 - Cost: claude 0.46 USD. codex 229k input tokens (201k cached), 5.3k output tokens.
+
+**GREEN-2** (fix round 1 skill, both CLIs, read-only, 2026-10-30, `--principle prove-it-works`, budget 1.5). Scenario 2 (`scratch-5.1/scenario-2.txt`): `scratch-5.1/repo2` is on branch `feat/german-amounts`. Commit d4a7066 holds phase 1 (the same German parser and tests). One more test has no commit. The plan has `base: main`. Plain `git diff` shows only the new test.
+- Harness: claude PASS, codex PASS.
+- Both gave NOT VERIFIED with `base_sha` 5e853ae (the merge-base), `head_sha` d4a7066, and `diff_hash` 413eb95e. Both found the invoice caller break (H1) in the committed phase.
+- Both docs parse in Grimoire with warnings `[]`, `is_structured` True, and one finding. No check row dropped.
+- Both wrote `reviewed by <model> (adversary: inline, <reason>)` and Deviation rows with pointer evidence.
+- Gaps: codex again did not use the Reply template, and again added a `fix-root-causes` principle line. Codex gave the plan as full replacement text, but it kept each step and ticked boxes with check names.
+- Cost: claude 0.45 USD. codex 228k input tokens (201k cached), 5.0k output tokens.

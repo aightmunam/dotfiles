@@ -7,12 +7,13 @@ Two blind adversaries try to break the change: one Claude, one Codex. Each gets 
 For adversary `<n>` (1 is Claude, 2 is Codex), run from the repo root:
 
 ```
-git worktree add --detach ~/wt/<repo>/prove-<n> HEAD
-git diff --binary | git -C ~/wt/<repo>/prove-<n> apply
+git worktree add --detach ~/wt/<repo>/prove-<n> <base_sha>
+git diff --binary <base_sha> | git -C ~/wt/<repo>/prove-<n> apply
+git -C ~/wt/<repo>/prove-<n> add -N .
 git -C ~/wt/<repo>/prove-<n> diff | shasum
 ```
 
-The last hash must equal `diff_hash`. If it differs, the worktree is wrong. Fix it before the dispatch.
+The worktree then holds the same change as `git diff <base_sha>`. The `add -N` line makes the diff show new files. The last hash must equal `diff_hash`. If it differs, the worktree is wrong. Fix it before the dispatch.
 
 ## Dispatch
 

@@ -11,6 +11,7 @@ Grimoire parses this doc. Keep each rule below, or the doc does not render.
 - Then the `~~~finding` block: a YAML head, a line that is only `---`, then the body. `line` is an integer. Put command output in backtick fences. Never put `~~~` in the body.
 - No other `###` heading goes in `# Review findings`.
 - In `# Automated checks`, the Status cell is `pass` for VERIFIED, `fail` for NOT VERIFIED, and `inconclusive` for INCONCLUSIVE. Put the outcome word in Notes.
+- Never put `|` in a table cell. Grimoire drops that row with no warning. Put a command that holds `|` in a fenced block under the table, and name its check in Notes.
 
 ## Template
 
@@ -21,9 +22,9 @@ date: <YYYY-MM-DD>
 reviewer: <your model>
 repo: <owner/name, or the directory name>
 branch: <branch>
-base_sha: "<git rev-parse HEAD>"
+base_sha: "<git merge-base <base> HEAD>"
 head_sha: "<git rev-parse HEAD>"
-diff_hash: "<first field of git diff | shasum>"
+diff_hash: "<first field of git diff <base_sha> | shasum>"
 plan: <plan path>
 outcome: <VERIFIED | NOT VERIFIED | INCONCLUSIVE>
 verdict: <approve if VERIFIED | request_changes if NOT VERIFIED | comment if INCONCLUSIVE>
@@ -77,7 +78,12 @@ Found by: <adversary models, or "parent">. Rerun by parent: <yes, at diff_hash>
 
 | Check | Status | Notes |
 |---|---|---|
-| <name> | <pass, fail, or inconclusive> | `<command>` exit <code>. <VERIFIED, NOT VERIFIED, or INCONCLUSIVE>. <gap, if any> |
+| <name> | <pass, fail, or inconclusive> | `<command with no pipe>`, or "command below". Exit <code>. <VERIFIED, NOT VERIFIED, or INCONCLUSIVE>. <gap, if any> |
+
+<name>:
+```
+<command that holds a pipe>
+```
 
 # Questions for author
 
@@ -89,7 +95,7 @@ Found by: <adversary models, or "parent">. Rerun by parent: <yes, at diff_hash>
 
 # Attention
 
-reviewed by <model of each adversary, or "adversary: inline (reason)">
+reviewed by <model of each adversary>, or: reviewed by <your model> (adversary: inline, <reason>)
 
 - <flag> -> <finding id, check name, or section>
 
