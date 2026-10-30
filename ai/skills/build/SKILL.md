@@ -24,9 +24,9 @@ You own the run. The implementer writes the code of a phase.
 2. **Check names.** Compare each `Consumes` line with the `Produces` line of an earlier phase. For each mismatch, pick one name. Write a Deviation row for it. Do not change the phase text.
 3. **Brief.** Fill `brief-template.md` for the next phase. Add the interfaces from earlier phases and each Deviation row that touches the phase. Read each principle file that the brief names.
 4. **Dispatch.** When actors might write the same state, first remove the sharing. Read ~/.agents/principles/separate-before-serializing-shared-state.md before this step. Record the base SHA. Give the brief to one fresh implementer. Run phases in parallel only when the plan gives each one a disjoint file set. Then each phase gets its own worktree.
-5. **Review.** Check input at the system boundary and trust typed data inside. Keep business logic in pure functions. Read ~/.agents/principles/boundary-discipline.md before this step. Read the diff from the base SHA, not only the report. Run the touched tests yourself. Check that the receipt shows red by the definition. For each `Assumed:` line in the report, find its source in the phase text or at the cited `file:line`. An `Assumed:` line with no such source is a finding. An `Open:` line means NEEDS_CONTEXT. Answer it from the plan in a new brief. If the plan has no answer, ask the user one question, with a recommended answer.
-6. **Fix.** Give each finding to a new fresh implementer. Send the brief, the report, the findings, and the branch. Stop after three fix rounds on one phase. Then write a Deviation row for each open finding.
-7. **Record.** Check that the receipt is under the phase in the plan. The implementer writes it with `tdd`. Do not write it a second time. Commit the phase. `prove` ticks the plan boxes and sets `status: done`. Never do either. Go to step 3 for the next phase.
+5. **Review.** Check input at the system boundary and trust typed data inside. Keep business logic in pure functions. Read ~/.agents/principles/boundary-discipline.md before this step. Write the diff from the base SHA to a file. Read the diff, not only the report. Run the touched tests yourself. Check that the receipt shows red by the definition. For each `Assumed:` line in the report, open the cited `file:line`, or find the value in the phase text. If the file or the line does not exist, or the line does not state the value, reject the line. It is a finding. An `Open:` line means NEEDS_CONTEXT. Answer it from the plan in a new brief. If the plan has no answer, ask the user one question, with a recommended answer. Then give one fresh `reviewer` the phase text, the brief, the report, and the diff file. Use `reviewer-brief.md`. If no `reviewer` type exists, use a general-purpose agent. Each of its findings is a finding. With no dispatch tool, do the reviewer brief yourself, after your own review. Then write `review: inline` in the output.
+6. **Fix.** Give each finding to a new fresh implementer. Send the brief, the report, the findings, and the branch. After each fix round, do step 5 again with a new fresh reviewer. Stop after three fix rounds on one phase. Then write a Deviation row for each open finding.
+7. **Record.** Go on only when the reviewer gives PASS for the spec and for quality, or when step 6 stops. Check that the receipt is under the phase in the plan. The implementer writes it with `tdd`. Do not write it a second time. Commit the phase. `prove` ticks the plan boxes and sets `status: done`. Never do either. Go to step 3 for the next phase.
 8. **Finish.** After the last phase, run the full suite once. Give the output template. Then hand off to `prove`.
 
 ## Rules
@@ -44,8 +44,8 @@ You own the run. The implementer writes the code of a phase.
 
 ```
 Plan: `<path>` (status: in-progress). Worktree: `<path>` on `<branch>`.
-| Phase | Commits | Receipt | Touched tests |
-| P<n> | <base7>..<head7> | Fail-first: <test id> expected <x> got <y> | `<command>`: <result> |
+| Phase | Commits | Receipt | Review | Touched tests |
+| P<n> | <base7>..<head7> | Fail-first: <test id> expected <x> got <y> | spec <PASS or FAIL>, quality <PASS or FAIL>, <reviewer or inline> | `<command>`: <result> |
 Deviations added: <count>. <one line each, with its pointer>.
 Full suite: `<command>`: <result>. It ran once.
 Next: `prove` on this plan.
@@ -67,6 +67,8 @@ Principles applied: <name> -> <choice it changed>, one for each principle file t
 - You changed the text of a phase, or edited a Deviation row. Go back to step 2.
 - Your output names a principle file that you did not open in this session. Go back to the start of the loop.
 - You accepted a phase from its report alone. Go back to step 5.
+- You went to the next phase with no reviewer verdict for spec and quality. Go back to step 5.
+- You accepted an `Assumed:` line and did not open its cited `file:line`. Go back to step 5.
 - You wrote phase code while a dispatch tool was there. Go back to step 4.
 - You continued on a plan whose status was not `approved`. Go back to step 1.
 - You ticked a plan box or set `status: done`. Go back to step 7.
