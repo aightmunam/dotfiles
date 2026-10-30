@@ -11,6 +11,8 @@ export RAINFROG_CONFIG=$HOME/.config/rainfrog
 if [[ "$OSTYPE" == linux* ]] && [ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
   . "$HOME/.nix-profile/etc/profile.d/nix.sh"
   [ -e "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ] && . "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
+  # Make nix desktop apps visible to launchers
+  export XDG_DATA_DIRS="$HOME/.nix-profile/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
 fi
 
 if [ -f ~/.zshenv.local ]; then

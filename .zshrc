@@ -13,13 +13,14 @@ fi
 #######################################################
 
 typeset -U path PATH
-export PATH="$HOME/.local/bin:/opt/homebrew/bin:$PATH"
+[[ "$(uname)" == "Darwin" ]] && export PATH="/opt/homebrew/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 export TERM=wezterm
 
 # Pyenv
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init --path --no-rehash)"
+command -v pyenv >/dev/null 2>&1 && eval "$(pyenv init --path --no-rehash)"
 
 # Rust / Cargo
 export PATH="$HOME/.cargo/bin:$PATH"

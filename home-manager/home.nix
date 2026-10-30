@@ -53,4 +53,7 @@ in
   # are used for it — they only generated init that .zshrc already overrides. Their
   # binaries come from home.packages in the modules.
   programs.home-manager.enable = true;
+
+  # Linux: register the nix fonts with fontconfig so the desktop and wezterm see them.
+  fonts.fontconfig.enable = !isDarwin;
 }
