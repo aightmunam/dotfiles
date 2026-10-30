@@ -34,7 +34,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Never post. The user or `address` posts after the user says yes. | spec 8.4 (address posting after the user OKs it). dispatch. | D | Roles. | Untested. The scenario text itself forbids posting. |
 | Run inline. Return only the template to `address`. Fallback path for unslop. | spec 8.4 (used by `address` and on its own). | O | Roles. | GREEN: unslop at a given path. |
 | unslop not found at either path: run the checks from memory and say "unslop file not found". The step-4 red flag applies only when unslop was readable. | Review M3 (the red flag looped with no exit). spec 8.4 (reply runs unslop on each draft). | D | Roles. Red flags. Output template. | Untested (fix round 1). |
-| Do not read .env files. | AGENTS.md repo line. Review M4: a given fact can come from a file that reply reads. | D | Roles. | Untested. |
+| The four Repo Rules lines, verbatim (Salesforce `<prod-org-alias>`, alembic and DB mutation on prod, .env, worktrees). | AGENTS.md repo lines. Review M4: a given fact can come from a file that reply reads. Final review M7 and I3 round 2: reply reads repo files, so it carries all four. Lint `test_repo_rules_lines`. | D | Repo Rules. | Untested. The lint checks the text only. |
 | `Principles applied:` line. | spec 8.7. reply has no principle targets. | O | Output template. | GREEN |
 
 ## Cut
@@ -45,7 +45,6 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 - sp-rcr `gh api .../replies` posting line: posting belongs to `address` after the user says yes.
 - sp-rcr "Gracefully correcting your pushback" and the uncomfortable pushback advice: `reply` drafts from given facts and does not change a decision.
 - pstack rules other than 20, 22, 23 and 24: `unslop` applies all of them in Loop 4. `reply` names only the rules that shape the reply voice.
-- Three of the four repo lines (Salesforce, alembic, worktrees): `reply` runs no command in a repo. `address` does the repo work. The .env line stays because `reply` can read files.
 
 ## Pressure scenarios
 

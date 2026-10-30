@@ -37,6 +37,13 @@ description: Use when the user asks for the text of a reply to a PR review comme
 - **No filler.** Unslop rule 23 (filler phrases) and rule 24 (too much hedging) apply.
 - **Add no fact.** Do not invent a SHA, a test result or a reason.
 
+## Repo Rules
+
+- never touch a prod Salesforce org, not even --help.
+- No alembic upgrade or downgrade, and no DB mutation, on a production database without in-the-moment user confirmation.
+- Do not read .env files.
+- Worktrees only under ~/wt/<repo>/<name>.
+
 ## Red Flags
 
 - A draft thanks the reviewer. Go back to step 3.
@@ -68,4 +75,4 @@ Repeat the block before `Principles applied:` for each thread.
 
 ## Roles
 
-Run inline. Do not dispatch an agent. Do not post a reply. The user or `address` posts it after the user says yes. When `address` calls this skill, return only the template. If no `unslop` skill loads, read `SKILL.md` and `rules.md` in `~/.agents/skills/unslop/`, or in the path that the caller gives. If you cannot read unslop at either path, do the unslop checks from memory. Then write "unslop file not found" in the unslop changes of each thread. Do not read .env files.
+Run inline. Do not dispatch an agent. Do not post a reply. The user or `address` posts it after the user says yes. When `address` calls this skill, return only the template. If no `unslop` skill loads, read `SKILL.md` and `rules.md` in `~/.agents/skills/unslop/`, or in the path that the caller gives. If you cannot read unslop at either path, do the unslop checks from memory. Then write "unslop file not found" in the unslop changes of each thread.

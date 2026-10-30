@@ -62,6 +62,16 @@ PLUGIN_MARKERS = ("superpowers:", "agent-skills:", "feature-dev:", "plugins/cach
 # Agent files and AGENTS.md may not name superpowers at all. Skill source maps may cite it.
 STRICT_MARKERS = PLUGIN_MARKERS + ("superpowers",)
 NEW_AGENTS = {"reviewer", "explorer"}
+# The four Repo Rules lines, verbatim (ai/skills/debug/SKILL.md). Every PLANNED skill
+# except the text-only ones carries them in SKILL.md (final review I3, M7).
+REPO_RULES = (
+    "never touch a prod Salesforce org, not even --help.",
+    "No alembic upgrade or downgrade, and no DB mutation, on a production database"
+    " without in-the-moment user confirmation.",
+    "Do not read .env files.",
+    "Worktrees only under ~/wt/<repo>/<name>.",
+)
+TEXT_ONLY = {"bro", "unslop"}
 
 
 def new_form(skills_dir=SKILLS_DIR):
@@ -233,6 +243,11 @@ def check_plugin_refs(paths, markers=PLUGIN_MARKERS):
     ]
 
 
+def check_repo_rules(path, lines=REPO_RULES):
+    text = path.read_text(encoding="utf-8") if path.is_file() else ""
+    return [f"{path}: missing Repo Rules line: {line}" for line in lines if line not in text]
+
+
 def agent_files():
     return [AGENTS_DIR / f"{n}.md" for n in sorted(NEW_AGENTS) if (AGENTS_DIR / f"{n}.md").is_file()]
 
@@ -256,6 +271,12 @@ class SkillsLint(unittest.TestCase):
                 self.assertIn(d.name, PLANNED, f"{d.name} is not a planned skill and not in KEPT")
                 self.assertTrue((d / "SKILL.md").is_file(), f"{d.name}: missing SKILL.md")
                 self.assertEqual(check_source_map(d), [])
+
+    def test_repo_rules_lines(self):
+        for name in sorted(PLANNED - TEXT_ONLY):
+            with self.subTest(skill=name):
+                errors = check_repo_rules(SKILLS_DIR / name / "SKILL.md")
+                self.assertEqual(errors, [], "\n".join(errors))
 
     def test_name_matches_dir(self):
         self.each(lambda d: check_name(d / "SKILL.md", d.name))
@@ -457,6 +478,12 @@ class LintSelfCheck(unittest.TestCase):
         self.assertTrue(check_principle_shape(p))
         p.write_text("Source: a\n" + EM_DASH + "\n")
         self.assertTrue(check_principle_shape(p))
+
+    def test_repo_rules_check(self):
+        self.assertEqual(check_repo_rules(self.skill("\n".join(REPO_RULES) + "\n")), [])
+        self.assertEqual(len(check_repo_rules(self.skill("Do not read .env files.\n"))), 3)
+        bad = REPO_RULES[0].replace("never", "Never")
+        self.assertEqual(len(check_repo_rules(self.skill(bad + "\n" + "\n".join(REPO_RULES[1:])))), 1)
 
     def test_plugin_names(self):
         for bad in ("superpowers:tdd", "agent-skills:plan", "feature-dev:x", "a/plugins/cache/b"):
