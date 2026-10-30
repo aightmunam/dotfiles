@@ -47,6 +47,9 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | `Principles applied:` line, last line of the answer. | spec 8.7. brief. | O | Loop 8. T. | GREEN-3 (both). |
 | Cite only principle files read in this session. | spec 8.7. house form. Claude GREEN-1 cited prove-it-works without a read. | D | Loop 5 (read first). Red flags. | GREEN-3 (both). |
 | Four repo lines, verbatim. | brief Global Constraints. | D | Repo Rules. | Text checked. Alembic line: GREEN-3 (Codex ran no alembic), Claude forced by plan mode. SF, .env, worktree lines: Untested. |
+| Read `staging behind` as not a failure; report each script line. | 8.1 re-review N3 (GREEN-3 Codex misread the line). migration-drift output contract. | D | One staging DB. | Untested (added after GREEN-3). |
+| Release job name from the `JOB_NAME` env of the `Run release job` step. | 8.1 re-review N1, terraform/action.yml:318-331. | D | Loop 4. | Untested (added after GREEN-3; the fixture prints a terraform line). |
+
 ## Cut
 
 - babysit: review comments, review-bot triage, the `loop` skill pacing, `gh pr ready`, force-push rules. A staging check has no review step and no PR state to change.
