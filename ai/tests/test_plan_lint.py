@@ -1,5 +1,6 @@
 """Tests for ai/bin/plan-lint (stdlib unittest only)."""
 import os
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -40,7 +41,16 @@ class PlanLintTest(unittest.TestCase):
         ):
             with self.subTest(text=text):
                 self.assertIn(text, r.stdout)
+        self.assertTrue(r.stdout.strip())
         self.assertTrue(all(l.startswith(path + ": ") for l in r.stdout.splitlines()))
+
+    def test_non_utf8_file_exits_2(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            bad = Path(tmp) / "latin1.md"
+            bad.write_bytes(b"\xff\xfe not utf8 \x80")
+            r = run(str(bad))
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("internal error", r.stderr)
 
 
 class PlanLintEnvTest(unittest.TestCase):
@@ -49,6 +59,15 @@ class PlanLintEnvTest(unittest.TestCase):
             r = run(str(FIXTURES / "plan_good.md"), GRIMOIRE_DIR=tmp)
         self.assertEqual(r.returncode, 2)
         self.assertIn("Grimoire", r.stderr)
+
+    def test_grimoire_without_parser_exits_2(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            bindir = Path(tmp) / ".venv" / "bin"
+            bindir.mkdir(parents=True)
+            (bindir / "python").symlink_to(shutil.which("python3"))
+            r = run(str(FIXTURES / "plan_good.md"), GRIMOIRE_DIR=tmp)
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("internal error", r.stderr)
 
     def test_missing_input_file_exits_2(self):
         r = run(str(FIXTURES / "does_not_exist.md"))

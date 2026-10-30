@@ -26,12 +26,16 @@ fi
 PYTHONPATH="$grimoire" exec "$py" -c '
 import sys
 from pathlib import Path
-from app.data.plan_parser import parse_plan
 
 bad = False
 for name in sys.argv[1:]:
-    path = Path(name)
-    plan = parse_plan(path.read_text(encoding="utf-8"), path)
+    try:
+        from app.data.plan_parser import parse_plan
+        path = Path(name)
+        plan = parse_plan(path.read_text(encoding="utf-8"), path)
+    except Exception as exc:
+        print(f"plan-lint: internal error: {name}: {exc!r}", file=sys.stderr)
+        sys.exit(2)
     for warning in plan.warnings:
         print(f"{name}: {warning}")
         bad = True
