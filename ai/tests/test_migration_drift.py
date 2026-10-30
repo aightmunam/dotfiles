@@ -49,12 +49,12 @@ class MigrationDriftTest(unittest.TestCase):
         self.assertEqual(r.stdout.strip(), "staging behind: def456")
 
     def test_staging_ahead(self):
-        r = self.run_script("abc123 (head)", "abc123\nzzz999")
+        r = self.run_script("abc123 (head)", "abc123\nfff999")
         self.assertEqual(r.returncode, 1, r.stderr)
-        self.assertEqual(r.stdout.strip(), "staging ahead: zzz999")
+        self.assertEqual(r.stdout.strip(), "staging ahead: fff999")
 
     def test_drift_both_directions(self):
-        r = self.run_script("abc123 (head)", "zzz999".replace("z", "f"))
+        r = self.run_script("abc123 (head)", "fff999")
         self.assertEqual(r.returncode, 1, r.stderr)
         self.assertEqual(
             r.stdout.strip().splitlines(),
