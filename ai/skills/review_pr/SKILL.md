@@ -6,7 +6,7 @@ model: opus
 
 # Review PR
 
-You are tasked with reviewing a pull request from a colleague. This command uses `/local_review` to set up the environment, then performs comprehensive code review using parallel subagents.
+You are tasked with reviewing a pull request from a colleague. This command sets up a review worktree with `git worktree add`, then performs comprehensive code review using parallel subagents.
 
 **CRITICAL SAFETY RULES - NEVER VIOLATE**:
 - NEVER push any code to GitHub
@@ -33,7 +33,7 @@ Please provide one of:
 - Username:branch: colleague:feature-branch
 
 I will:
-1. Set up a local worktree (via /local_review)
+1. Set up a local worktree (with `git worktree add`)
 2. Analyze the PR's feature (what it does) and implementation (how it's built)
 3. Perform comprehensive code review
 4. Generate a review document and open it in the review viewer
@@ -71,13 +71,13 @@ If the tool is not available, skip this. Step 8 (follow-up questions) is not rep
    Setting up review environment...
    ```
 
-### Step 2: Set Up Environment via /local_review
+### Step 2: Set Up Environment
 
-1. **Invoke /local_review** via Skill tool with format `username:branch-name`
+1. **Fetch the PR branch**: `git fetch origin <branch>` in the main checkout of the repo.
 
-2. **Wait for worktree setup to complete**
+2. **Make the worktree**: `git worktree add ~/wt/<repo>/review/<name> origin/<branch>`. Replace `/` with `+` in the name. If the worktree exists, reuse it and run `git -C <path> checkout --detach origin/<branch>`.
 
-3. **Note the worktree path** (typically `~/wt/[repo]/[identifier]`)
+3. **Note the worktree path** (`~/wt/<repo>/review/<name>`)
 
 ### Step 3: PR Feature Walkthrough (What + How)
 

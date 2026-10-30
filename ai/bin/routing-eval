@@ -293,11 +293,21 @@ def run_row(tool, row, args):
 
 def write_results(out, tool, results, date):
     out.mkdir(parents=True, exist_ok=True)
-    with open(out / f"{date}-{tool}.tsv", "w", encoding="utf-8", newline="") as handle:
+    path = out / f"{date}-{tool}.tsv"
+    # A rerun of some ids (--id, --skill, --pair) updates their rows and keeps the others.
+    rows = {}
+    if path.exists():
+        with open(path, encoding="utf-8", newline="") as handle:
+            for row in csv.DictReader(handle, delimiter="\t"):
+                rows[row["id"]] = row
+    for r in results:
+        rows[r["id"]] = {"id": r["id"], "expected": r["expected"], "got": r["got"],
+                         "pass": "yes" if r["pass"] else "no", "note": r.get("note", "")}
+    with open(path, "w", encoding="utf-8", newline="") as handle:
         writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
         writer.writerow(["id", "expected", "got", "pass", "note"])
-        for r in results:
-            writer.writerow([r["id"], r["expected"], r["got"], "yes" if r["pass"] else "no", r.get("note", "")])
+        for row in rows.values():
+            writer.writerow([row["id"], row["expected"], row["got"], row["pass"], row["note"]])
 
 
 def parse_args(argv):

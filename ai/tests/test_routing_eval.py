@@ -64,6 +64,16 @@ class RoutingEvalTest(unittest.TestCase):
         cls.re = load_module()
         cls.rows = cls.re.load_rows()
 
+    def test_rerun_of_one_id_keeps_the_other_rows(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            first = [{"id": "a", "expected": "x", "got": "error", "pass": False, "note": "capacity"},
+                     {"id": "b", "expected": "y", "got": "y", "pass": True}]
+            self.re.write_results(out, "codex", first, "2026-10-30")
+            self.re.write_results(out, "codex", [{"id": "a", "expected": "x", "got": "x", "pass": True}], "2026-10-30")
+            lines = (out / "2026-10-30-codex.tsv").read_text().splitlines()
+            self.assertEqual(lines, ["id\texpected\tgot\tpass\tnote", "a\tx\tx\tyes\t", "b\ty\ty\tyes\t"])
+
     def test_tsv_shape(self):
         self.assertTrue(self.rows)
         ids = [r["id"] for r in self.rows]
