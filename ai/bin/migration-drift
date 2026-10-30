@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+"""migration-drift: compare a repo's alembic heads with the heads staging reports.
+
+Usage: migration-drift <repo> <staging heads>
+
+<staging heads> is the text of the staging alembic_version rows (revision ids
+separated by whitespace, commas or newlines). The user pastes it from a
+read-only query. This script never connects to a DB. It only runs
+`alembic heads` in <repo>, which reads the revision files.
+Prints "in sync", "staging behind: <revs>" or "staging ahead: <revs>".
+Exit 0 in sync, 1 drift, 2 setup error.
+"""
+
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+REV_RE = re.compile(r"[0-9A-Za-z_]+")
+
+
+def parse_revisions(text):
+    """Revision ids from alembic output or pasted rows. Drops '(head)' markers."""
+    revs = set()
+    for line in text.splitlines():
+        line = re.sub(r"\(.*?\)", " ", line)
+        match = REV_RE.findall(line)
+        revs.update(match)
+    return revs
+
+
+def repo_heads(repo):
+    result = subprocess.run(
+        ["alembic", "heads"], cwd=repo, capture_output=True, text=True,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"alembic heads failed: {result.stderr.strip()}")
+    return parse_revisions(result.stdout)
+
+
+def main(argv):
+    if len(argv) != 3:
+        print(__doc__, file=sys.stderr)
+        return 2
+    repo = Path(argv[1])
+    if not repo.is_dir():
+        print(f"not a directory: {repo}", file=sys.stderr)
+        return 2
+    try:
+        repo_revs = repo_heads(repo)
+    except (OSError, RuntimeError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    staging = parse_revisions(argv[2].replace(",", "\n"))
+    behind = sorted(repo_revs - staging)
+    ahead = sorted(staging - repo_revs)
+    if behind:
+        print("staging behind: " + " ".join(behind))
+    if ahead:
+        print("staging ahead: " + " ".join(ahead))
+    if not behind and not ahead:
+        print("in sync")
+        return 0
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
