@@ -7,7 +7,7 @@ description: Use when a merge or rebase stopped with conflicts. Use when a branc
 
 ## Definitions
 
-- **Target:** the branch that you rebase onto or merge in, for example `main`. In a rebase, `HEAD` and `--ours` are the target. In a merge, `--theirs` is the target. Use the branch name, not `--ours` or `--theirs`.
+- **Target:** the branch that you rebase onto or merge in, for example `main`. In a rebase, `HEAD` and `--ours` are the target. In a merge, `--theirs` is the target. Do not use `--ours` or `--theirs`. The target side of a file is `<target>` in a merge. In a rebase, it is `HEAD`, which holds the target plus the commits that the rebase replayed.
 - **Branch:** your side. Its stopped commit is `REBASE_HEAD` in a rebase and `HEAD` in a merge.
 - **Intent:** the behavior that one side adds or changes. Its commit message and its diff tell it.
 - **Head:** an Alembic revision that no `down_revision` names.
@@ -18,7 +18,7 @@ description: Use when a merge or rebase stopped with conflicts. Use when a branc
 1. **Detect.** Run `git status` and `git diff --name-only --diff-filter=U`. Name the state (rebase or merge), the target, and the branch.
 2. **Read intent.** Before you pick a hunk, read the commit message of each side. Rebase: `git log -1 --format=%B REBASE_HEAD` and `git log --format=%B <merge-base>..<target> -- <file>`. Merge: use `MERGE_HEAD` for the target. Write one intent line for each side of each file.
 3. **Resolve code.** Keep the intent of both sides. If you cannot keep both, keep the side that compiles and keeps public behavior. Write the reason. Make the smallest edit. Do not refactor. Do not add tests or features.
-4. **Lockfiles.** Do not edit a lockfile by hand. Run `git checkout <target> -- <lockfile>`. Then run `uv lock` for `uv.lock`, or `poetry lock` for `poetry.lock` (Poetry 2 keeps the locked versions by default and has no `--no-update`). Then `git add` the lockfile.
+4. **Lockfiles.** Do not edit a lockfile by hand. Take the target side: run `git checkout <target> -- <lockfile>` in a merge, or `git checkout HEAD -- <lockfile>` in a rebase. Then run `uv lock` for `uv.lock`, or `poetry lock` for `poetry.lock` (Poetry 2 keeps the locked versions by default and has no `--no-update`). Then `git add` the lockfile.
 5. **Alembic.** Find the versions directory (`script_location` in `alembic.ini`, or `migrations/versions`). Grep `^revision` and `^down_revision` in it. If there is more than one head, edit the oldest own revision. Set its `down_revision` and its `Revises:` line to the head of the target. Do not run any `alembic` command. Do not write a merge revision. Put the check commands in the report for the user.
 6. **Check.** Run `git diff --check`. Grep for `<<<<<<<`, `=======` and `>>>>>>>`. Read the test card `~/dotfiles/ai/test-cards/<repo>.md` and run the touched tests. If the card is missing, take the test command from the repo config and say so.
 7. **Continue.** Run `git add` on each resolved file. Run `GIT_EDITOR=true git rebase --continue` or `git merge --continue`. If the rebase stops again, go back to step 1.
@@ -37,7 +37,7 @@ description: Use when a merge or rebase stopped with conflicts. Use when a branc
 - **No alembic command.** This applies also to `uv run alembic`, `poetry run alembic`, `python -m alembic`, and the `alembic.command` API. The user runs `alembic heads` and `alembic history`.
 - **Lockfiles come from the tool.** The target side plus a lock run is the only source of a lockfile.
 - **Edit scope.** Edit only the conflicted files and the own revision that you move.
-- **No push, no tag.** Do not push, force-push or tag, also when the user asks. Give the push command to the user. A rebase rewrites pushed commits, so the command is `git push --force-with-lease origin <branch>`.
+- **No push, no tag.** Do not push, force-push or tag, also when the user asks. Give the push command to the user. After a merge, it is `git push origin <branch>`. After a rebase, it is `git push --force-with-lease origin <branch>`, because a rebase rewrites pushed commits.
 
 ## Red Flags
 
