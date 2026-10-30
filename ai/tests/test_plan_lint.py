@@ -62,6 +62,26 @@ class PlanLintTest(unittest.TestCase):
         self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
         self.assertIn("line 1", r.stdout)
 
+    def test_good_steps_exit_0(self):
+        r = run(str(FIXTURES / "plan_steps_good.md"))
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual(r.stdout, "")
+
+    def test_bad_steps_exit_1_and_name_each_defect(self):
+        path = str(FIXTURES / "plan_steps_bad.md")
+        r = run(path)
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        lines = r.stdout.splitlines()
+        self.assertTrue(all(l.startswith(path + ": ") for l in lines), r.stdout)
+        expected = [
+            "line 20: Step 1: test step names no test in backticks",
+            "line 20: Step 1: test step has no literal expected value",
+            "line 21: Step 2: test step has no literal expected value",
+            "line 22: Step 3: code step has no signature name(params) -> type",
+            "line 23: Step 4: code step names no file path",
+        ]
+        self.assertEqual([l[len(path) + 2:] for l in lines], expected)
+
     def test_non_utf8_file_exits_2(self):
         with tempfile.TemporaryDirectory() as tmp:
             bad = Path(tmp) / "latin1.md"
