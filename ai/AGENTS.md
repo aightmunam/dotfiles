@@ -113,8 +113,8 @@ Tie-break lines, one per set:
 - prove / verifier / performance: show that your own change works, `prove`. Build a repo's own verify skill, `verifier`. A speed claim or a measured regression, `performance`.
 - pr / unslop: write or update a PR body, `pr`. Clean a text that you already wrote, `unslop`.
 - pr / address: reviewer comments that need a code change, `address`. Only the PR body changes, `pr`.
-- staging / prove: deploy a branch to staging and check it there, `staging`. Prove your own change with runs in worktrees before a PR, `prove`.
-- staging / data-op: deploy code to staging and check it, `staging`. A data change on a real database or a live system, `data-op`.
+- staging / prove: Deploy a branch to staging and check it, `staging`. Prove your own change with runs in worktrees before a PR, `prove`.
+- staging / data-op: Deploy a branch to staging and check it, `staging`. A data change on a real database or a live system, `data-op`.
 - unslop / the writing standard: the `## Writing standard` section in this file guides text while it is written. `unslop` is a pass over a text that is already written.
 
 Not these. Use the kept skill and not a rework skill:
