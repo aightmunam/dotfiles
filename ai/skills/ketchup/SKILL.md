@@ -1,6 +1,6 @@
 ---
 name: ketchup
-description: Use when the user types ketchup or /ketchup, or asks what changed in this chat since their last message and what waits on them.
+description: Use when the user types ketchup or /ketchup. Use when the user asks what changed in this chat since their last message, and what waits on them.
 ---
 
 # Ketchup
@@ -14,7 +14,7 @@ description: Use when the user types ketchup or /ketchup, or asks what changed i
 
 ## The Loop
 
-This turn is read-only. Do not change code, start a job, start an app, or post anything.
+Keep this turn read-only. Do not change code, start a job, start an app, or post anything.
 
 1. **Find the last message.** Write its time for yourself. Skip each notification and each tool output when you look for it.
 2. **Collect the changes.** List your own work, each subagent report, and each message from other persons after the last message. Also list each action item from before the last message that still waits on the user.
