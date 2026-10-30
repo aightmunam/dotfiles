@@ -11,7 +11,7 @@ description: Use when the user says reflect, or asks to turn the lessons of a se
 - **Finding:** one lesson from a reviewer, with its evidence (a turn or a quote) and its routing.
 - **Used skill:** a skill whose `SKILL.md` the session opened, whose path a dispatch prompt named, or whose documented commands a tool call ran. A skill in the catalog that did not fire when it should have is a **missed trigger**.
 - **Target:** a file under `ai/skills/<name>/`, or `ai/AGENTS.md`, in the dotfiles checkout. A file in a plugin cache is never a target.
-- **Batch OK:** one user reply, after the user sees your Accepted list, that accepts that list or a part of it. A request in an earlier message, such as "apply what you find", is not a batch OK.
+- **Batch OK:** one user reply that accepts the Accepted list, or a part of it. A user request that tells you to apply the edits is also a batch OK. Examples: "apply whatever you find", "apply the fixes".
 
 ## The Loop
 
@@ -25,7 +25,7 @@ description: Use when the user says reflect, or asks to turn the lessons of a se
 
 ## Approval Gate
 
-Apply no edit before the batch OK. Ask one OK for the whole Accepted list. Never ask one OK for each edit. This gate stays when other rules or the user's first request say to proceed without the user. An absent user does not give an OK. Then show the template and stop. Do not push. Do not open a PR.
+Apply no edit before the batch OK. Ask one OK for the whole Accepted list. Never ask one OK for each edit. If the user's request is a batch OK, show the template once, then apply with no question. Else ask, then stop. This gate stays when other rules say to proceed without the user. An absent user does not give an OK. Do not push. Do not open a PR.
 
 ## Filter
 
@@ -50,7 +50,7 @@ A finding that fails a rule goes to Rejected with that rule as its reason.
 ## Red Flags
 
 - You wrote an edit before the batch OK. Undo it. Go back to step 5.
-- The task message says to apply, not to wait, or that the user is away, and you plan to edit. That is not a batch OK. Go back to step 5.
+- You applied an edit before you showed the template once. Go back to step 5.
 - You asked for an OK on one edit. Go back to step 5.
 - You dispatched fewer than three reviewers, or you waited for a result before all three started. Go back to step 2.
 - A body edit routes to a skill that the session did not use. Go back to step 3.
