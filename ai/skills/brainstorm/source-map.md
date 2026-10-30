@@ -28,7 +28,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Design doc at `thoughts/shared/specs/YYYY-MM-DD-<topic>-design.md`, `status: draft` then `approved`. | spec 8.4 Output. Task 3.5 brief. sp The Written Design (sections). | O | Loop 5. Loop 7. Doc template. | Untested. |
 | In a worktree, use the main checkout's `thoughts/`. Cannot write: the doc goes in the answer. | rs Loop 6. | P | Loop 5. | Untested. |
 | Builder check by a fresh agent. Three groups. One set of questions only. | sp builder-check-prompt.md and The Written Design. spec 8.4 Keep. | P | Loop 6. `builder-check.md`. | Untested. |
-| No dispatch tool: read the doc as the builder yourself. | sp (without a subagent tool). | P | Roles. `builder-check.md`. | Untested. |
+| No dispatch tool: read the doc as the builder yourself. | sp (without a subagent tool). | P | Loop step 6. `builder-check.md`. | Untested. |
 | Theirs questions go one per message, each with a recommended answer. Their answers go into the doc. | ruling (one per message). sp (bring them in one message) is overridden. | D | Loop 6. `builder-check.md`. | Untested. |
 | Hard gate. Nothing gets built before the user approves the doc. It overrides never-block-on-the-human. | sp HARD-GATE. spec 8.4 Keep. spec never-block-on-the-human row. | D | Definitions (Build). Hard gate. Red flags. | RED |
 | Approval covers what the user saw. | sp Red flags ("sounds good"). | D | Rules. | Untested. |
