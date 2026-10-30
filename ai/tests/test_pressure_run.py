@@ -153,6 +153,18 @@ class PressureRunTest(unittest.TestCase):
         self.assertEqual(self.pr.principles_read([use, err], "claude"), set())
         self.assertEqual(self.pr.principles_read([use], "claude"), {"x"})
 
+    def test_claude_bash_reader_counted(self):
+        use = {"type": "assistant", "message": {"content": [
+            {"type": "tool_use", "id": "b1", "name": "Bash",
+             "input": {"command": "cat /h/.agents/principles/a.md /h/.agents/principles/b.md"}}]}}
+        err = {"type": "user", "message": {"content": [
+            {"type": "tool_result", "tool_use_id": "b1", "is_error": True, "content": "No such file"}]}}
+        self.assertEqual(self.pr.principles_read([use], "claude"), {"a", "b"})
+        self.assertEqual(self.pr.principles_read([use, err], "claude"), set())
+        ls = {"type": "assistant", "message": {"content": [
+            {"type": "tool_use", "id": "b2", "name": "Bash", "input": {"command": "ls /h/.agents/principles/a.md"}}]}}
+        self.assertEqual(self.pr.principles_read([ls], "claude"), set())
+
     # Run errors are exit 2 with the cause, not exit 1.
     def test_run_error_causes(self):
         budget = {"type": "result", "subtype": "error_max_budget_usd", "is_error": True}
