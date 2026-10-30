@@ -14,6 +14,7 @@
 - **rs:** `ai/skills/research/SKILL.md` (worktree path, no-write fallback, explorer fallback).
 - **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (the form bar: an empty section says why).
 - **ketchup:** `ai/AGENTS.md` writing standard (item format: link, change, evidence, risk).
+- **pr:** `ai/bin/pressure-run` (what the GREEN check counts as a principle read).
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
 "Loop N" is a step in SKILL.md. "T" is `plan-template.md`.
@@ -62,6 +63,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Hand back the plan path and the linter output. | mpp step 7. | O | Handoff template. | GREEN |
 | Answers go into the plan, then `status: approved`. No open decision: approved at once. Next is `build`. | old (status values). brief (never-block). spec 8.1 (make-plan -> build). | P | Handoff template. | Untested. A headless run stops at the handoff. |
 | `Principles applied:` line in the reply. | spec 8.7. | O | Handoff template. | GREEN |
+| Open each principle file in full with the file-read tool, not a shell command. | pr (in GREEN iteration 1, the Claude check counted only the Read tool. Commit dece90d also counts shell reads now.) | P | Loop intro. | GREEN iteration 1 failed for Claude. Iteration 2 passed. |
 | Four repo lines, verbatim. | Brief Global Constraints. | D | Repo Rules. | Untested. The runs cannot write, deploy, or open a DB. |
 
 ## Cut
@@ -101,4 +103,4 @@ Neither plan has a `kind: plan` manifest, `## Phase N:` headings, a Before -> Af
 
 **GREEN** (skill and four principles, both CLIs, read-only, 2026-10-30):
 Iteration 1 failed for Claude and passed for Codex. Claude read the principles with a shell loop, and the harness counts only the file-read tool for Claude. The fix is one line at the start of the Loop: open each principle file in full with the file-read tool.
-Iteration 2 passed for both. Claude cost 0.94 USD. Codex used 142,188 input tokens (121,088 cached) and 4,494 output tokens. Each plan starts at `---`, and plan-lint exits 0 on a saved copy (3 phases each, no warnings). Each plan has entry points, failure modes with owner phases, a base branch, and touched tests for each phase. Claude asks three numbered decisions in item form and keeps `status: draft`. Codex finds no open decision and sets `status: approved`. Neither asks "approve?". Each names `build` as the next step and gives the `Principles applied:` line.
+Iteration 2 passed for both. Claude cost 0.94 USD. Codex used 142,188 input tokens (121,088 cached) and 4,494 output tokens. I saved each plan from the answer to a copy that starts at `---`. Plan-lint exits 0 on each copy (3 phases each, no warnings). Each plan has entry points, failure modes with owner phases, a base branch, and touched tests for each phase. Claude asks three numbered decisions in item form and keeps `status: draft`. Codex finds no open decision and sets `status: approved`. Neither asks "approve?". Each names `build` as the next step and gives the `Principles applied:` line.
