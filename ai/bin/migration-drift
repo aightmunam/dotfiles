@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """migration-drift: compare a repo's alembic heads with the heads staging reports.
 
-Usage: migration-drift <repo> <staging heads>
+Usage: migration-drift <repo> <staging heads>...
 
 <staging heads> is the text of the staging alembic_version rows (revision ids
-separated by whitespace, commas or newlines). The user pastes it from a
+separated by whitespace, commas or newlines; extra argv words are joined).
+Only hex ids of 4 or more characters count, so psql headers, dashes and
+"(N rows)" lines are ignored. The user pastes it from a
 read-only query. This script never connects to a DB. It only runs
 `alembic heads` in <repo>, which reads the revision files.
 Prints "in sync", "staging behind: <revs>" or "staging ahead: <revs>".
-Exit 0 in sync, 1 drift, 2 setup error.
+Exit 0 in sync, 1 drift, 2 setup error (including empty heads on either side).
 """
 
 import re
@@ -16,7 +18,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-REV_RE = re.compile(r"[0-9A-Za-z_]+")
+REV_RE = re.compile(r"[0-9a-f]{4,}")
 
 
 def parse_revisions(text):
@@ -24,8 +26,7 @@ def parse_revisions(text):
     revs = set()
     for line in text.splitlines():
         line = re.sub(r"\(.*?\)", " ", line)
-        match = REV_RE.findall(line)
-        revs.update(match)
+        revs.update(w for w in line.replace(",", " ").split() if REV_RE.fullmatch(w))
     return revs
 
 
@@ -39,7 +40,7 @@ def repo_heads(repo):
 
 
 def main(argv):
-    if len(argv) != 3:
+    if len(argv) < 3:
         print(__doc__, file=sys.stderr)
         return 2
     repo = Path(argv[1])
@@ -51,7 +52,13 @@ def main(argv):
     except (OSError, RuntimeError) as exc:
         print(str(exc), file=sys.stderr)
         return 2
-    staging = parse_revisions(argv[2].replace(",", "\n"))
+    if not repo_revs:
+        print("alembic heads printed no revisions", file=sys.stderr)
+        return 2
+    staging = parse_revisions("\n".join(argv[2:]))
+    if not staging:
+        print("no revision ids found in the staging heads", file=sys.stderr)
+        return 2
     behind = sorted(repo_revs - staging)
     ahead = sorted(staging - repo_revs)
     if behind:
