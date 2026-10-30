@@ -40,7 +40,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Maintain: index, source read per feature, missing features, live pass, triage. Read each changed file again before you stop. | mvs steps 1 to 6. | P | M Steps. | Untested. |
 | Maintain: unreachable needs its precondition and the route tried. | mvs step 4. cvs feature-map README. | D | M. T README. | Untested. |
 | Maintain outcome clean, changed, or blocked. | mvs Outcomes. | O | M Outcome. | Untested. |
-| `Principles applied:` line. | Dispatch common rules. verifier has no PRINCIPLE_TARGETS entry. | O | Report. Red flags. | Untested. No GREEN answer has the line. The harness checks it only with `--principle`. |
+| `Principles applied:` line. | Dispatch common rules. verifier has no PRINCIPLE_TARGETS entry. | O | Report. Red flags. | Untested. No GREEN final answer has the line. The harness checks it only with `--principle`. |
 | Each report template line is present. | Review M1 (task-5.2-review.md): GREEN-2 Claude gave only `Status:`. | D | Red flags. | Untested. Added after GREEN. |
 | Evidence slot: the first 5 to 15 lines of the saved body. | cvs step 4 (confirm the evidence exists). Review M3. | O | Report Evidence. | GREEN (manual run printed the body). |
 | Run `git check-ignore -v` on each written path. Report the ignore source and the `git add -f` command. Never run `git add -f`. | Audit: `~/.gitignore_global:41` ignores `.claude/`. Review I2 and controller ruling. | O | Loop 6. Report Ignored. | Untested. Added after GREEN. |
