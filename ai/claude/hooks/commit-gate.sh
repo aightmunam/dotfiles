@@ -49,17 +49,44 @@ has_recipe() {
   (cd "$ROOT" && just --summary 2>/dev/null) | tr ' ' '\n' | grep -qx "$1"
 }
 
+# Bare test runners that stamp `test`.
+RUNNER_RE='(^|[;&|[:space:]])(pytest|python[0-9.]*[[:space:]]+-m[[:space:]]+(pytest|unittest)|uv[[:space:]]+run[[:space:]]+pytest|tox|(npm|yarn|pnpm|bun)[[:space:]]+(run[[:space:]]+)?test|go[[:space:]]+test|cargo[[:space:]]+test)([^[:alnum:]_]|$)'
+
+# 0 when the exit code of the test runner in $CMD is hidden: between the runner
+# and the next `&&` there is a `|` (without pipefail), a `;`, or a `||`.
+hidden_exit() {
+  [[ "$CMD" =~ $RUNNER_RE ]] || return 1
+  # The last char of the match is the word boundary; keep it, it may be `;` or `|`.
+  local m="${BASH_REMATCH[0]}" b="${BASH_REMATCH[${#BASH_REMATCH[@]}-1]}"
+  local rest="$b${CMD#*"$m"}"
+  rest="${rest%%&&*}"
+  # Quoted strings may hold | or ; (pytest -k "a|b"); drop them first.
+  rest=$(sed -E "s/\"[^\"]*\"//g; s/'[^']*'//g" <<<"$rest")
+  [[ "$rest" == *"||"* || "$rest" == *";"* ]] && return 0
+  if [[ "$rest" == *"|"* ]] && ! grep -q 'pipefail' <<<"$CMD"; then return 0; fi
+  return 1
+}
+
+# 0 when the captured output shows a failing run, whatever the exit code was.
+output_failed() {
+  # Capture first: under pipefail, grep -q closing the pipe early would fail the pipeline.
+  local out; out=$(jq -r '.tool_response.stdout // empty, .tool_response.stderr // empty' <<<"$INPUT")
+  grep -qE '(^|[^[:alnum:]_])[1-9][0-9]* (failed|errors?)([^[:alnum:]_]|$)|^FAILED \(|test result: FAILED|^--- FAIL' <<<"$out"
+}
+
 stamp() { mkdir -p "$STATE" && fingerprint >"$STATE/$KEY-$1"; }
 
 case "$EVENT" in
 PostToolUse)
   # Only successful runs reach PostToolUse; skip interrupted ones defensively.
   [ "$(jq -r '.tool_response.interrupted // false' <<<"$INPUT")" = "true" ] && exit 0
+  output_failed && exit 0
   if grep -qE '(^|[;&|[:space:]])just[[:space:]]+(check|ci)\b' <<<"$CMD"; then
     stamp lint; stamp test
   fi
   grep -qE '(^|[;&|[:space:]])just[[:space:]]+lint\b' <<<"$CMD" && stamp lint
-  grep -qE '(^|[;&|[:space:]])(just[[:space:]]+test|pytest|python[0-9.]*[[:space:]]+-m[[:space:]]+(pytest|unittest)|uv[[:space:]]+run[[:space:]]+pytest|tox|(npm|yarn|pnpm|bun)[[:space:]]+(run[[:space:]]+)?test|go[[:space:]]+test|cargo[[:space:]]+test)\b' <<<"$CMD" && stamp test
+  grep -qE '(^|[;&|[:space:]])just[[:space:]]+test\b' <<<"$CMD" && stamp test
+  if [[ "$CMD" =~ $RUNNER_RE ]] && ! hidden_exit; then stamp test; fi
   exit 0
   ;;
 PreToolUse)
