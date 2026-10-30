@@ -16,7 +16,7 @@ With --red the skill is not exposed and no check runs; the transcripts are
 only saved. A setup error in one tool does not hide the other tool's line.
 Exit 0 pass, 1 fail, 2 setup error.
 
-Other modules import skill_loaded(events, tool) and files_read(events, tool).
+Other modules import skill_loaded(events, tool), files_read(events, tool) and kill_group(proc).
 """
 
 import argparse
