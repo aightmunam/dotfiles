@@ -245,7 +245,7 @@ def prepare_scratch(tool, skill, red):
     """Make the scratch dir and link the worktree skill into it."""
     scratch = Path(tempfile.mkdtemp(prefix=f"pressure-{tool}-"))
     # The router is present in every run, GREEN and RED.
-    (scratch / "AGENTS.md").symlink_to(ROOT / "ai" / "AGENTS.md")
+    shutil.copyfile(ROOT / "ai" / "AGENTS.md", scratch / "AGENTS.md")
     (scratch / "CLAUDE.md").write_text("@AGENTS.md\n", encoding="utf-8")
     if skill and not red:
         base = ".claude" if tool == "claude" else ".agents"

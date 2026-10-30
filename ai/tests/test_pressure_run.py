@@ -196,7 +196,8 @@ class PressureRunTest(unittest.TestCase):
                 self.assertEqual((green / base / "skills" / "tdd").readlink(), self.pr.SKILLS_DIR / "tdd")
                 self.assertFalse((red / base).exists())
                 for d in (green, red):
-                    self.assertEqual((d / "AGENTS.md").readlink(), ROOT / "ai" / "AGENTS.md")
+                    self.assertTrue((d / "AGENTS.md").is_file() and not (d / "AGENTS.md").is_symlink())
+                    self.assertEqual((d / "AGENTS.md").read_text(), (ROOT / "ai" / "AGENTS.md").read_text())
                     self.assertEqual((d / "CLAUDE.md").read_text(), "@AGENTS.md\n")
             finally:
                 shutil.rmtree(green, ignore_errors=True)
