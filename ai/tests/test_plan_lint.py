@@ -79,6 +79,8 @@ class PlanLintTest(unittest.TestCase):
             "line 21: Step 2: test step has no literal expected value",
             "line 22: Step 3: code step has no signature name(params) -> type",
             "line 23: Step 4: code step names no file path",
+            "line 25: checkbox step: code step has no signature name(params) -> type",
+            "line 25: checkbox step: code step names no file path",
         ]
         self.assertEqual([l[len(path) + 2:] for l in lines], expected)
 

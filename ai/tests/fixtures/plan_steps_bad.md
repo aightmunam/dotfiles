@@ -22,6 +22,7 @@ phases:
 - [ ] **Step 3: Implement** the parser in `ai/example/one.py`.
 - [ ] **Step 4: Implement** `parse_limit(raw: str) -> int`.
 - [ ] **Step 5: Run** the tests. Expected: PASS.
+- [ ] Implement the parser.
 
 #### Automated verification
 - [ ] `python3 -m unittest` passes.

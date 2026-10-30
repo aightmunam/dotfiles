@@ -116,6 +116,15 @@ Grimoire renders the plan from the manifest and flags each drift. `plan-lint` pr
 - The file starts with the `---` line. With text before it, Grimoire does not read the manifest and does not check it. `plan-lint` exits 1 for this, and for a frontmatter without `kind: plan`.
 - The manifest `files` list of a phase is the file set that it owns. Two parallel phases do not share a path.
 
+## Step rules
+
+`plan-lint` checks each checkbox step. Each rule below is one line of its output when the step breaks it.
+
+- Write each step as `- [ ] **Step N: <title>**`.
+- A test step title starts with Write or Add and names a test. Name each test in backticks, for example `test_parse_limit`. Give a literal expected value in backticks, for example `parse_limit("5") == 5`.
+- A code step title starts with Implement. Give the signature in backticks as `name(params) -> type`. Give the file path in backticks.
+- A verification step gives the command and the output that means it passed.
+
 ## Self-review
 
 Do these checks after you write the plan. Fix each gap in the plan. Do not review again.

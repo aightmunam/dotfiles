@@ -25,17 +25,17 @@ You own the plan, not the code. Do not implement.
 5. **Wide changes.** When work is not trivial, build the tool that does it. Do not do it by hand. Read ~/.agents/principles/build-the-lever.md before this step. A change across many files has three steps. Add the new form. Move the callers in batches with a script or codemod. Then remove the old form. The script is a file in the plan.
 6. **Failure modes.** When actors might write the same state, first remove the sharing. Read ~/.agents/principles/separate-before-serializing-shared-state.md before this step. For each write path, write a row for each of five modes: transaction scope, side effects before commit, retries, idempotency, and shared state. Shared state includes Postgres row contention and parallel workers. Add a row for each other input or failure that the spec implies. Each row names the phase and the test that pins it. Two phases are parallel when neither one blocks the other, directly or through a chain. The manifest `files` lists of two parallel phases do not share a path.
 7. **Write.** Fill the template. Put the plan in `thoughts/shared/plans/YYYY-MM-DD-<topic>.md` of the repo where the change lands, with `status: draft`. In a worktree, use the main checkout (`git rev-parse --git-common-dir`, then its parent). If you cannot write files, put the full plan in your answer, from its first `---` line, and name its path.
-8. **Check.** Do the self-review in the template. Run `~/dotfiles/ai/bin/plan-lint <plan>`. It exits 1 when line 1 of the file is not `---` or the frontmatter has no `kind: plan`. Exit 1: fix each line that it prints, and run it again. Exit 2 is a setup error. Stop. Do not run it again. Put the exit code and the message in the handoff. With exit 2, no file, or no script on disk, check the manifest rules by hand and say so in the handoff.
+8. **Check.** Do the self-review in the template. Run `~/dotfiles/ai/bin/plan-lint <plan>`. It exits 1 when line 1 of the file is not `---` or the frontmatter has no `kind: plan`. It also exits 1 for a test step with no test name or no literal value. It exits 1 for a code step with no signature or no file path. Exit 1: fix each line that it prints, and run it again. Exit 2 is a setup error. Stop. Do not run it again. Put the exit code and the message in the handoff. With exit 2, no file, or no script on disk, check the manifest rules by hand and say so in the handoff.
 9. **Hand off.** Use the handoff template. Ask only decisions. Reversible work does not wait for an answer.
 
 ## Rules That Shape the Plan
 
 - **A step is one action with a checkable result.** The builder can write exactly one reasonable thing from it.
-- **Decide, do not transcribe.** A code step gives the file, the signature, and the exact values. It gives a body only for an algorithm that the tests do not fix.
+- **Decide, do not transcribe.** A test step gives the test name and a literal expected value. A code step gives the file, the signature, and the exact values. It gives a body only for an algorithm that the tests do not fix.
 - **No empty lines.** "TBD", "handle edge cases", and "add validation" decide nothing. Replace each with the decision.
 - **Tests per phase.** Each phase runs only its touched tests. The full suite runs once, in the last phase.
 - **An empty section says why.** Entry points and failure modes are always present.
-- **No old-tool residue.** No ticket ids such as `ENG-XXXX`, no `thoughts/allison`, no `humanlayer` commands, and no `npm` commands in a repo without npm.
+- **No old-tool residue.** No ticket ids such as `ENG-XXXX`, no `thoughts/allison`, no `npm` commands in a repo without npm, and no `humanlayer` command except `humanlayer thoughts sync`.
 
 ## Handoff Template
 

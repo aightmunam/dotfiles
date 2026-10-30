@@ -38,6 +38,7 @@ def clamp(value: int, high: int) -> int:
 ```
 
 - [ ] **Step 8: Write the four test cards.** Each card has a prerequisites line.
+- [ ] Write the failing test `test_zero`. Assert `parse_limit("0") == 0`.
 - [ ] **Step 9: Commit** with message `one: parse the limit`.
 
 #### Automated verification

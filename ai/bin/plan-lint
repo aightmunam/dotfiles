@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # plan-lint FILE...: run Grimoire's plan parser on each file and print every
 # warning as "FILE: warning". A file that does not start with a kind: plan
-# manifest is a warning too. Exit 0 clean, 1 on any warning, 2 on setup error.
+# manifest is a warning too. It also checks each "- [ ] **Step N: ...**"
+# item: a test step names a test and a literal expected value, and a code step
+# names a signature and a file path (see the usage text).
+# Exit 0 clean, 1 on any warning, 2 on setup error.
 # GRIMOIRE_DIR overrides the Grimoire checkout (default ~/Developer/grimoire).
 set -u
 
@@ -10,7 +13,22 @@ usage() {
 usage: plan-lint FILE...
 Run Grimoire's plan parser on each FILE and print every warning as
 "FILE: warning". A file that does not start with a kind: plan manifest
-is a warning too. Exit 0 clean, 1 on any warning, 2 on setup error.
+is a warning too.
+
+Step rule, for each "- [ ] **Step N: <title>**" item and each other
+"- [ ] " item, with its indented and fenced lines. The title of an item
+without the Step label is its first sentence.
+- A test step has a title that starts with Write or Add and names a test.
+  It needs a test name in backticks (test_x, TestX, x_test, a::b) and a
+  literal expected value: a backticked value with a digit, a quote or
+  True/False/None, a backticked value after assert, expect, equal, contain,
+  print, return or raise, or an assert line in a fenced block.
+- A code step has a title that starts with Implement. It needs a signature
+  in backticks or in a fenced block, as name(params) -> type,
+  name(params): type, or func name(params) type, and a file path in
+  backticks.
+
+Exit 0 clean, 1 on any warning, 2 on setup error.
 GRIMOIRE_DIR overrides the Grimoire checkout (default ~/Developer/grimoire).
 USAGE
 }
@@ -39,8 +57,84 @@ if [ ! -x "$py" ]; then
 fi
 
 PYTHONPATH="$grimoire" exec "$py" -c '
+import re
 import sys
 from pathlib import Path
+
+STEP = re.compile(r"^- \[[ xX]\] \*\*Step (\d+):?(.*)$")
+BARE = re.compile(r"^- \[[ xX]\] (?!\*\*Step )(.*)$")
+BOLD_END = re.compile(r"^(.*?)\*\*(.*)$")
+TICKS = re.compile(r"`([^`\n]+)`")
+TEST_STEP = re.compile(r"^(write|add)\b.*\btests?\b(?!\s+cards?)", re.I)
+CODE_STEP = re.compile(r"^implement\b", re.I)
+TEST_NAME = re.compile(r"^\S*?(?:^|::|[./])(test_\w+|Test[A-Z0-9_]\w*|\w+_test)$|^\S+::\S+$")
+FENCE_TEST = re.compile(r"^\s*(?:async\s+)?(?:def|func)\s+(test_\w+|Test\w+)\s*\(")
+LITERAL = re.compile(r"\d|[\x22\x27]|^(True|False|None|true|false|null|nil)$")
+CUE = re.compile(r"\b(asserts?|expect(?:s|ed)?|equals?|contains?|prints?|returns?|raises?)\b[^`.;]{0,40}`[^`\n]+`", re.I)
+FENCE_ASSERT = re.compile(r"\bassert|\bexpect\s*\(|\.toBe|\bt\.(Error|Fatal)")
+SIGNATURE = re.compile(r"[A-Za-z_][\w.]*\s*\([^()]*\)\s*(->|:)\s*\S|\bfunc\s+(\([^()]*\)\s*)?\w+\s*\([^()]*\)\s*\S")
+PATH = re.compile(r"^~?[\w.-]*(/[\w.*<>-]+)+/?$|^[\w-]+\.\w{1,6}$")
+
+
+def steps(text):
+    """Yield (line number, step number, title, step lines) for each step item."""
+    lines = text.split("\n")
+    i = 0
+    while i < len(lines):
+        m = STEP.match(lines[i])
+        bare = None if m else BARE.match(lines[i])
+        if not m and not bare:
+            i += 1
+            continue
+        if m:
+            start, label, rest = i + 1, "Step " + m.group(1), m.group(2)
+            b = BOLD_END.match(rest)
+            title = b.group(1).strip() if b else rest.strip()
+            after = b.group(2) if b else ""
+        else:
+            start, label, title, after = i + 1, "checkbox step", "", bare.group(1)
+        if not title:
+            title = re.split(r"[.:](\s|$)", after.strip(), maxsplit=1)[0]
+        body, fence = [lines[i]], False
+        i += 1
+        while i < len(lines):
+            line = lines[i]
+            if line.lstrip().startswith("```"):
+                fence = not fence
+            elif not fence and (line.startswith("#") or line.startswith("- [") or line.startswith("**File**")):
+                break
+            body.append(line)
+            i += 1
+        yield start, label, title, body
+
+
+def fenced(body):
+    out, on = [], False
+    for line in body:
+        if line.lstrip().startswith("```"):
+            on = not on
+        elif on:
+            out.append(line)
+    return out
+
+
+def check_steps(text):
+    for start, label, title, body in steps(text):
+        joined = "\n".join(body)
+        ticks = TICKS.findall(joined)
+        code = fenced(body)
+        where = f"line {start}: {label}"
+        if TEST_STEP.match(title):
+            if not (any(TEST_NAME.match(t.strip()) for t in ticks) or any(FENCE_TEST.match(l) for l in code)):
+                yield f"{where}: test step names no test in backticks"
+            if not (any(LITERAL.search(t.strip()) for t in ticks) or CUE.search(joined) or any(FENCE_ASSERT.search(l) for l in code)):
+                yield f"{where}: test step has no literal expected value"
+        elif CODE_STEP.match(title):
+            if not (any(SIGNATURE.search(t) for t in ticks) or any(SIGNATURE.search(l) for l in code)):
+                yield f"{where}: code step has no signature name(params) -> type"
+            if not any(PATH.match(t.strip()) for t in ticks):
+                yield f"{where}: code step names no file path"
+
 
 bad = False
 for name in sys.argv[1:]:
@@ -61,6 +155,9 @@ for name in sys.argv[1:]:
         print(f"{name}: no kind: plan manifest in the frontmatter")
         bad = True
     for warning in plan.warnings:
+        print(f"{name}: {warning}")
+        bad = True
+    for warning in check_steps(text):
         print(f"{name}: {warning}")
         bad = True
 sys.exit(1 if bad else 0)
