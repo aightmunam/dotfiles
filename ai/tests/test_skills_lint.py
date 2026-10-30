@@ -18,7 +18,12 @@ STE_LINT = ROOT / "ai" / "vendor" / "ste-lint.py"
 EM_DASH = chr(0x2014)
 MAX_SKILL_LINES = 80
 # Excluded until P9 removes them.
-LEGACY = {"fact-constrained-debugging"}
+# The old `debug` is replaced in Task 4.3, which removes it from LEGACY.
+LEGACY = {"fact-constrained-debugging", "debug"}
+PLANNED = {
+    "research", "brainstorm", "make-plan", "build", "tdd", "debug", "prove", "verifier",
+    "performance", "pr", "reply", "address", "new-skill", "staging", "data-op", "review-pr",
+}
 NEW_AGENTS = {"reviewer", "explorer"}
 
 
@@ -28,7 +33,12 @@ def new_form(skills_dir=SKILLS_DIR):
     return sorted(
         d.name
         for d in skills_dir.iterdir()
-        if d.is_dir() and ((d / "source-map.md").is_file() or (d / "tenet-map.md").is_file())
+        if d.is_dir()
+        and (
+            d.name in PLANNED
+            or (d / "source-map.md").is_file()
+            or (d / "tenet-map.md").is_file()
+        )
     )
 
 
@@ -73,10 +83,18 @@ def check_description(path):
     if not desc or desc in ("|", ">", "|-", ">-"):
         errors.append(f"{path}: description must be one non-empty line")
     for i, line in enumerate(block):
-        if line.startswith("description:") and i + 1 < len(block) and block[i + 1].startswith((" ", "\t")):
-            errors.append(f"{path}: description spans more than one line")
+        if not line.startswith("description:"):
+            continue
+        for nxt in block[i + 1 :]:
+            if nxt.strip() == "":
+                continue
+            if nxt.startswith((" ", "\t")):
+                errors.append(f"{path}: description spans more than one line")
+            break
     if not desc.startswith("Use when"):
         errors.append(f"{path}: description must start with 'Use when'")
+    if ": " in desc or " #" in desc:
+        errors.append(f"{path}: description has an unquoted ': ' or ' #', invalid YAML")
     if '"' in desc:
         errors.append(f"{path}: description must not contain a double quote")
     return errors
@@ -203,7 +221,40 @@ class LintSelfCheck(unittest.TestCase):
 
     def test_ste_lint_fails_on_violations(self):
         p = self.skill("---\nname: good-name\n---\nDo this; do that.\n")
-        self.assertTrue(check_ste(p))
+        errors = check_ste(p)
+        self.assertTrue(errors)
+        self.assertIn("semicolon", errors[0])
+
+    def test_ste_lint_clean_passes(self):
+        p = self.skill("---\nname: good-name\n---\nDo this. Do that.\n")
+        self.assertEqual(check_ste(p), [])
+
+    def test_description_colon_or_hash(self):
+        for desc in ("Use when x: y", "Use when x #y"):
+            p = self.skill(f"---\nname: good-name\ndescription: {desc}\n---\n")
+            self.assertTrue(check_description(p), desc)
+
+    def test_blank_line_then_continuation(self):
+        p = self.skill("---\nname: good-name\ndescription: Use when x\n\n  and y.\n---\n")
+        self.assertTrue(check_description(p))
+
+    def test_exactly_80_lines_passes(self):
+        p = self.skill("---\nname: good-name\n---\n" + "line\n" * 77)
+        self.assertEqual(len(p.read_text().splitlines()), 80)
+        self.assertEqual(check_length(p), [])
+
+    def test_debug_needs_tenet_map(self):
+        d = self.dir.parent / "debug"
+        d.mkdir()
+        (d / "source-map.md").write_text("x\n")
+        self.assertTrue(check_source_map(d))
+        (d / "tenet-map.md").write_text("x\n")
+        self.assertEqual(check_source_map(d), [])
+
+    def test_planned_without_map_is_in_new_form(self):
+        d = self.dir.parent / "tdd"
+        d.mkdir()
+        self.assertIn("tdd", new_form(self.dir.parent))
 
     def test_new_form_detection(self):
         self.assertEqual(new_form(self.dir.parent), [])
