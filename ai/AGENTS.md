@@ -67,7 +67,7 @@ Write in ASD-STE100 Simplified Technical English. There are two modes.
 
 ## Skill routing
 
-Pick the skill from this table by the situation. Read the skill before you act.
+Pick the skill from this table by the situation. Read the skill before you act. Read it before any other tool call, also before a check that a named file or repo exists. The skill tells you what to do when it does not.
 
 | Situation | Skill |
 |---|---|
