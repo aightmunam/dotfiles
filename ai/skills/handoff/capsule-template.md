@@ -8,7 +8,7 @@ Each thread line starts with exactly one tag. Run the check before you write the
 
 | Tag | Write it only when this check shows it |
 |---|---|
-| `[merged #N]` | `gh pr view N --json state,mergedAt` shows `MERGED`. No revert of #N: `git log <base> --oneline -E --grep "#N([^0-9]|$)" --grep "This reverts commit"` and `gh pr list --state all --search "Revert"` show none. |
+| `[merged #N]` | `gh pr view N --json state,mergedAt` shows `MERGED`. No revert of #N: `git log <base> --oneline -E --grep "#N([^0-9]|$)" --grep "This reverts commit"` and `gh pr list --state all --search "Revert"` show none. The two `--grep` flags match any revert, so read each hit and keep only reverts of #N. |
 | `[open PR #N]` | `gh pr view N --json state` shows `OPEN`. |
 | `[in flight <branch>]` | The branch has commits or changes, and no PR is open or merged for it. Unchecked changes also get this tag. |
 | `[verified, uncommitted]` | `git status --short` shows the change. You ran its check in this session and the check passed. The check fails on the old code and passes on the new. A check that passes on the old code is not its check. Name the command. |
@@ -56,7 +56,7 @@ Principles applied: prove-it-works -> <the tag or claim that a check changed>
 
 ## Evidence Forms
 
-`<evidence>` in Threads and `Source:` in Problems use one or more of these forms, separated by `;`.
+`<evidence>` in Threads and `Source:` in Problems use one or more of these forms, separated by `;`. A thread with a tag must include the Command form.
 
 | Source | Form | Example |
 |---|---|---|
