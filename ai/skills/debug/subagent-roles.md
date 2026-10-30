@@ -10,7 +10,7 @@ Dispatch independent subagents of the same role together, in one message, so the
 
 ## 1. Fact gatherer (one per source)
 
-**When:** loop step 1, once per source: each log set, each config, each trace or metric, each report bundle, change history. A source you cannot reach goes in the intervention log, not to a gatherer.
+**When:** loop step 2, once per source: each log set, each config, each trace or metric, each report bundle, change history. A source you cannot reach goes in the intervention log, not to a gatherer.
 
 **Prompt contains, in order:**
 1. The one source to read (path, query, or command), and that access is read-only.
@@ -23,7 +23,7 @@ Dispatch independent subagents of the same role together, in one message, so the
 
 ## 2. Hypothesis eliminator (one per matrix row)
 
-**When:** after you build the matrix (step 3), once per row not already discarded by a cited `N`. Also for every candidate from the input you think is irrelevant.
+**When:** after you build the matrix (step 4), once per row not already discarded by a cited `N`. Also for every candidate from the input you think is irrelevant.
 
 **Prompt contains, in order:**
 1. The full fact table.
@@ -34,7 +34,7 @@ Dispatch independent subagents of the same role together, in one message, so the
 
 **You then:** fill the row from the returned cells. If you disagree with a cell, the disagreement is about a fact: re-check that fact, don't overrule the cell.
 
-## 3. Step reviewer (one per step, at loop step 8)
+## 3. Step reviewer (one per step, at loop step 12)
 
 **When:** once the survivor is validated. Three reviewers, each scoped to one step and given only that step's artifact.
 

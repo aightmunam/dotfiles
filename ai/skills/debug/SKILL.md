@@ -16,18 +16,16 @@ description: Use when something is broken and the cause is not known. Use when a
 
 **First, read `investigation-template.md`.** Your answer fills all of its sections in order. A section that does not apply says why.
 
-**If you have a subagent dispatch tool, also read `subagent-roles.md`.** Give each role to a subagent. Isolation from your context is the point. With no dispatch tool, do each role yourself.
-
-Open the skill files and the principle files with your file-read tool when you have one, not with a shell command. For a path that starts with `~`, give the tool the full path of your home directory.
+**If you have a subagent dispatch tool, also read `subagent-roles.md`.** Give each role to a subagent. Do this also when the sources are small. Isolation from your context is the point. With no dispatch tool, do each role yourself.
 
 1. **Red loop.** Build the red loop before you write a hypothesis or a fix. Build it from the test command and the symptom. Do not read the suspect code yet. Run the loop on the unchanged code, and show its red output, before any patch. For a flaky bug, pin the random input (seed, hash seed, clock, order), or run the trigger many times. Record the red rate. The loop output is fact F1. If real attempts give no loop, list the attempts. Then mark each cause and each fix `UNCONFIRMED (no loop)`.
-2. **Facts** (gatherers). Gather read-only. Sources include run output, logs, local DB state, configs, and `git status`, `git log` and `git diff`.
+2. **Facts** (gatherers). Gather read-only, and do it yourself. Ask a human only for a source that you cannot get to, and write each ask in the intervention log. Sources include run output, logs, local DB state, configs, and `git status`, `git log` and `git diff`.
 3. **Variable and control.** Use the best control in the data, and write its weakness.
 4. **Matrix** (eliminators). Give a row to each candidate in the input, each failed fix, and each of yours. Make each fact a column. A `Y` needs no unproven mechanism.
 5. **Read it.** The strongest signal is the column with the fewest `Y`. Any `N` discards a row.
 6. **No row survives.** Do the tactics in order (template section 4).
 7. **Too many rows survive, or the signals are weak.** Stop the hypotheses. Get the one fact that splits the rows, one layer down, cheapest first.
-8. **Replay the survivor.** Run its path through the red loop against the real code, one step for each action. The loop must go red on that path, and green when you remove the cause. If not, suspect the hypothesis until you show that it is right.
+8. **Replay the survivor.** Run its path through the red loop against the real code, one step for each action. The loop must go red on that path, and green when you remove the cause. If not, suspect the hypothesis until you show that it is right. Then validate the survivor against every fact, noise included.
 9. **Attack the premise.** When two fixes that share one premise fail the same gate, test the premise. Do not write a third fix. Count the failed fixes in the input too. Write the premise in one sentence. Look at how the failures spread, not only at their size. Read ~/.agents/principles/attack-the-premise.md before this step.
 10. **Pick the fix.** Fix the fault, not the place where it showed. Ask if the state that caused the symptom is legitimate. A failure only after a restart points at saved state first. Find each place with the same fault. Name a cheap log or metric that shows the cause at first look. Read ~/.agents/principles/fix-root-causes.md before this step.
 11. **Fix.** Write the regression test at the real seam. Watch it fail. Make one change. Run the test and the red loop again.
@@ -62,4 +60,5 @@ Open the skill files and the principle files with your file-read tool when you h
 - You read code when you needed the splitting fact. Go back to step 7.
 - You plan a third fix on the same premise. Go back to step 9.
 - You had a dispatch tool, but you did a gatherer or reviewer job yourself. Go back to that step.
+- You did the roles yourself because the repo, the sources or the budget is small. Size is not a reason. Go back to that step.
 - Your answer ends with a question, and no user is present. Go back to step 13.
