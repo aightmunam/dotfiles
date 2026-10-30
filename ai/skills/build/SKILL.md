@@ -18,15 +18,15 @@ You own the run. The implementer writes the code of a phase.
 
 ## The Loop
 
-**First, read `brief-template.md`. Then open each principle file that it names, one file per call. Use the Read tool if you have one, not a shell loop. Otherwise use `cat` on one file.** Steps 4 and 5 apply them. Do this also in a dry run.
+**First, read `brief-template.md`. Then open each principle file that it names, one file per call.** Steps 4 and 5 apply them. Do this also in a dry run.
 
-1. **Read.** Read the plan once, in full. Read the test card. If it is missing, take the test commands from the repo config and say so. Work in `~/wt/<repo>/<name>` off the base branch of the plan. Set the plan to `status: in-progress`.
+1. **Read.** Read the plan once, in full. If its header does not say `status: approved`, stop and report the status. A draft is not the user's yes. Read the test card. If it is missing, take the test commands from the repo config and say so. Work in `~/wt/<repo>/<name>` off the base branch of the plan. Set the plan to `status: in-progress`.
 2. **Check names.** Compare each `Consumes` line with the `Produces` line of an earlier phase. For each mismatch, pick one name. Write a Deviation row for it. Do not change the phase text.
 3. **Brief.** Fill `brief-template.md` for the next phase. Add the interfaces from earlier phases and each Deviation row that touches the phase. Read each principle file that the brief names.
 4. **Dispatch.** When actors might write the same state, first remove the sharing. Read ~/.agents/principles/separate-before-serializing-shared-state.md before this step. Record the base SHA. Give the brief to one fresh implementer. Run phases in parallel only when the plan gives each one a disjoint file set. Then each phase gets its own worktree.
-5. **Review.** Check input at the system boundary and trust typed data inside. Keep business logic in pure functions. Read ~/.agents/principles/boundary-discipline.md before this step. Read the diff from the base SHA, not only the report. Run the touched tests yourself. Check that the receipt shows red by the definition.
+5. **Review.** Check input at the system boundary and trust typed data inside. Keep business logic in pure functions. Read ~/.agents/principles/boundary-discipline.md before this step. Read the diff from the base SHA, not only the report. Run the touched tests yourself. Check that the receipt shows red by the definition. For each `Assumed:` line in the report, find its source in the phase text or at the cited `file:line`. An `Assumed:` line with no such source is a finding. An `Open:` line means NEEDS_CONTEXT. Answer it from the plan in a new brief. If the plan has no answer, ask the user one question, with a recommended answer.
 6. **Fix.** Give each finding to a new fresh implementer. Send the brief, the report, the findings, and the branch. Stop after three fix rounds on one phase. Then write a Deviation row for each open finding.
-7. **Record.** Add the receipt under the phase in the plan. Commit the phase. Go to step 3 for the next phase.
+7. **Record.** Check that the receipt is under the phase in the plan. The implementer writes it with `tdd`. Do not write it a second time. Commit the phase. `prove` ticks the plan boxes and sets `status: done`. Never do either. Go to step 3 for the next phase.
 8. **Finish.** After the last phase, run the full suite once. Give the output template. Then hand off to `prove`.
 
 ## Rules
@@ -68,3 +68,6 @@ Principles applied: <name> -> <choice it changed>, one for each principle file t
 - Your output names a principle file that you did not open in this session. Go back to the start of the loop.
 - You accepted a phase from its report alone. Go back to step 5.
 - You wrote phase code while a dispatch tool was there. Go back to step 4.
+- You continued on a plan whose status was not `approved`. Go back to step 1.
+- You ticked a plan box or set `status: done`. Go back to step 7.
+- An answer with no `Principles applied:` line. Go back to step 8.

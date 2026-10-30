@@ -26,8 +26,8 @@ Work in `<worktree path>` on branch `<branch>`. The base SHA is `<sha>`.
 ## Hard rules
 
 - Do all the work yourself. Do not start a subagent, and do not start a reviewer. `build` reviews your diff.
-- Change only the files of this phase. If the phase needs a file that it does not list, stop and report NEEDS_CONTEXT.
-- Write each test first with `tdd`. If a cause is not known, use `debug`.
+- Change only the files of this phase. In the plan, add only the receipt lines under `## Phase <n>`. Do not change other plan text, and do not tick boxes. If the phase needs a file that it does not list, stop and report NEEDS_CONTEXT.
+- Write each test first with `tdd`. Write each receipt under `## Phase <n>` in the plan, as `tdd` says. If a cause is not known, use `debug`.
 - Red is a failed assertion with the value that you predicted. An import error, a collection error, a syntax error, or a wrong argument count is not red. If the test stops before its assertion, add the smallest stub (the name, or the new parameter), then run it again.
 - Run only the touched tests: `<command>`. Do not run the full suite.
 - Do not weaken a test, skip a check, or change a gate to make it pass. If you think that a gate is wrong, stop and report it.
@@ -51,14 +51,16 @@ Read each file before you write code:
 Write the full report to `<report path>`:
 
 - What you changed, with the files.
-- The receipt: `Fail-first: <test id> expected <x> got <y>`, with the command and the output lines that show it.
+- The receipt: `Fail-first: <test id> expected <x> got <y>`, with the command and the output lines that show it. It is also under `## Phase <n>` in the plan.
+- Each `Assumed: <value> (source: <file:line or spec section>)` line that `tdd` wrote. Or "None."
+- Each `Open: <question>` line that `tdd` wrote. Or "None."
 - The touched-test command and its result after the change.
 - Principles applied: <name> -> <choice it changed>, one for each principle file that you read.
 - Each concern.
 
 Then reply with only these lines:
 
-- Status: DONE, DONE_WITH_CONCERNS, NEEDS_CONTEXT, or BLOCKED.
+- Status: DONE, DONE_WITH_CONCERNS, NEEDS_CONTEXT, or BLOCKED. An `Open:` line makes the status NEEDS_CONTEXT.
 - Commits: <sha7> <subject>.
 - Tests: <one line>.
 - Concerns: <one line each, or "none">.
