@@ -84,6 +84,11 @@ class PressureRunTest(unittest.TestCase):
         failures = self.pr.check("claude", [claude_text("Principles applied: x -> y")], "tdd", ["boundary-discipline"])
         self.assertEqual(len(failures), 2)
 
+    def test_no_principles_needs_no_line(self):
+        skill = fixture("claude_skill_tool.jsonl")
+        answer = [claude_text("One question. Recommended: A.")]
+        self.assertEqual(self.pr.check("claude", skill + answer, "pressure-probe", []), [])
+
     def test_final_answer(self):
         self.assertEqual(self.pr.final_answer(fixture("claude_result.jsonl"), "claude"), "PROBE-LOADED")
         self.assertEqual(self.pr.final_answer(fixture("codex_message.jsonl"), "codex"), "PROBE-LOADED")

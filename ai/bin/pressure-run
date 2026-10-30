@@ -8,7 +8,8 @@ Makes a scratch directory per tool (under the system temp dir), exposes the
 worktree skill there (not with --red), runs the scenario, and saves
 DIR/<tool>.jsonl (transcript) and DIR/<tool>.txt (final answer).
 GREEN passes, per tool, when the skill loaded, each --principle file was read
-and the answer has a "Principles applied:" line. With --red the skill is not
+and, when any --principle is given, the answer has a "Principles applied:"
+line. With --red the skill is not
 exposed and no check runs; the transcripts are only saved.
 Exit 0 pass, 1 fail, 2 setup error.
 
@@ -224,7 +225,7 @@ def check(tool, events, skill, principles):
     for name in principles:
         if name not in read:
             failures.append(f"principle not read: {name}")
-    if not LINE_RE.search(final_answer(events, tool)):
+    if principles and not LINE_RE.search(final_answer(events, tool)):
         failures.append("answer has no 'Principles applied:' line")
     return failures
 
