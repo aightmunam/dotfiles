@@ -30,7 +30,7 @@ Model: `~/Developer/fo-backfill/fo_backfill.py`, imsys backfill CLI.
 - `--limit` and wave files.
 - Idempotent: skip rows already in the target state.
 - Halt on the first error.
-- Order: staging full run, then a prod canary wave, then the remaining waves. The user runs each prod wave (CLI or Cloud Run job execution). The agent builds the tool, runs it on staging, and checks prod only through read paths (Metabase, read APIs, SF read-only).
+- Order: staging full run, then a prod canary wave, then the remaining waves. The user runs each prod wave (CLI or Cloud Run job execution). The agent builds the tool, runs it on staging, and checks prod only through read paths (Metabase and read APIs).
 
 For SF prod (a prod org), the Repo Rules line in `SKILL.md` stays in force: give the user the read query, and run no command against that org.
 

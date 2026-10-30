@@ -15,7 +15,7 @@
 
 ## paths.md and spec 8.4
 
-`paths.md` is spec 8.4 text with these changes. Line 3: "The skill never opens" became "The agent never opens". Path table intro: "Step 1 picks the path (decided by the user)" became step 2 with recommend and go on (step numbering, never-block-on-the-human). Busy tables: the pure-read `--dry-run` sentence (red: Claude's `FOR UPDATE` dry run) and the line that it replaces the `--dry-run` and one-transaction rules of path B (review M2). Fix round 1 also adds the SF prod pointer line under path A (review I4). The STE synonym hits in path B ("Validate", "verify") are spec-verbatim lines and stay as written.
+`paths.md` is spec 8.4 text with these changes. Line 3: "The skill never opens" became "The agent never opens". Path table intro: "Step 1 picks the path (decided by the user)" became step 2 with recommend and go on (step numbering, never-block-on-the-human). Busy tables: the pure-read `--dry-run` sentence (red: Claude's `FOR UPDATE` dry run) and the line that it replaces the `--dry-run` and one-transaction rules of path B (review M2). Fix round 1 also adds the SF prod pointer line under path A and drops "SF read-only" from the Order line (review I4). The STE synonym hits in path B ("Validate", "verify") are spec-verbatim lines and stay as written.
 
 ## Source-rule exception
 
