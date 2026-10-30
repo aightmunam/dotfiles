@@ -11,7 +11,7 @@ description: Use when you make one change test first and no plan exists. Use whe
 - **Domain fact:** a business value that a test assumes. Examples are a threshold, an inclusive or exclusive limit, rounding, and the amount that a rule uses. Each fact needs a source: the user, a ticket, a spec, or a line of code. Your reading of the user's words is not a source.
 - **Red:** a test run that fails on an assertion with the mismatch that you predicted. An import error, a collection error, a fixture error, or a typo is not red.
 - **Receipt:** one line, `Fail-first: <test id> expected <x> got <y>`. The test id is the pytest node id.
-- **Gate:** no test, code change, or command comes before one of these. One: the user's yes. Two: `Assumed:` lines with a source for the seam and each fact that the test needs. Three: `Open:` lines and a stop. The answer starts with these lines.
+- **Gate:** no test, code change, or command comes before one of these. One: the user's yes, or a plan the user approved. Two: `Assumed:` lines with a source for the seam and each fact that the test needs. Three: `Open:` lines and a stop. The answer starts with these lines.
 
 ## The Loop
 
