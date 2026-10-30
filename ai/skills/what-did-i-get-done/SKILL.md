@@ -18,8 +18,8 @@ description: Use when the user asks what they got done in a period. Use when the
 1. **Resolve.** Run `date`. Resolve the user's words to the window. If the words are not clear, use the most probable window and continue.
 2. **Identify.** Run `gh api user --jq .login` to get the login. In each repo, run `git -C <repo> config user.email` to get the email. Do not use an email from another directory.
 3. **Commits.** In each repo, run `git -C <repo> log --all --no-merges --author=<email> --since=<first>T00:00 --until=<last>T23:59:59`. Read the diff of each commit that the message does not explain.
-4. **PRs.** Run `gh search prs --author=@me --merged=<first>..<last>`. Run it again with `--created=<first>..<last>`. Run `gh search prs --reviewed-by=@me --updated=<first>..<last>` and remove each PR with the user as author. Read the body of each PR.
-5. **Merge.** Put each commit that a listed PR contains under that PR. Remove each item that only changes format, imports or names.
+4. **PRs.** Run `gh search prs --author=@me --merged-at=<first>..<last>`. Run it again with `--created=<first>..<last>`. Run `gh search prs --reviewed-by=@me --updated=<first>..<last>` and remove each PR with the user as author. Read the body of each PR.
+5. **Merge.** Run `gh pr view <url> --json commits` for each listed PR. Put each commit that the PR contains under that PR. Remove each item that only changes format, imports or names.
 6. **Describe.** Write one line for each item. Tell what changed for the users of the code. Use the PR body, the commit message and the diff.
 7. **Check.** Read the answer once for each red flag.
 8. **Reply.** Use the output template. The template is the full reply.
