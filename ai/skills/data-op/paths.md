@@ -32,6 +32,8 @@ Model: `~/Developer/fo-backfill/fo_backfill.py`, imsys backfill CLI.
 - Halt on the first error.
 - Order: staging full run, then a prod canary wave, then the remaining waves. The user runs each prod wave (CLI or Cloud Run job execution). The agent builds the tool, runs it on staging, and checks prod only through read paths (Metabase, read APIs, SF read-only).
 
+For SF prod (a prod org), the Repo Rules line in `SKILL.md` stays in force: give the user the read query, and run no command against that org.
+
 ## Path B: one-off script, run off-peak as the release Cloud Run job
 
 Model: orders-service #<n> added `scripts/cleanup_duplicates.py`, #<m> deleted it.
@@ -44,6 +46,8 @@ Model: orders-service #<n> added `scripts/cleanup_duplicates.py`, #<m> deleted i
 - A follow-up PR deletes the script and its test after the run.
 
 ### Busy tables
+
+These rules replace the `--dry-run` rule and the one-transaction rule above.
 
 - The dry run on prod is a pure read (counts only), because a rolled-back dry run takes the same row locks. On a busy table, `--dry-run` runs only `SELECT` counts. It runs no `DELETE`, no `UPDATE`, and no `FOR UPDATE`.
 - Batch large changes, with a ledger so a run can resume.

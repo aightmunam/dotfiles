@@ -13,7 +13,7 @@ description: Use when a data change touches a real database or a live system. Us
 - **Invariant:** a count that you read before the change and assert after it.
 - **Pure read:** a statement that takes no row lock. `SELECT ... FOR UPDATE` and a rolled-back `DELETE` are not pure reads.
 
-You build the tool and run it on staging. The user runs each prod step. You read prod only through read paths: Metabase, read APIs, and SF read-only.
+You build the tool and run it on staging. A staging run that changes data needs the user's OK at that moment. The user runs each prod step. You read prod only through read paths: Metabase and read APIs. For Salesforce prod data, give the user the read query. You run no command against a prod org.
 
 ## The Loop
 
@@ -23,7 +23,7 @@ You build the tool and run it on staging. The user runs each prod step. You read
 2. **Path.** Read `paths.md`. Pick the row of the path table that fits the change. Write the row and the reason. Go on with your pick. The user can change it.
 3. **Build.** When work is not trivial, build the tool that does it or proves it. Do not do it by hand. Read ~/.agents/principles/build-the-lever.md before this step, as a read of that file alone. Write the script or the migration as `paths.md` gives it for your path. A `verify` command gets one seeded known-bad change for each output that it compares. Missing input gives "inconclusive", never "match".
 4. **Rerun.** Each operation must reach the same end state however many times it runs and wherever the last run stopped. Read ~/.agents/principles/make-operations-idempotent.md before this step, as a read of that file alone. Answer the three questions in the output: What happens if it runs twice in a row? What happens if the last run crashed at each possible point? Does a repeat reach the same end state? A tool that writes a file writes a temporary path and renames it into place.
-5. **Test.** Write integration tests against a Postgres testcontainer. Run the script against a local prod snapshot. Run the tests. Run the tool on staging.
+5. **Test.** Write integration tests against a Postgres testcontainer. Run the script against a local prod snapshot. Run the tests. Run the tool on staging. A staging run that changes data is a DB mutation. Ask the user for an OK at that moment before it starts. A staging dry run that is a pure read needs no OK.
 6. **Runbook.** Write the PR body as the runbook. It holds the exact prod commands, the log query, and the expected counts. It also holds the SQL for Metabase that reads the result, and the follow-ups. The prod commands go only in the runbook.
 7. **Report.** Check the real artifact before you say that a step finished. Read ~/.agents/principles/prove-it-works.md before this step, as a read of that file alone. Each report line reads the real state and the exit code. Empty or fake output gives "inconclusive", never "passed".
 8. **Hand off.** Fill the output template, also for a plan that did not run. The template is the full answer. Put it in your final answer, also when a plan file holds a copy. Its last line is the `Principles applied:` line.
