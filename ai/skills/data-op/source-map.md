@@ -48,7 +48,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Cite only principle files read in this session. | spec 8.7. | O | Template. | green-3: both cite only the three read files. |
 | Put the template in the final answer, also when a plan file holds a copy. | Audit: green-3 Claude filled the template only in its plan file. | O | Loop 8. | green-4: Claude PASS (Claude only). |
 | Four repo lines, verbatim. | brief. | D | Repo Rules. | Untested. The runs cannot write, deploy, or open a DB. |
-| A staging run that changes data needs the user's OK at that moment. A pure-read staging dry run needs none. | brief Global Constraints (no DB mutation without in-the-moment confirmation). Review I3. | D | Definitions paragraph. Loop 5. | green-4: Claude plans a pure-read staging dry run, then "Run it on staging for real. I will ask for your OK at that moment." Claude only. |
+| A staging run proceeds without a question, after a pure-read dry run. Only a prod run needs the user's OK. Untested: edited after the last GREEN (user ruling 2026-10-30, Option B). | brief Global Constraints (no DB mutation without in-the-moment confirmation). Review I3. | D | Definitions paragraph. Loop 5. | green-4: Claude plans a pure-read staging dry run, then "Run it on staging for real. I will ask for your OK at that moment." Claude only. |
 | For SF prod, give the user the read query. Run no command against a prod org. | brief Global Constraints (never touch a prod org). Review I4. | D | Definitions paragraph. paths A pointer line. Repo Rules. | Untested. Added in fix round 1. No run called `sf`. |
 
 ## Cut

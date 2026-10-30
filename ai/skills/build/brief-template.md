@@ -34,7 +34,7 @@ Work in `<worktree path>` on branch `<branch>`. The base SHA is `<sha>`.
 - No comments that tell what the code does, and no comments that explain a workaround. Change the shape of the code instead.
 - Commit the green tree with the message `<message>`. No attribution lines.
 - never touch a prod Salesforce org, not even --help.
-- No alembic upgrade or downgrade, and no DB mutation, without in-the-moment user confirmation.
+- No alembic upgrade or downgrade, and no DB mutation, on a production database without in-the-moment user confirmation.
 - Do not read .env files.
 - Worktrees only under ~/wt/<repo>/<name>.
 

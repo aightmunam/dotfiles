@@ -57,7 +57,7 @@ Principles applied: encode-lessons-in-structure -> <choice it changed>
 ## Repo Rules
 
 - never touch a prod Salesforce org, not even --help.
-- No alembic upgrade or downgrade, and no DB mutation, without in-the-moment user confirmation.
+- No alembic upgrade or downgrade, and no DB mutation, on a production database without in-the-moment user confirmation.
 - Do not read .env files.
 - Worktrees only under ~/wt/<repo>/<name>.
 

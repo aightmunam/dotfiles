@@ -43,7 +43,7 @@ A finding that fails a rule goes to Rejected with that rule as its reason.
 ## Repo Rules
 
 - never touch a prod Salesforce org, not even --help.
-- No alembic upgrade or downgrade, and no DB mutation, without in-the-moment user confirmation.
+- No alembic upgrade or downgrade, and no DB mutation, on a production database without in-the-moment user confirmation.
 - Do not read .env files.
 - Worktrees only under ~/wt/<repo>/<name>.
 

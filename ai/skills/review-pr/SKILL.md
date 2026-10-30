@@ -32,7 +32,7 @@ Each brief goes to a `reviewer` agent. If no `reviewer` type exists, send a gene
 ## Repo Rules
 
 - never touch a prod Salesforce org, not even --help.
-- No alembic upgrade or downgrade, and no DB mutation, without in-the-moment user confirmation.
+- No alembic upgrade or downgrade, and no DB mutation, on a production database without in-the-moment user confirmation.
 - Do not read .env files.
 - Worktrees only under ~/wt/<repo>/<name>.
 - Never post to GitHub. Do not run `gh pr comment`, `gh pr review`, a `gh api` write, or `git push`.
