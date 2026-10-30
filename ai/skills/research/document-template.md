@@ -9,6 +9,8 @@ topic: <the question, one line>
 repos: [<repo>, <repo>]
 origin_main:
   <repo>: <full SHA of origin/main, and nothing else>
+head:
+  <repo>: <full SHA of the local HEAD, only when it differs from origin_main>
 status: complete
 ---
 
@@ -18,7 +20,7 @@ status: complete
 
 <The question as the user asked it. Then your reading of it in one sentence.>
 
-<Anchor note: did a fetch run? Which commit did you read, if not origin_main?>
+<Anchor note: did the fetch run? The claims describe `head` when it is present.>
 
 ## Summary
 

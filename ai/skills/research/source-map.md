@@ -18,6 +18,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Tag each claim `verified` or `inferred`. | spec 8.4. why epistemics (five tiers, cut to two). | D | Definitions. Rules, tag or cut. Red flags. T tag format. | RED: no tags in both runs. |
 | Describe. Do not recommend. | spec 8.4. rc Scope. tw reference mode. | D | Definitions. Rules. Red flags, word list. | RED: Claude added "Optional fixes". |
 | Record `origin_main` for each repo. | spec 8.4, spec 10 (several repos). | P | Loop 2. T frontmatter. Red flags. | RED: both cite HEAD, not origin/main. |
+| Claims describe the local HEAD. Record `origin_main` always and `head` when it differs. | why step 2 (code anchor). Audit: in GREEN-3, HEAD was 749 commits ahead of `origin/main`. | P | Loop 2. T frontmatter. Red flags. | GREEN-4: both docs record `head` and `origin_main`. |
 | State your reading of the question. | how step 1. why step 1. | P | Loop 1. T Question. | GREEN |
 | Narrow question: read it yourself. Wide question: 2 to 4 angles in one message. | how steps 1 and 2. | P | Loop 3. | GREEN: both runs took the narrow path. |
 | Explorers return a fixed set of sections. | how explorer-prompt. spec 8.4. `ai/agents/explorer.md`. | P | Loop 3. T explorer sections. | Untested. No run took the wide path. |
@@ -53,3 +54,4 @@ Both runs answer in chat with no `verified` or `inferred` tags. Both record HEAD
 Iteration 1 failed for both. The documents passed, but the replies had no `Principles applied:` line. The fix puts that last line in Loop 8.
 Iteration 2 passed for both. Each document has the frontmatter with `origin_main: e25ee05...`. It notes that the run did not update the remote ref. It tags each claim (Claude 38 `verified` and 1 `inferred`, Codex 28 `verified`). Neither has a fix or a "should". Each gives the intended thoughts path, because the run cannot write files.
 Iteration 3 ran after the repo lines and the SHA-only anchor went in. It passed for both. Each `origin_main` value is the bare SHA `e25ee05...`. Each anchor note is in the Question section. Claude has 47 `verified` and 3 `inferred` tags. Codex has 27 `verified` tags. Neither document has a fix or a "should".
+Iteration 4 ran after the `head` rule went in. It passed for both. Each document records `origin_main` (`e25ee05...`) and `head` (`d09880a...`), and says the claims describe `head`. Neither run could update the remote ref, because the harness allows no writes. Each anchor note says so.
