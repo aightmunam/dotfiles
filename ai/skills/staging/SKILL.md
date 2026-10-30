@@ -19,7 +19,7 @@ description: Use when the user asks to deploy a branch to staging and check it. 
 2. **Case list.** Find the plan file. The PR body can name it. Else search `thoughts/shared/plans/` for the files that the branch changes. Copy each staging case. If the plan has no cases, write one case for each new behavior in the diff, and label them `from diff`.
 3. **Run of record.** A rerun must reach the same end state, and must not deploy twice. Read ~/.agents/principles/make-operations-idempotent.md before this step, as a read of that file alone. List the deploy runs of the branch. If a run for HEAD succeeded or is in progress, use it and label it `reused`. Else dispatch the manual deploy workflow for the branch. A run is yours only if its head SHA is HEAD and it started after your dispatch. Output: the run id and `reused` or `dispatched`.
 4. **Watch.** Watch the run until it ends. The run conclusion is the source of truth. Read the conclusion of each job, the release job too. Read the migration lines of the release job.
-5. **Serving state.** Check the real artifact, not a proxy. A same-SHA restart can let old code report the new SHA. Read ~/.agents/principles/prove-it-works.md before this step, as a read of that file alone. Read the revision that takes the traffic. Compare its image tag or digest with HEAD. Output: revision name, image, and `match` or `mismatch`.
+5. **Serving state.** Read ~/.agents/principles/prove-it-works.md before this step, as a read of that file alone. Its key sentence: check the real artifact, not a proxy. A same-SHA restart can let old code report the new SHA. Read the revision that takes the traffic. Compare its image tag or digest with HEAD. Output: revision name, image, and `match` or `mismatch`.
 6. **Cases.** Send each case to the staging service. Record the request, the status, a body excerpt, and the log line of that revision. Add one probe of a behavior that only HEAD has. Mark each case `pass` or `fail`.
 7. **Retry or stop.** Classify a failure before you retry. A flake or an infrastructure fault gets one fresh dispatch, then go to step 3. A failure in the code of the branch: stop. After three failed rounds, stop.
 8. **Report.** Fill the output template. The template is the full answer.
@@ -51,6 +51,7 @@ The loop runs inline. It uses no subagent, because each step reads the output of
 - A case has no request, no status, or no output line. Go back to step 6.
 - The report has no staging migration head. Go back to step 4.
 - The verdict is `proven` and an item failed. Go back to step 8.
+- The `Principles applied:` line names a principle file that you did not read in this session. Go back to its step and read it.
 
 ## Output Template
 
