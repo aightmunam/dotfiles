@@ -14,7 +14,7 @@
 - **rs:** `ai/skills/research/SKILL.md` (worktree path, no-write fallback, explorer fallback).
 - **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (the form bar: an empty section says why).
 - **ketchup:** `ai/AGENTS.md` writing standard (item format: link, change, evidence, risk).
-- **pr:** `ai/bin/pressure-run` (what the GREEN check counts as a principle read).
+- **review:** Task 3.6 review and the controller rulings for fix round 1.
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
 "Loop N" is a step in SKILL.md. "T" is `plan-template.md`.
@@ -29,31 +29,36 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Read the repo test card. Missing card: take commands from the repo config and say so. | spec 8.5 (test cards). brief Interfaces. | P | Loop 2. T header. | GREEN |
 | List the entry points: HTTP, events, jobs, test endpoints, consumers. | spec 8.4 (required section). mpp step 3 (explorers return entry points). | O | Loop 2. T Entry points. Rules. | RED: neither plan had it. |
 | Wide spec: 2 to 4 angles to `explorer` agents. No dispatch tool: do each angle yourself. | mpp step 3 (explore in subagents, return pointers). rs Loop 3. | P | Loop 2. | Untested. |
-| Model the domain in a data structure. Name each type, table, and state machine with its file and signature. | spec 8.7 (model-the-domain, design step). sp File Structure. | P | Loop 3. Pointer. | GREEN |
+| Model the domain in a data structure. Name each type, table, and state machine with its file and signature. | spec 8.7 (model-the-domain, design step). sp File Structure. review M4. | P | Loop 3. Pointer. T Domain model. | GREEN |
 | Data structures before logic. Phase 1 is scaffold and check harness. | spec 8.7 (foundational-thinking, scaffold first). fio Phase B. | P | Loop 4. Pointer. T Phase 1. | GREEN |
 | Baseline from the code before the change, so a check reads old value vs new value. | fio Phase B. spec 8.4. | D | Definitions. Loop 4. T Step 1. Red flags. | GREEN |
 | Riskiest unknown first. | fio Phase B. spec 8.4. | D | Loop 4. Red flags. | GREEN |
 | A phase is a vertical slice, fits one fresh context window, lands green, names its blocking edges. | tt step 3 (vertical slices, one context window, blocking edges). spec 8.4. | P | Definitions. T Blocked by. | GREEN |
+| Cut the work into phases, each with its `Blocked by` line. | tt step 3. review M1. | P | Loop 4. T Blocked by. | GREEN |
 | A wide change is expand, migrate in batches, contract. | tt step 3 (wide refactors). spec 8.4. | P | Loop 5. | Untested. The scenario has no wide change. |
 | A wide change uses a script or codemod, not hand edits. The script is a file in the plan. | spec 8.7 (build-the-lever). | D | Loop 5. Pointer. Red flags. | Untested. |
 | Failure modes: transaction scope, side effects before commit, retries, idempotency. | spec 8.4 (required section). | O | Loop 6. T Failure modes. | RED: neither plan had it. |
 | Shared state: Postgres row contention and parallel workers. Remove the sharing first. | spec 8.7 (separate-before-serializing-shared-state, foundational-thinking concurrency question). | D | Loop 6. Pointer. T Failure modes. Red flags. | GREEN |
-| Parallel phases own disjoint file sets that the plan lists. | spec 8.4 and 8.7. fio Phase B (parallelize only across seams). | D | Loop 6. T Owns. Red flags. | Untested. The GREEN plans are linear. |
+| Two phases are parallel when neither blocks the other, directly or through a chain. Parallel phases have no shared path in their manifest `files` lists. | spec 8.4 and 8.7. fio Phase B (parallelize only across seams). review M2. | D | Loop 6. T manifest rules. Red flags. | Untested. The GREEN plans are linear. |
 | Each failure mode names its owner phase and the test that pins it. | sp Review Focus (each line gets its test in the owning task). | O | Loop 6. T Failure modes. T self-review 4. | GREEN |
+| One row per mode per write path. A row for each other input or failure that the spec implies. | sp Review Focus (input classes the spec implies). review M5. | O | Loop 6. T Failure modes. | GREEN |
 | Plan path `thoughts/shared/plans/YYYY-MM-DD-<topic>.md` of the repo where the change lands, `status: draft`. | spec 8.4 Output. old (status values). | P | Loop 7. T frontmatter. | Untested. The runs cannot write. |
 | In a worktree, use the main checkout. Cannot write: the full plan in the answer, from its first `---` line. | rs Loop 6. pl (text before `---` turns off the manifest check). | P | Loop 7. T manifest rules. | GREEN |
 | Manifest `kind: plan` with phases and files. `## Phase N:` headings. `**File**:` lines match the manifest. | old (manifest, phase headings, manifest rules). pl. | O | Definitions. T frontmatter. T manifest rules. | RED: neither plan had a manifest. |
 | `## Before -> After` with two mermaid diagrams. | old (diagram rules). pl. | O | T Before -> After. T manifest rules. | RED: neither plan had it. |
-| Header: goal, spec, base branch, required skills, test card, full suite. | spec 8.4 (header). sp Plan Document Header (goal, spec). | O | T header. | RED: no base branch in either plan. |
+| Header: goal, spec, base branch, required skills, test card, full suite. Required skills are the skills this plan needs. | spec 8.4 (header). sp Plan Document Header (goal, spec). review M3. | O | T header. | RED: no base branch in either plan. |
+| Base branch: the one that the user or the spec names, else the default branch from `git symbolic-ref refs/remotes/origin/HEAD`. Write it and its source in the header. | spec 8.4 (header: `build` branches from it, `pr` targets it). mpp step 4 (the execution playbook owns base selection, so the plan must name the base that it uses). review I1 (controller ruling). | D | Loop 2. T frontmatter and header. Handoff template. Red flags. | GREEN fix round 1: see Pressure scenarios. |
 | Touched tests per phase. Full suite once, in the last phase. | spec 8.4. | D | Rules. T header. T Touched tests. | RED: no tests per phase. |
 | Interfaces block: consumes and produces, with exact names and types. | sp Task Structure (Interfaces). | O | T Interfaces. | GREEN |
 | A step is one action with a checkable result. | sp Step Granularity. | D | Rules. T steps. T self-review 2. | GREEN |
 | A code step gives file, signature, values. A body only for an algorithm the tests do not fix. | sp What a Step Contains. | D | Rules. T self-review 2 and 5. | GREEN |
 | No "TBD", "handle edge cases", "add validation". | sp What a Step Contains. | D | Rules. T self-review 2. | GREEN |
-| Fail-first step predicts the mismatch, not an import error. | spec 8.4 build entry (fail-first receipt). sp step 2 (expected FAIL with a reason). | P | T Step 3. | GREEN |
+| Fail-first step predicts the mismatch, not an import, collection, or missing-file error. | spec 8.4 build entry (fail-first receipt). sp step 2 (expected FAIL with a reason). | P | T Step 3. | GREEN |
 | Self-review: spec coverage, step scan, name match, failure modes, proportion. Fix inline, no second review. | sp Self-Review. | P | Loop 8. T Self-review. | GREEN |
-| Run the plan linter. Fix each line it prints. Run again until exit 0. | mpp step 6. cp. spec 8.5 (plan linter). pl. | D | Loop 8. Red flags. | GREEN: see Pressure scenarios. |
-| Linter not on disk: check the manifest rules by hand and say so. | brief (live path has no `ai/bin` before merge). | P | Loop 8. Handoff template. | GREEN |
+| Run the plan linter. Exit 1: fix each line it prints and run again. | mpp step 6. cp. spec 8.5 (plan linter). pl. | D | Loop 8. Red flags. | GREEN: see Pressure scenarios. |
+| plan-lint exits 1 when line 1 is not `---` or the frontmatter has no `kind: plan`. Exit 0 counts only then. | pl (the parser checks only a structured file). review I2 (controller ruling). `ai/tests/test_plan_lint.py`. | D | `ai/bin/plan-lint`. Loop 8. T manifest rules. Red flags. | Unit tests. |
+| Exit 2 is a setup error: stop, do not run again, report the code and message in the handoff. | pl (exit 2 on setup error). review I3 (controller ruling). | D | Loop 8. Handoff template. Red flags. | Untested. The runs had no file to lint. |
+| Exit 2, no file, or linter not on disk: check the manifest rules by hand and say so. | brief (live path has no `ai/bin` before merge). | P | Loop 8. Handoff template. | GREEN |
 | An empty section says why. Entry points and failure modes are always present. | fcd (empty section says why). spec 8.4. | D | Rules. T intro. | GREEN |
 | No humanlayer residue. | spec 8.4 (remove ENG-XXXX, thoughts/allison, npm, humanlayer sync). | D | Rules. | RED: Codex read the old `create_plan` skill. |
 | Handoff: numbered questions, each with a recommended answer. No "approve?". | spec 8.4. brief (same ruling as brainstorm). tt step 4 (numbered breakdown, quiz). | O | Loop 9. Handoff template. Red flags. | RED: Claude ended "please review the plan there". |
@@ -63,7 +68,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Hand back the plan path and the linter output. | mpp step 7. | O | Handoff template. | GREEN |
 | Answers go into the plan, then `status: approved`. No open decision: approved at once. Next is `build`. | old (status values). brief (never-block). spec 8.1 (make-plan -> build). | P | Handoff template. | Untested. A headless run stops at the handoff. |
 | `Principles applied:` line in the reply. | spec 8.7. | O | Handoff template. | GREEN |
-| Open each principle file in full with the file-read tool, not a shell command. | pr (in GREEN iteration 1, the Claude check counted only the Read tool. Commit dece90d also counts shell reads now.) | P | Loop intro. | GREEN iteration 1 failed for Claude. Iteration 2 passed. |
+| Read all four principle files in full, also when a step does not apply. Write each full path in the read command, so that the transcript shows each read. | spec 8.7 and section 9 (the transcript must show the principle file read). review I4. | D | Loop intro. Red flags. | GREEN fix round 1: see Pressure scenarios. |
 | Four repo lines, verbatim. | Brief Global Constraints. | D | Repo Rules. | Untested. The runs cannot write, deploy, or open a DB. |
 
 ## Cut
@@ -81,7 +86,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 - fio: architect and arena runs, the hypothesis loop, and the decision trail. They belong to `build` and its `## Deviations` section (spec 8.4 build entry).
 - old: everything except the manifest, the diagrams, and the phase headings. The source rule (spec 8.2a) cuts its research flow, sub-task agents, `humanlayer thoughts sync`, ticket file names, and `npm` commands. It also cuts the Testing Strategy, Performance, Migration Notes, and References sections.
 - old: the "Implementation Note" that pauses for manual confirmation after each phase. never-block-on-the-human overrides it.
-- spec 8.4: "ste-lint flavored checks" on the plan. `ste-lint.py` has no flavored mode. The controller's own plan, which passes `plan-lint`, has 102 strict violations. Plan prose follows the AGENTS.md writing standard. `plan-lint` is the only gate.
+- spec 8.4: "ste-lint flavored checks" on the plan. `ste-lint.py` has no flavored mode. The controller's own plan, which passes `plan-lint`, has 102 strict violations. Plan prose follows the AGENTS.md writing standard. `plan-lint` is the only gate. Controller ruling: the cut stands (review M7).
 
 ## Principles
 
@@ -89,7 +94,7 @@ Four pointers, each at the step it governs, with the key sentence inline:
 
 - model-the-domain: Loop 3 (Model).
 - foundational-thinking: Loop 4 (Order).
-- build-the-lever: Loop 5 (Split).
+- build-the-lever: Loop 5 (Wide changes).
 - separate-before-serializing-shared-state: Loop 6 (Failure modes).
 
 The handoff template ends with the `Principles applied:` line.
@@ -104,3 +109,11 @@ Neither plan has a `kind: plan` manifest, `## Phase N:` headings, a Before -> Af
 **GREEN** (skill and four principles, both CLIs, read-only, 2026-10-30):
 Iteration 1 failed for Claude and passed for Codex. Claude read the principles with a shell loop, and the harness counts only the file-read tool for Claude. The fix is one line at the start of the Loop: open each principle file in full with the file-read tool.
 Iteration 2 passed for both. Claude cost 0.94 USD. Codex used 142,188 input tokens (121,088 cached) and 4,494 output tokens. I saved each plan from the answer to a copy that starts at `---`. Plan-lint exits 0 on each copy (3 phases each, no warnings). Each plan has entry points, failure modes with owner phases, a base branch, and touched tests for each phase. Claude asks three numbered decisions in item form and keeps `status: draft`. Codex finds no open decision and sets `status: approved`. Neither asks "approve?". Each names `build` as the next step and gives the `Principles applied:` line.
+
+**Known gap** (review M8, iteration 2): Codex's plan passes plan-lint, but many steps decide little. Some steps have no test names and no exact values. Its `spec:` field is prose, not a path. "Decide, do not transcribe" and the step scan did not hold under Codex. This round does not change the skill for it.
+
+**GREEN fix round 1** (same scenario, both CLIs, 2026-10-30):
+Run 1 failed for both. Without the file-read sentence, Claude read only two of the four principle files. Codex read all four in one `cat` with a brace list, which the harness does not parse.
+Run 2 added "Read each principle file in full at the step that names it." It failed the same way. Claude skipped build-the-lever and separate-before-serializing-shared-state.
+Run 3 passed for both. The Loop intro now says to read all four files, also when a step does not apply, with each full path in the read command. Claude cost 1.07 USD. Codex used 158,135 input tokens (129,536 cached) and 4,686 output tokens. The new plan-lint exits 0 on each extracted plan. Each plan has a `## Domain model` section and a failure-modes table with a write-path column.
+Base branch: Codex chose `master` from `origin/HEAD`. Claude found the full spec on disk, and its section 7 names `skill-rework` as the build branch, so Claude chose `skill-rework`. Each choice follows the rule and names its source. The runs differ because only Claude read the full spec.

@@ -44,6 +44,24 @@ class PlanLintTest(unittest.TestCase):
         self.assertTrue(r.stdout.strip())
         self.assertTrue(all(l.startswith(path + ": ") for l in r.stdout.splitlines()))
 
+    def test_plan_without_manifest_exits_1(self):
+        body = (FIXTURES / "plan_good.md").read_text(encoding="utf-8")
+        with tempfile.TemporaryDirectory() as tmp:
+            bare = Path(tmp) / "bare.md"
+            bare.write_text(body.split("\n---\n", 1)[1], encoding="utf-8")
+            r = run(str(bare))
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("kind: plan", r.stdout)
+
+    def test_text_before_manifest_exits_1(self):
+        body = (FIXTURES / "plan_good.md").read_text(encoding="utf-8")
+        with tempfile.TemporaryDirectory() as tmp:
+            late = Path(tmp) / "late.md"
+            late.write_text("Here is the plan.\n\n" + body, encoding="utf-8")
+            r = run(str(late))
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("line 1", r.stdout)
+
     def test_non_utf8_file_exits_2(self):
         with tempfile.TemporaryDirectory() as tmp:
             bad = Path(tmp) / "latin1.md"
