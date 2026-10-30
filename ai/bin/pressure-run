@@ -72,8 +72,8 @@ READERS = {"cat", "head", "tail", "sed", "nl", "less", "bat", "awk"}
 
 
 def _claude_error_ids(events):
-    """Ids of tool_use items whose tool_result came back with is_error."""
-    ids = set()
+    """Map each tool_use id whose tool_result came back with is_error to its result text."""
+    ids = {}
     for event in events:
         if event.get("type") != "user":
             continue
@@ -82,16 +82,30 @@ def _claude_error_ids(events):
             continue
         for item in content:
             if isinstance(item, dict) and item.get("type") == "tool_result" and item.get("is_error"):
-                ids.add(item.get("tool_use_id"))
+                text = item.get("content")
+                if isinstance(text, list):
+                    text = "\n".join(b.get("text", "") for b in text if isinstance(b, dict))
+                ids[item.get("tool_use_id")] = text if isinstance(text, str) else ""
     return ids
+
+
+def _expand_braces(token):
+    """Expand shell brace lists: `p/{a,b}.md` -> [`p/a.md`, `p/b.md`]."""
+    m = re.search(r"\{([^{}]*,[^{}]*)\}", token)
+    if not m:
+        return [token]
+    out = []
+    for part in m.group(1).split(","):
+        out.extend(_expand_braces(token[:m.start()] + part + token[m.end():]))
+    return out
 
 
 def _codex_read_paths(command):
     """Return path tokens of a command that is a plain reader (cat, head, ...).
 
     Looks inside a `zsh -lc '...'` wrapper and checks each segment split on
-    && || ; |. Returns [] when no segment starts with a reader
-    (ls, grep, rg, find, test, stat, ...).
+    && || ; | and newlines. Brace lists are expanded. Returns [] when no
+    segment starts with a reader (ls, grep, rg, find, test, stat, ...).
     """
     payload = command
     try:
@@ -100,10 +114,11 @@ def _codex_read_paths(command):
         return []
     if len(tokens) >= 3 and tokens[1] in ("-c", "-lc", "-ic", "-l", "-i"):
         payload = tokens[-1]
-    # Split into segments on && || ; | (shlex keeps them as separate tokens when spaced,
-    # and punctuation_chars splits them when glued to a word).
+    # Split into segments on && || ; | and newlines (punctuation_chars splits them
+    # when glued to a word; newline is removed from whitespace so it separates).
     try:
-        lex = shlex.shlex(payload, posix=True, punctuation_chars=";&|")
+        lex = shlex.shlex(payload, posix=True, punctuation_chars=";&|\n")
+        lex.whitespace = " \t\r"
         lex.whitespace_split = True
         words = list(lex)
     except ValueError:
@@ -111,44 +126,74 @@ def _codex_read_paths(command):
     paths = []
     segment = []
     for word in words + [";"]:
-        if word and set(word) <= set(";&|"):
+        if word and set(word) <= set(";&|\n"):
             if segment and Path(segment[0]).name in READERS:
-                paths.extend(t for t in segment[1:] if "/" in t)
+                for t in segment[1:]:
+                    if "/" in t:
+                        paths.extend(_expand_braces(t))
             segment = []
         else:
             segment.append(word)
     return paths
 
 
+FAILED_LINE = re.compile(r"^(?:[\w.-]+: )?(?:cannot (?:access|open) )?['\"]?(.+?)['\"]?: "
+                         r"(?:No such file or directory|Permission denied|Is a directory)")
+
+
+def _reads_despite_failure(command, output):
+    """Reader paths of a failed command that its output does not name as failed.
+
+    A command can exit non-zero because a later part failed (`cat a; ls nope`).
+    Count a path only when the output names each failed file; a failure that
+    names no file counts nothing.
+    """
+    failed = {Path(m.group(1)).name for m in map(FAILED_LINE.match, (output or "").splitlines()) if m}
+    if not failed:
+        return []
+    return [p for p in _codex_read_paths(command) if Path(p).name not in failed]
+
+
 def _codex_reads(events):
-    """Yield path tokens of commands that finished with exit code 0 and are readers."""
+    """Yield reader path tokens of completed commands.
+
+    Exit 0 counts every reader path. A non-zero exit counts the paths that the
+    output does not name as failed.
+    """
     for event in events:
         item = event.get("item")
-        if event.get("type") == "item.completed" and isinstance(item, dict) \
-                and item.get("type") == "command_execution" and item.get("exit_code") == 0 \
-                and isinstance(item.get("command"), str):
+        if event.get("type") != "item.completed" or not isinstance(item, dict) \
+                or item.get("type") != "command_execution" or not isinstance(item.get("command"), str):
+            continue
+        if item.get("exit_code") == 0:
             yield from _codex_read_paths(item["command"])
+        elif item.get("exit_code") is not None:
+            yield from _reads_despite_failure(item["command"], item.get("aggregated_output"))
 
 
 def files_read(events, tool):
     """Return the set of file paths the run read successfully.
 
     Claude: the file_path of each Read tool_use, and the reader path tokens of
-    each Bash tool_use, whose tool_result is not an error. Sub-agent events
+    each Bash tool_use, whose tool_result is not an error. A failed Bash call
+    counts the paths its output does not name as failed. Sub-agent events
     count too (parent_tool_use_id is not checked).
-    Codex: path tokens (with a "/") of each completed command that exited 0 and
-    whose first word is a reader (cat, head, tail, sed, nl, less, bat, awk).
+    Codex: path tokens (with a "/") of each completed reader segment (cat, head,
+    tail, sed, nl, less, bat, awk). A non-zero exit counts the paths its output
+    does not name as failed.
     """
     found = set()
     if tool == "claude":
         bad = _claude_error_ids(events)
         for use in _claude_tool_uses(events):
             path = (use.get("input") or {}).get("file_path")
+            command = (use.get("input") or {}).get("command")
             if use.get("id") in bad:
+                if use.get("name") == "Bash" and isinstance(command, str):
+                    found.update(_reads_despite_failure(command, bad[use.get("id")]))
                 continue
             if use.get("name") == "Read" and isinstance(path, str):
                 found.add(path)
-            command = (use.get("input") or {}).get("command")
             if use.get("name") == "Bash" and isinstance(command, str):
                 found.update(_codex_read_paths(command))
     elif tool == "codex":

@@ -227,6 +227,38 @@ class PressureRunTest(unittest.TestCase):
             self.assertEqual(self.pr.red_note("debug", home), [Path(home) / ".agents" / "skills" / "debug"])
 
 
+    def test_reads_split_on_newlines_and_expand_braces(self):
+        def cmd(command, code=0, out=""):
+            return [{"type": "item.completed", "item": {"type": "command_execution", "command": command,
+                                                        "exit_code": code, "aggregated_output": out}}]
+        multi = "/bin/zsh -lc 'ls /x\ncat /h/.agents/principles/a.md'"
+        self.assertEqual(self.pr.principles_read(cmd(multi), "codex"), {"a"})
+        brace = "/bin/zsh -lc 'cat /h/.agents/principles/{a,b}.md'"
+        self.assertEqual(self.pr.principles_read(cmd(brace), "codex"), {"a", "b"})
+        use = {"type": "assistant", "message": {"content": [
+            {"type": "tool_use", "id": "b3", "name": "Bash",
+             "input": {"command": "cat /h/.agents/principles/a.md\nhead /h/.agents/principles/b.md"}}]}}
+        self.assertEqual(self.pr.principles_read([use], "claude"), {"a", "b"})
+
+    def test_failed_call_counts_reads_that_did_not_fail(self):
+        def cmd(command, out):
+            return [{"type": "item.completed", "item": {"type": "command_execution", "command": command,
+                                                        "exit_code": 1, "aggregated_output": out}}]
+        later_ls = "/bin/zsh -lc 'cat /h/.agents/principles/a.md; ls /nope'"
+        out = "text of a\nls: /nope: No such file or directory\n"
+        self.assertEqual(self.pr.principles_read(cmd(later_ls, out), "codex"), {"a"})
+        two = "/bin/zsh -lc 'cat /h/.agents/principles/a.md /h/.agents/principles/b.md'"
+        out = "text of a\ncat: /h/.agents/principles/b.md: No such file or directory\n"
+        self.assertEqual(self.pr.principles_read(cmd(two, out), "codex"), {"a"})
+        self.assertEqual(self.pr.principles_read(cmd(two, ""), "codex"), set())
+        use = {"type": "assistant", "message": {"content": [
+            {"type": "tool_use", "id": "b4", "name": "Bash",
+             "input": {"command": "cat /h/.agents/principles/a.md; ls /nope"}}]}}
+        err = {"type": "user", "message": {"content": [
+            {"type": "tool_result", "tool_use_id": "b4", "is_error": True,
+             "content": "Exit code 1\ntext of a\nls: /nope: No such file or directory"}]}}
+        self.assertEqual(self.pr.principles_read([use, err], "claude"), {"a"})
+
     def test_codex_compound_commands(self):
         def cmd(command, code=0):
             return [{"type": "item.completed", "item": {"type": "command_execution", "command": command,
