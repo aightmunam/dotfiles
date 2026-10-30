@@ -70,9 +70,40 @@ class RoutingEvalTest(unittest.TestCase):
             first = [{"id": "a", "expected": "x", "got": "error", "pass": False, "note": "capacity"},
                      {"id": "b", "expected": "y", "got": "y", "pass": True}]
             self.re.write_results(out, "codex", first, "2026-10-30")
-            self.re.write_results(out, "codex", [{"id": "a", "expected": "x", "got": "x", "pass": True}], "2026-10-30")
+            self.re.write_results(out, "codex", [{"id": "a", "expected": "x", "got": "x", "pass": True}], "2026-10-30",
+                                  merge=True)
             lines = (out / "2026-10-30-codex.tsv").read_text().splitlines()
             self.assertEqual(lines, ["id\texpected\tgot\tpass\tnote", "a\tx\tx\tyes\t", "b\ty\ty\tyes\t"])
+
+    def test_full_run_replaces_the_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            self.re.write_results(out, "codex", [{"id": "stale", "expected": "x", "got": "x", "pass": True}], "2026-10-30")
+            self.re.write_results(out, "codex", [{"id": "a", "expected": "x", "got": "y", "pass": False}], "2026-10-30")
+            lines = (out / "2026-10-30-codex.tsv").read_text().splitlines()
+            self.assertEqual(lines, ["id\texpected\tgot\tpass\tnote", "a\tx\ty\tno\t"])
+
+    def test_merge_fills_missing_columns(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            (out / "2026-10-30-claude.tsv").write_text("id\texpected\tgot\tpass\nold\tx\tx\tyes\n")
+            self.re.write_results(out, "claude", [{"id": "a", "expected": "x", "got": "x", "pass": True}], "2026-10-30",
+                                  merge=True)
+            lines = (out / "2026-10-30-claude.tsv").read_text().splitlines()
+            self.assertEqual(lines, ["id\texpected\tgot\tpass\tnote", "old\tx\tx\tyes\t", "a\tx\tx\tyes\t"])
+
+    def test_main_merges_only_for_a_filtered_run(self):
+        seen = []
+        result = {"id": "a", "expected": "x", "pair": "", "got": "x", "pass": True, "note": ""}
+        with tempfile.TemporaryDirectory() as tmp, \
+                mock.patch.object(self.re, "run_row", return_value=([], "", "")), \
+                mock.patch.object(self.re, "got_skill", return_value="tdd"), \
+                mock.patch.object(self.re, "write_results", lambda *a, **k: seen.append(a[-1] if len(a) > 4 else k.get("merge"))), \
+                mock.patch("sys.stdout"):
+            self.re.main(["--tool", "claude", "--id", self.rows[0]["id"], "--out", tmp])
+            self.re.main(["--tool", "claude", "--skill", "tdd", "--out", tmp])
+            self.re.main(["--tool", "claude", "--out", tmp, "--jobs", "8"])
+        self.assertEqual(seen, [True, True, False])
 
     def test_tsv_shape(self):
         self.assertTrue(self.rows)

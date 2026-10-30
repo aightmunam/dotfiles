@@ -18,7 +18,8 @@ Default mode links third-party skills installed in ~/.agents/skills (names not
 in ai/skills) next to the repo skills. Codex also still sees the main checkout's
 user-level skills in default mode, so a Codex pass there does not prove the
 worktree text routed; use --live after generate.sh for that.
-Results: DIR/<YYYY-MM-DD>-<tool>.tsv (id, expected, got, pass, note) and
+Results: DIR/<YYYY-MM-DD>-<tool>.tsv (id, expected, got, pass, note; a full
+run replaces it, a filtered run updates its rows) and
 DIR/raw/<id>-<tool>.jsonl. Default DIR is
 ~/dotfiles/thoughts/shared/research/routing-eval.
 Threshold, per tool: every row with a pair passes, and at most 1 miss in total.
@@ -31,10 +32,8 @@ import datetime
 import importlib.machinery
 import importlib.util
 import json
-import os
 import re
 import shlex
-import signal
 import shutil
 import subprocess
 import sys
@@ -196,21 +195,7 @@ RUNNING = set()
 RUNNING_LOCK = threading.Lock()
 
 
-def kill_group(proc):
-    """TERM the process group, wait 5 s for the leader, then KILL the group."""
-    try:
-        os.killpg(proc.pid, signal.SIGTERM)
-    except (ProcessLookupError, PermissionError):
-        pass
-    try:
-        proc.wait(timeout=5)
-    except subprocess.TimeoutExpired:
-        pass
-    try:
-        os.killpg(proc.pid, signal.SIGKILL)
-    except (ProcessLookupError, PermissionError):
-        pass
-    proc.wait()
+kill_group = PR.kill_group
 
 
 def kill_all():
@@ -291,23 +276,30 @@ def run_row(tool, row, args):
     return events, raw, ""
 
 
-def write_results(out, tool, results, date):
+COLUMNS = ["id", "expected", "got", "pass", "note"]
+
+
+def write_results(out, tool, results, date, merge=False):
+    """Write {date}-{tool}.tsv. merge=True (a filtered rerun: --id, --skill, --pair)
+    updates its rows and keeps the others. merge=False (a full run) replaces the
+    file, so the ids of an old run do not stay."""
     out.mkdir(parents=True, exist_ok=True)
     path = out / f"{date}-{tool}.tsv"
-    # A rerun of some ids (--id, --skill, --pair) updates their rows and keeps the others.
     rows = {}
-    if path.exists():
+    if merge and path.exists():
         with open(path, encoding="utf-8", newline="") as handle:
             for row in csv.DictReader(handle, delimiter="\t"):
-                rows[row["id"]] = row
+                if row.get("id"):
+                    # An old file can lack a column (note): fill it with "".
+                    rows[row["id"]] = {col: row.get(col) or "" for col in COLUMNS}
     for r in results:
         rows[r["id"]] = {"id": r["id"], "expected": r["expected"], "got": r["got"],
                          "pass": "yes" if r["pass"] else "no", "note": r.get("note", "")}
     with open(path, "w", encoding="utf-8", newline="") as handle:
         writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
-        writer.writerow(["id", "expected", "got", "pass", "note"])
+        writer.writerow(COLUMNS)
         for row in rows.values():
-            writer.writerow([row["id"], row["expected"], row["got"], row["pass"], row["note"]])
+            writer.writerow([row[col] for col in COLUMNS])
 
 
 def parse_args(argv):
@@ -365,7 +357,8 @@ def main(argv=None):
                         results.append(future.result())
                     except SetupError as exc:
                         errors.append(str(exc))
-                outcome = report_tool(tool, results, errors, out, date)
+                outcome = report_tool(tool, results, errors, out, date,
+                                      merge=bool(args.id or args.skill or args.pair))
                 if outcome and (status == 0 or outcome == 2):
                     status = outcome
         except KeyboardInterrupt:
@@ -381,10 +374,10 @@ def main(argv=None):
         return 2
 
 
-def report_tool(tool, results, errors, out, date):
+def report_tool(tool, results, errors, out, date, merge=False):
     """Write the TSV and print the verdict. Return 0, 1 or 2."""
     if results:
-        write_results(out, tool, results, date)
+        write_results(out, tool, results, date, merge)
     for message in errors:
         print(f"routing-eval: {message}", file=sys.stderr)
     if errors:
