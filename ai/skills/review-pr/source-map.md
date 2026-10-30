@@ -28,7 +28,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Step 2 uses `local_review`, a worktree under `~/wt/<repo>/review/<name>`. | rp Step 2. AGENTS.md worktree rule. | P | Loop 2. | Untested. The scenario skips step 2, as The Eye does. |
 | Diff from `gh pr diff`, not `git diff main...HEAD`. | rp Step 3. | P | Loop 3. | GREEN-2 |
 | What and How walkthrough briefs, with the mermaid rules. | rp Step 3. | P | Loop 3. L walkthrough briefs. L mermaid rules. | GREEN-2 |
-| Lenses get the common header: the same scoped context, the lens is the task, no refusal. | spec 8.4 (reviewer conflict). Audit: reviewers ran as codebase-analyzer and refused their lens. ag. | D | Loop 4. L common header. Red flags. | RED: audit. GREEN-2 (Claude). Codex sent no agent. |
+| Lenses get the common header: the same scoped context, the lens is the task, no refusal. | spec 8.4 (reviewer conflict). Audit: reviewers ran as the old read-only analyzer agent and refused their lens. ag. | D | Loop 4. L common header. Red flags. | RED: audit. GREEN-2 (Claude). Codex sent no agent. |
 | Each brief goes to `reviewer`. Fallback: general-purpose with the reviewer rules. Last fallback: do each brief yourself. | ag. fcd Roles. | P | Roles. L reviewer rules. | `reviewer` path REAL-1 (2 `reviewer` agents, each with more than one lens). REAL-1 deviated from one brief per lens (2 agents, several lenses each, haiku, walkthrough written by the run itself). General-purpose fallback GREEN-2 (Claude, 7 agents). Do-it-yourself fallback GREEN-2 (Codex). |
 | Only added or changed code, and its callers. | spec 8.4. tnr scope. | D | L common header. | GREEN-2 |
 | No unfinished research. | spec 8.4. tnr. | D | Rules. L common header. | GREEN-2 |
@@ -80,7 +80,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 Scenario: review PR #12 in acme/shop (author dana, branch `feat/german-amounts`) in a scratch repo. The PR changes `to_cents` to parse German amounts. `shop/invoice.py` still sends dot decimals (`19.99`), so the invoice total goes from 26999 to 2699900. No test covers the invoice. A bot comment on the PR says "Check other callers". A fake `gh` serves the PR and blocks each write. The run skips step 2, as The Eye does.
 
 **RED** (no new run):
-The audit of the old `review_pr` is the RED. Its review agents ran as `codebase-analyzer` and refused their lens. The old skill has no ladder step on a finding.
+The audit of the old `review_pr` is the RED. Its review agents ran as the old read-only analyzer agent and refused their lens. The old skill has no ladder step on a finding.
 
 **GREEN** (skill, both CLIs, read-only, fake gh, 2026-10-30):
 Iteration 1 failed for Claude and passed for Codex. Both docs parse in Grimoire with no warnings, and both find the invoice break at ladder step 4 with a run of the invoice code. Claude did each lens itself ("the diff is 12 lines"), did not read `lenses.md`, and opened no principle file, but it still wrote `Principles applied:`. The fix names the five principle files in Loop 4, says that a small diff still gets the lenses, and adds a red flag for lenses done by hand when a dispatch tool exists.
