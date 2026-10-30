@@ -10,12 +10,13 @@ Dispatch independent subagents of the same role together, in one message, so the
 
 ## 1. Fact gatherer (one per source)
 
-**When:** loop step 2, once per source: each log set, each config, each trace or metric, each report bundle, change history. A source you cannot reach goes in the intervention log, not to a gatherer.
+**When:** loop step 2, once per source: each log set, each config, each trace or metric, each report bundle, change history. A source you cannot reach goes in the Gaps table of template section 1 and in the intervention log, not to a gatherer.
 
 **Prompt contains, in order:**
 1. The one source to read (path, query, or command), and that access is read-only.
 2. The output contract below.
 3. "Report what the source shows. Do not explain it, do not guess causes, do not suggest fixes."
+4. "Write `<REDACTED>` in place of each secret, token, and item of customer personal data (names, emails, phone numbers, addresses)."
 
 **Returns:** rows of `fact | source | how gathered | instances`. "How gathered" says exactly how the gatherer got it (file read, query text, sorted or unsorted, sampled or complete). Anything odd about the source itself (gaps, ordering, truncation) is its own row.
 

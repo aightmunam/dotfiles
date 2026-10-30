@@ -8,6 +8,8 @@
 - **ho:** `ai/skills/handoff/` (Task 6.6). `capsule-template.md` is the shared contract. This skill points to it and does not copy it.
 - **rs:** `ai/skills/research/SKILL.md`, Loop 3 (explorer fallback) and Loop 5 (the History method).
 - **rh:** `ai/skills/resume_handoff/SKILL.md`, the old skill that this skill replaces.
+- **pocock-redact:** mattpocock-skills `skills/engineering/diagnosing-bugs/SKILL.md` lines 12 to 16 (the Redact section).
+- **audit:** `.superpowers/sdd/2026-10-30-skill-rework/skill-audit.md` in the skill-rework worktree, G5 and Top-10 item 5.
 - **brief:** Task 6.7 brief, its Global Constraints, and the 6.7 dispatch.
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
@@ -40,6 +42,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Adjacent work stays out unless it blocks. | recall line 37. | D | Rules. | Weak: the fixture has no adjacent-work trap. |
 | Read-only. Jira, Sentry, Slack, and `gh` are reads only. | spec 8.4 ("Read-only"). Dispatch (live sources are read-only). | D | Rules. | GREEN (scratch repo unchanged). |
 | No data out: no transcript content to Jira, Sentry, GitHub, or any other service. A query carries only IDs and terms that the user or the capsule gave. | Controller privacy ruling I5 (fix round 1). Review I5. | D | Rules. Red flags. | Untested. Jira, Sentry, and Slack were not available in the fixture. |
+| Redact: quote only the signal lines. Replace each secret, token, and item of customer personal data with `<REDACTED>` before the answer or an agent prompt, also in a quoted ruling or chat. | pocock-redact lines 12 to 16. recall line 37 (sanitize private context). audit G5 and Top-10 item 5. | D | Rules (redact). Red flags. | Untested (round 2 runs pending). |
 | No question to the user. A fact you cannot check is a Problems line. | spec never-block-on-the-human row. Controller ruling. | D | Rules. | GREEN |
 | Principle pointer at the check step. `Principles applied:` line at the end. | spec 8.7 (recall row). brief (Principles). | P | Loop 5. Template. Red flags. | GREEN |
 | Four repo lines, verbatim. | brief Global Constraints. | D | Repo Rules. | Untested. |
@@ -52,7 +55,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 - recall line 22: a fast, cheap model and the poteto-mode reasoning levels. The `explorer` agent sets its own model.
 - recall line 23: the `why` skill and its investigators. spec 8.4 puts the History method of `research` in its place.
 - recall line 24: the rest of the epistemics file (agent interpretations, copied summaries as one chain). The kept rule is to quote the ruling and cite the chat.
-- recall line 37: write the brief through `unslop`, and sanitize private context before public output. The answer is skill output in STE in a private chat. It is not public text.
+- recall line 37: write the brief through `unslop`. The answer is skill output in STE in a private chat. The "sanitize private context" part is no longer cut. It is kept, and made wider, as the Redact rule (audit G5): a quoted log or chat line can carry a secret or customer personal data also in a private chat.
 - rh: the interactive start ("Which handoff would you like to resume from?") and "propose a course of action and confirm". spec never-block-on-the-human: reversible work proceeds with no question.
 - rh: `humanlayer thoughts sync`, the ticket subdirectory, and the `YYYY-MM-DD_HH-MM-SS` file names. The spec path is `thoughts/shared/handoffs/YYYY-MM-DD-<topic>.md`.
 - rh: "read the handoff document FULLY" and the free analysis sections (Learnings, Artifacts). The capsule contract sets the sections and the limits.

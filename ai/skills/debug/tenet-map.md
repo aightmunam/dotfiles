@@ -5,10 +5,13 @@ This file keeps its name because The Eye reads `SKILL.md`, `investigation-templa
 Sources (pinned in `ai/sources.lock`, paths under `~/Developer/ref/` unless noted):
 
 - **sridharan:** Cindy Sridharan, "How to effectively debug when you no longer understand the code" (Medium, Oct 2026). The base. Table 1.
-- **fcd:** `ai/skills/fact-constrained-debugging/` (SKILL.md, investigation-template.md, subagent-roles.md, tenet-map.md). Copied as the base, per spec 8.2a.
+- **fcd:** the old fact-constrained-debugging skill (dotfiles history before 2026-10-30): its SKILL.md, investigation-template.md, subagent-roles.md and tenet-map.md. Copied as the base, per spec 8.2a.
 - **pocock:** mattpocock-skills `skills/engineering/diagnosing-bugs/SKILL.md` (Phase 1 feedback loop, Phase 5 seam).
 - **sp:** superpowers `skills/systematic-debugging/SKILL.md`. Only rules that Table 1 does not cover.
 - **statechart:** pstack-claude `plugins/pstack/skills/statechart/SKILL.md`, the Hand off section (replay rule only).
+- **why:** pstack-claude `plugins/pstack/skills/why/SKILL.md` lines 38 to 71 (Discovery and the investigator roster: list the tools that exist, query each evidence category that applies, name a gap when a category is missing or empty).
+- **pocock-redact:** mattpocock-skills `skills/engineering/diagnosing-bugs/SKILL.md` lines 12 to 16 (the Redact section).
+- **audit:** `.superpowers/sdd/2026-10-30-skill-rework/skill-audit.md` in the skill-rework worktree, G4 and G5 and Top-10 items 4 and 5. **siblings:** research:24 (Sentry "when you have them"), staging:22 (`gcloud logging read`), data-op:16 (prod only through read paths: Metabase and read APIs).
 - **old-debug:** the old `ai/skills/debug/SKILL.md` (read-only look at local logs, DB state and git history).
 - **atp / frc:** `ai/principles/attack-the-premise.md`, `ai/principles/fix-root-causes.md` (spec 8.7).
 - **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md` section 8.4 debug entry. **brief:** the Task 4.3 brief and its dispatch.
@@ -54,13 +57,13 @@ Form key: **P** = procedure (recipe/template slot), **D** = discipline (prohibit
 | 31 | Every human intervention is a gap the agent should have closed itself (control, constraint, check). Count and record them. | O | T7 intervention log | G11: S1-S3 pass (absent in RED) |
 | 32 | Optimize the factual tier for agents: prefer raw, unaggregated data over dashboards. | P | Loop 2 (raw over dashboards) | G2 partial: S1 asked for split, not raw |
 | 33 | Humans own decisions with risk/accountability (rollback, escalation to another team, dropping support). When several fixes exist, present every option with tradeoffs and reasoning; don't pick silently. Turn such decisions into reusable policy. | O | Rules: decisions; T7 | G11, G12: S1-S3 pass |
-| 34 | Data access is read-only by default, scoped to the investigation, time-limited, load/rate-limit aware, privacy-scrubbed, auditable. | D | Loop 2 (read-only) | untested (no live systems) |
+| 34 | Data access is read-only by default, scoped to the investigation, time-limited, load/rate-limit aware, privacy-scrubbed, auditable. | D | Loop 2 (read-only, prod reads only); Rules: redact; subagent-roles 1 (gatherer redacts) | untested (no live systems) |
 | 35 | Designing verification beats understanding code: after the fix, propose how the winning signal becomes a check. | O | T7 verification | G11 |
 | 36 | Data collection beats code comprehension. | D | Definitions; red flags (reading more code) | G6 |
 | 37 | Emit the strongest signal at the shallowest layer by default (e.g. log the count that cracked the case) so the next investigation needs no descent. | O | T7 emit the signal | G11: S1-S3 pass |
-| 38 | Humans are policy setters, not meat proxies: the agent runs commands and gathers data itself when it has access, and asks a human only for what it truly cannot reach. | D | Loop 2 (ask only for what you cannot reach, log the ask) | untested (no live systems) |
+| 38 | Humans are policy setters, not meat proxies: the agent runs commands and gathers data itself when it has access, and asks a human only for what it truly cannot reach. | D | Loop 2 (ask only for what you cannot reach, log the ask; write each unreached source in the T1 Gaps table) | untested (no live systems) |
 | 39 | "Skill issue" to "infrastructure issue": the agent should go as far as it can unprompted (set up the control, reproduce, constrain by report facts, cite) instead of waiting to be told. | D | Loop 2; Loop 3 (no-control not an option) | untested beyond S3 control fallback |
-| 40 | Prefer facts from the environment where the bug was observed over a local "full stack in a box"; local harness facts are lower fidelity. | D | Loop 2 (gather where it happened) | untested |
+| 40 | Prefer facts from the environment where the bug was observed over a local "full stack in a box"; local harness facts are lower fidelity. | D | Loop 2 (prefer facts from the environment where the bug occurred; prod source list) | untested |
 | 41 | Repurpose the framework into tests/deploy gates: check parity of high-fidelity signals against a known-good run, not just pass/fail. | O | T7 verification as signal parity | G11: S2, S3 parity checks (pass/fail in RED) |
 | 42 | Default (always-on) data collection over on-demand; dedicated production slices for agent experimentation; develop against isolated production slices. | X | n/a: platform investment; surfaced via #37 and #41 recommendations | n/a |
 | 43 | Don't treat the agent as an oracle; trade understanding for a rigorous verification process. | D | Definitions; rules: fix vs mitigation | G12: S1-S3 pass |
@@ -77,7 +80,7 @@ Form key: **P** = procedure (recipe/template slot), **D** = discipline (prohibit
 | Failed fixes get a matrix row. | atp. fcd (every candidate gets a row). | P | Loop 4. T3. | GREEN: the two failed fixes are matrix rows (Claude GREEN-3 H1 and H2) and fill the failed fixes table in each run. |
 | Ask if the triggering state is legitimate. Restart-only failures point at saved state. Fix the pattern, not the instance. Name a cheap always-on signal. | frc key sentence and rules. spec 8.4. | P | Loop 10. T7 root cause, emit the signal. | Partial: legitimate state, pattern and signal are GREEN. The restart and saved-state part is untested (no restart in the scenario). |
 | Regression test at the real seam. Watch it fail. One change. Rerun the test and the loop. | pocock Phase 5. sp Phase 4 (failing test first, one change). | P | Loop 11. Rules (one change at a time). T7 fix status. | Codex GREEN (in memory, the regression assertion ran red before the patch). Claude: proposed only. The scenario forbids edits. |
-| Gather read-only from run output, logs, local DB state, configs and git state. | old-debug (Environment, Step 2 tasks 1 to 3). | P | Loop 2. | Untested. The scenario has no logs or DB. |
+| Gather read-only from local sources: run output, logs, local DB state, configs and git state. | old-debug (Environment, Step 2 tasks 1 to 3). | P | Loop 2 (Local sources). | Untested. The scenario has no logs or DB. |
 | No user present: do not ask, do not wait. Write each assumption in the intervention log, and continue. | brief (The Eye runs `/debug` headless, `eye/config.py:15`). never-block-on-the-human. | D | Rules (no user present). T7 assumptions. Red flags (ends with a question). | GREEN: no answer in any run (Claude and Codex) ends with a question. Claude lists its assumptions under T7. |
 | With a user: one question per message, with a recommended answer. | brief (controller ruling). | D | Rules (no user present). | Untested. Both runs are headless. |
 | Reversible work needs no question. Main/master merge or push and production writes need the OK. | brief Global Constraints (never-block-on-the-human, reversible half). | D | Rules (decisions). | Reversible half GREEN (no run asks before a local fix or test). Merge, push and production half untested. |
@@ -85,9 +88,20 @@ Form key: **P** = procedure (recipe/template slot), **D** = discipline (prohibit
 | Every role runs as a subagent, also when the sources are small. Size or budget is not a reason to do a role yourself. | fcd SKILL.md (however small the sources). Task 4.3 review (all four Claude runs gave size as the reason). | D | Preamble. Red flags (size is not a reason). | GREEN-4 (budget 1.50) FAIL: Claude did every role itself and gave the budget as the reason. GREEN-5 (budget 3.00) partial: Claude sent the validation reviewer to a subagent and did the other roles itself, and gave plan mode as the reason. One run only. |
 | `Principles applied:` line last. | spec 8.7. | O | Loop 13. T7 last line. | GREEN |
 
+## Table 3: rules added in round 2 (audit items 4 and 5)
+
+| Rule | Source | Form | Where enforced | Scenario |
+|---|---|---|---|---|
+| Prefer facts from the environment where the bug occurred. | Table 1 #40. audit G4. | D | Loop 2. | Untested (round 2 runs pending). |
+| Prod sources, reads only: Sentry (issue, events, release) when you have it, Cloud Logging (`gcloud logging read` with a time window and a service filter), prod data only through Metabase and read APIs, Camunda read tools, deploy history (`gh api .../deployments`, `gh run list`, `gcloud run revisions list`). | audit G4 and Top-10 item 4. siblings (research:24, staging:22, data-op:16 wording). | P | Loop 2 (Prod sources). | Untested (round 2 runs pending). |
+| List the tools that you have. Query each source that applies. Write each source that you cannot get to as a gap in T1. | why lines 38 to 71 (discovery, document the null, name a gap). audit item 4. | D | Loop 2. T1 Gaps table. subagent-roles 1. Red flags (prod source not shown as a fact or a gap). | Untested (round 2 runs pending). |
+| An empty result is a fact, not a gap. | research Rules (an empty search is a finding). why (document the null). | P | Loop 2. T1 Gaps note. | Untested. No run returned an empty result. |
+| Redact: quote only the signal lines. Replace each secret, token, and item of customer personal data with `<REDACTED>` before the answer, a subagent prompt, or a reply. Keep a credential in an env var. If the redacted text cannot show the signal, write a gap (in place of pocock's "ask the user"). | pocock-redact lines 12 to 16. audit G5 and Top-10 item 5. Table 1 #34. | D | Rules (redact). T1 note. subagent-roles 1 (gatherer prompt item 4). Red flags (quoted text holds a secret). | Untested (round 2 runs pending). |
+
 ## Cut
 
-- pocock: the Redact section (fcd gathers read-only and reports facts, and the repo rules forbid .env reads), the HITL loop script (no script ships with this skill), and "stop and ask the user, do not hypothesise without a loop". The last one blocks a headless run of The Eye. Loop 1 marks causes `UNCONFIRMED (no loop)` instead.
+- pocock: the HITL loop script (no script ships with this skill), and "stop and ask the user, do not hypothesise without a loop". The last one blocks a headless run of The Eye. Loop 1 marks causes `UNCONFIRMED (no loop)` instead. The Redact section is no longer cut (audit G5: prod logs, Sentry events and Metabase rows carry customer personal data and auth headers). See the Redact row in Table 3. Only its "say so and ask the user" part is changed: a headless run writes the gap and continues.
+- why: the investigator subagents per MCP, the playbook files, the incident-postmortem file and the model lines. Gatherers in `subagent-roles.md` already run one per source. Only the discovery and gap rule is kept.
 - pocock: Phase 2 minimise, Phase 3 "3 to 5 ranked hypotheses, show them to the user", Phase 4 instrument, Phase 6 cleanup. The fcd matrix, layer descent and emit-the-signal cover them. Showing the list to the user conflicts with never-block-on-the-human.
 - sp: read errors, reproduce, check recent changes, find working examples, trace data flow. Table 1 rows 1, 7, 13, 20 and 25 cover them. The rationalizations table and the partner signals. The red flags cover the same failures.
 - sp: "discuss with your human partner before more fixes". The premise test replaces it, and the user still owns the decision through Rules (decisions).

@@ -22,8 +22,14 @@ Your answer is this template, filled in, with these seven numbered headings in t
 - Rows come from gatherer output, copied verbatim, one row per returned row, all six columns filled (see `subagent-roles.md`). Do not merge, condense or drop rows; the row count matches what the gatherers returned. A row with an empty Source or How gathered cell is not a fact yet: send it back or re-gather it.
 - How gathered is concrete: "read file X, unsorted", "query Q over 24h", "customer's own words in ticket". "From the ticket" alone names a source, not a method.
 - What code *says* is not a fact about what *ran*. Code readings go in the matrix as hypotheses, never in this table.
+- Quote only the lines that carry the signal. Write `<REDACTED>` in place of each secret, token, and item of customer personal data (names, emails, phone numbers, addresses).
 - Facts are never edited or argued away. If you doubt how one was gathered, say so to whoever gathered it and keep the row.
 - Same fact type from several instances beats one instance. Turn comparisons into numbers: counts, bytes, latencies, timestamps.
+
+**Gaps** (loop step 2): each source that applies but that you could not get to. An empty result is a fact, not a gap.
+
+| Source | Why not reached | Fact it would give |
+|---|---|---|
 
 **Facts I still need** (each one tied to the rows it would split):
 

@@ -19,7 +19,10 @@ description: Use when something is broken and the cause is not known. Use when a
 **If you have a subagent dispatch tool, also read `subagent-roles.md`.** Give each role to a subagent. Do this also when the sources are small. Isolation from your context is the point. With no dispatch tool, do each role yourself.
 
 1. **Red loop.** Build the red loop before you write a hypothesis or a fix. Build it from the test command and the symptom. Do not read the suspect code yet. Run the loop on the unchanged code, and show its red output, before any patch. For a flaky bug, pin the random input (seed, hash seed, clock, order), or run the trigger many times. Record the red rate. The loop output is fact F1. If real attempts give no loop, list the attempts. Then mark each cause and each fix `UNCONFIRMED (no loop)`.
-2. **Facts** (gatherers). Gather read-only, and do it yourself. Ask a human only for a source that you cannot get to, and write each ask in the intervention log. Sources include run output, logs, local DB state, configs, and `git status`, `git log` and `git diff`.
+2. **Facts** (gatherers). Gather read-only, and do it yourself. Prefer facts from the environment where the bug occurred. Ask a human only for a source that you cannot get to, and write each ask in the intervention log.
+   - Local sources: run output, logs, local DB state, configs, and `git status`, `git log` and `git diff`.
+   - Prod sources, reads only: Sentry (issue, events, release) when you have it. Cloud Logging: `gcloud logging read` with a time window and a service filter. Prod data only through read paths: Metabase and read APIs. Camunda read tools for process state. Deploy history: `gh api repos/<owner>/<repo>/deployments`, `gh run list` for the deploy workflow, and `gcloud run revisions list`.
+   - First, list the tools that you have. Query each source that applies. Write each source that you cannot get to as a gap in template section 1. An empty result is a fact.
 3. **Variable and control.** Use the best control in the data, and write its weakness.
 4. **Matrix** (eliminators). Give a row to each candidate in the input, each failed fix, and each of yours. Make each fact a column. A `Y` needs no unproven mechanism.
 5. **Read it.** The strongest signal is the column with the fewest `Y`. Any `N` discards a row.
@@ -37,6 +40,7 @@ description: Use when something is broken and the cause is not known. Use when a
 - **Cite or label.** Each claim names its fact ID. A link that only code or reasoning supports gets the label `UNCONFIRMED (code-only)`. It ranks below rows that facts support.
 - **Minorities are constraints.** An outlier report must fit too, or it is your strongest signal.
 - **A repro is a hypothesis** until it shows the strongest real signal, line by line.
+- **Redact.** Quote only the lines that carry the signal. Replace each secret, token, and item of customer personal data (names, emails, phone numbers, addresses) with `<REDACTED>`. Do this before the text goes into the answer, a subagent prompt, or a reply. Keep a credential in an env var, not in a command that you show. If the redacted text cannot show the signal, write that as a gap.
 - **One change at a time.** Never put two fixes in one run.
 - **Fix or mitigation.** Mitigate first if necessary. A fix with open `?` cells stays open and does not close the report.
 - **Decisions belong to the user.** Give each option with its tradeoffs. Reversible work, such as a local fix or a test, needs no question. A merge or push to main/master, or a production write, needs the user's OK.
@@ -56,6 +60,8 @@ description: Use when something is broken and the cause is not known. Use when a
 - A candidate leaves the matrix without a cited `N`. Go back to step 4.
 - You left out a fact column, or you settled a disputed cell yourself. Send it to an eliminator. Go back to step 4.
 - The control is "the other users", with no reason to trust it. Go back to step 3.
+- A prod source applies, but the answer does not show it as a fact or as a gap. Go back to step 2.
+- Quoted text holds a secret, a token, or customer personal data. Replace it with `<REDACTED>`. Go back to step 2.
 - Agreement, "it reproduces", or a deadline does the work of a fact. Go back to step 4.
 - You read code when you needed the splitting fact. Go back to step 7.
 - You plan a third fix on the same premise. Go back to step 9.

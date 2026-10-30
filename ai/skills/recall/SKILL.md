@@ -37,6 +37,7 @@ description: Use when a session starts and you must rebuild the working state fr
 - **An old capsule is a candidate.** Its tags are claims. The check in this session wins.
 - **Read-only.** Do not write files, commit, comment, or change a ticket. Jira, Sentry, Slack, and `gh` are reads only.
 - **No data out.** Send no transcript content to Jira, Sentry, GitHub, or any other service. A query carries only IDs and terms that the user or the capsule gave.
+- **Redact.** Quote only the lines that carry the signal. Replace each secret, token, and item of customer personal data (names, emails, phone numbers, addresses) with `<REDACTED>`. Do this before the text goes into the answer or an agent prompt. Do this also when you quote a ruling or a chat.
 - **Stay on topic.** An adjacent feature stays out unless it blocks this work.
 - **Do not ask.** A fact that you cannot check is a Problems line.
 
@@ -53,6 +54,7 @@ description: Use when a session starts and you must rebuild the working state fr
 - You read a transcript from another workspace and the user did not ask. Go back to step 2 and remove its findings.
 - You searched or read a whole Codex day directory, or read past line 1 of a session whose `cwd` is not in the workspace. Go back to step 3 and remove its findings.
 - A query to a service holds transcript text. Go back to step 4.
+- Quoted text holds a secret, a token, or customer personal data. Replace it with `<REDACTED>`. Go back to step 6.
 - A thread tag that you copied from a capsule or a chat, with no check in this session. Go back to step 5.
 - A thread with no tag, or with no Command form. A check that you describe in words and do not quote. Go back to step 5.
 - You did not read ~/.agents/principles/prove-it-works.md in this session. Go back to step 5.
