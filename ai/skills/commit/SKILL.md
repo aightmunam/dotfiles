@@ -1,6 +1,6 @@
 ---
 name: commit
-description: Create git commits with user approval and no Claude attribution
+description: Use when the user asks you to commit the changes of this session as git commits with no Claude attribution.
 ---
 
 # Commit Changes
@@ -22,12 +22,12 @@ You are tasked with creating git commits for the changes made during this sessio
    - Use imperative mood in commit messages
    - Focus on why the changes were made, not just what
 
-3. **Present your plan to the user:**
+3. **State your plan:**
    - List the files you plan to add for each commit
    - Show the commit message(s) you'll use
-   - Ask: "I plan to create [N] commit(s) with these changes. Shall I proceed?"
+   - Do not wait for an OK. A commit on a branch is reversible (ai/AGENTS.md). Only a merge or push to main/master needs the user's OK.
 
-4. **Execute upon confirmation:**
+4. **Execute:**
    - Use `git add` with specific files (never use `-A` or `.`)
    - Create commits with your planned messages
    - Show the result with `git log --oneline -n [number]`

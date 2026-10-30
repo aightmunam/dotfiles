@@ -1,6 +1,6 @@
 ---
 name: review_pr
-description: Review PRs locally with comprehensive code analysis (strictly local, no GitHub actions)
+description: Use only when The Eye names this skill.
 model: opus
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: fact-constrained-debugging
-description: Use when debugging code you or another agent wrote but no longer understand, when a bug arrives with logs, traces, user reports or telemetry, when a regression, latency or error spike appears after a deploy, during an on-call incident or a request for a quick patch to a live problem, when a bug is intermittent with no reliable repro, or when a repro, proposed fix, or review is presented as already confirming the cause.
+description: Use only when The Eye names this skill.
 ---
 
 # Fact-Constrained Debugging

@@ -113,6 +113,14 @@ class RoutingEvalTest(unittest.TestCase):
         for r in dist + nones:
             self.assertEqual(r["pair"], "")
 
+    def test_kept_collision_rows(self):
+        """A debug and a PR-review prompt must route to the rework skill, not the kept
+        fact-constrained-debugging or review_pr (skill audit G11, top-10 item 10)."""
+        rows = {r["id"]: r for r in self.rows if r["id"].startswith("kept-")}
+        self.assertEqual({k: (r["expected"], r["pair"]) for k, r in rows.items()},
+                         {"kept-debug-over-fcd": ("debug", ""),
+                          "kept-review-pr-over-review_pr": ("review-pr", "")})
+
     def test_required_prompts_present(self):
         prompts = {r["prompt"]: r for r in self.rows}
         for text, expected in [
