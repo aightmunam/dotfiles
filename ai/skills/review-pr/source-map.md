@@ -25,7 +25,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Arguments: URL, number, or `user:branch`. With no argument, write the forms and stop. | rp Initial Response. | P | Loop intro. | Untested. The scenario gives a number. |
 | 7 steps with the old numbers and names. `report_progress` at each step, total 7. | rp Process Steps. eye review_play (total=7, step names). | P | Loop. | Untested. No run had a `report_progress` tool. |
 | Never wait for input. No follow-up step. | spec 8.4 (no input waits). eye review_play. | D | Loop intro. | Forced by the scenario ("Nobody will answer"), not GREEN. |
-| Step 2 uses `local_review`, a worktree under `~/wt/<repo>/review/<name>`. | rp Step 2. AGENTS.md worktree rule. | P | Loop 2. | Untested. The scenario skips step 2, as The Eye does. |
+| Step 2 makes a worktree under `~/wt/<repo>/review/<name>` with `git worktree add` (was `local_review`, removed in Task 9.1). | rp Step 2. AGENTS.md worktree rule. | P | Loop 2. | Untested. The scenario skips step 2, as The Eye does. |
 | Diff from `gh pr diff`, not `git diff main...HEAD`. | rp Step 3. | P | Loop 3. | GREEN-2 |
 | What and How walkthrough briefs, with the mermaid rules. | rp Step 3. | P | Loop 3. L walkthrough briefs. L mermaid rules. | GREEN-2 |
 | Lenses get the common header: the same scoped context, the lens is the task, no refusal. | spec 8.4 (reviewer conflict). Audit: reviewers ran as the old read-only analyzer agent and refused their lens. ag. | D | Loop 4. L common header. Red flags. | RED: audit. GREEN-2 (Claude). Codex sent no agent. |
