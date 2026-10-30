@@ -202,7 +202,11 @@ def check_index(agents_md, principles_dir=PRINCIPLES_DIR):
 
 def check_targets(skill_dir, principles):
     text = "\n".join(p.read_text(encoding="utf-8") for p in md_files(skill_dir))
-    return [f"{skill_dir.name}: does not name {n}" for n in principles if n not in text]
+    return [
+        f"{skill_dir.name}: no pointer to {n}"
+        for n in principles
+        if f"~/.agents/principles/{n}.md" not in text
+    ]
 
 
 def check_principle_shape(path):
@@ -268,9 +272,8 @@ class SkillsLint(unittest.TestCase):
                 errors = agent_errors(path)
                 self.assertEqual(errors, [], "\n".join(errors))
 
-
     def test_principle_pointers_resolve(self):
-        paths = skill_md_files() + agent_files() + [AGENTS_MD]
+        paths = skill_md_files() + agent_files() + [AGENTS_MD] + sorted(PRINCIPLES_DIR.glob("*.md"))
         errors = check_pointers(paths)
         self.assertEqual(errors, [], "\n".join(errors))
 
@@ -297,11 +300,15 @@ class SkillsLint(unittest.TestCase):
                 errors = check_principle_shape(f)
                 self.assertEqual(errors, [], "\n".join(errors))
 
-    # Task 3.3 removes the superpowers name from ai/AGENTS.md.
-    @unittest.expectedFailure
     def test_no_plugin_references(self):
         errors = check_plugin_refs(skill_md_files())
-        errors += check_plugin_refs(agent_files() + [AGENTS_MD], STRICT_MARKERS)
+        errors += check_plugin_refs(agent_files(), STRICT_MARKERS)
+        self.assertEqual(errors, [], "\n".join(errors))
+
+    # Task 3.3 removes the superpowers name from ai/AGENTS.md.
+    @unittest.expectedFailure
+    def test_no_plugin_references_in_agents_md(self):
+        errors = check_plugin_refs([AGENTS_MD], STRICT_MARKERS)
         self.assertEqual(errors, [], "\n".join(errors))
 
 
@@ -429,6 +436,8 @@ class LintSelfCheck(unittest.TestCase):
         self.skill("Read ~/.agents/principles/real.md.\n")
         self.assertEqual(check_targets(self.dir, ["real"]), [])
         self.assertTrue(check_targets(self.dir, ["real", "other"]))
+        self.skill("This text names real but has no pointer.\n")
+        self.assertTrue(check_targets(self.dir, ["real"]))
 
     def test_principle_shape(self):
         p = self.dir / "p.md"

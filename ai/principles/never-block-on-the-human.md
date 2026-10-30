@@ -8,7 +8,7 @@ Key sentence: Reversible work inside a worktree proceeds without a question.
 
 - The human supervises later. Make a reasonable decision, do the work, and show the result.
 - Do not ask "should I do X?" on reversible work. Do X and say why.
-- Reversible work includes edits to code and notes, new files in the worktree, local commits, and splits of tasks.
+- Reversible work includes edits to code and notes, new files in the worktree, and splits of tasks.
 - Always get the user's OK first for these actions:
   - Merges.
   - Pushes.
