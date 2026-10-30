@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Vendored from danyuchn/asd-ste100-skill, skillFolderHash 3944283c183eea13fe5bd902b572da3b4de8bf44.
-# Byte copy of ~/.agents/skills/asd-ste100/scripts/ste-lint.py. Re-vendor rather than edit here.
+# Re-vendor from that repo rather than edit here.
 """Deterministic linter for the structural STE rules in SKILL.md.
 
 Checks only rules verifiable without ASD's dictionary. Deliberately never

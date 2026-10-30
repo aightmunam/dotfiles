@@ -78,8 +78,6 @@ post-install:
 	if command -v codex >/dev/null 2>&1; then skip "already installed ($$(codex --version 2>/dev/null | head -1))"; \
 	elif curl -fsSL https://chatgpt.com/codex/install.sh | sh; then ok "installed to ~/.local/bin"; \
 	else warn "codex install failed — see https://github.com/openai/codex"; fi; \
-	echo "-> agent skills (npx skills into ~/.agents/skills)"; \
-	bash ai/install-skills.sh || warn "some skills failed — re-run: bash ai/install-skills.sh"; \
 	echo "-> Claude hooks (tool-managed + pinned upstream)"; \
 	bash ai/install-hooks.sh || warn "some hooks failed — re-run: bash ai/install-hooks.sh"; \
 	echo "-> cross-tool wiring (Gemini/Codex symlinks + MCP fan-out)"; \

@@ -114,9 +114,8 @@ missing).
 - **MCP servers** are defined in `claude/settings.json` (generic tools only:
   `approvals`, `sentry`). Work-specific servers are kept out of this public repo;
   re-add any you need locally with `claude mcp add`.
-- **Skills**: none are vendored — all are installed by `claude/install-skills.sh`
-  (via `npx skills`), which `make install` runs automatically. Edit that script's
-  list to add or remove skills.
+- **Skills**: the skills live in `ai/skills/`. `ai/generate.sh` links them into
+  `~/.agents/skills`. No third-party skills are installed.
 - **Excluded skills**: some skills are work-specific or personal-confidential and
   are gitignored (this repo is public). They stay in your live `~/.claude`; keep
   them in a private repo if you want them reproduced across machines.

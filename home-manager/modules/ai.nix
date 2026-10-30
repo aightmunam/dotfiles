@@ -13,7 +13,7 @@ in
 {
   home.packages = with pkgs; [
     herdr       # terminal agent multiplexer (from inputs.herdr overlay)
-    nodejs      # npx-based MCP servers + npx skills (install-skills.sh)
+    nodejs      # npx-based MCP servers
     uv          # uvx-based MCP servers (ast-editor)
     pipx        # installs `headroom` (headroom MCP) in the post-install step
     python3

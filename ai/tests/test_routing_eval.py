@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "ai" / "bin" / "routing-eval"
 FIXTURES = ROOT / "ai" / "tests" / "fixtures"
 AGENTS = ROOT / "ai" / "AGENTS.md"
-KEPT_DISTRACTORS = {"explain_code", "commit", "asd-ste100", "design-system"}
+KEPT_DISTRACTORS = {"explain_code", "commit", "design-system"}
 
 
 def load_module():
@@ -133,10 +133,10 @@ class RoutingEvalTest(unittest.TestCase):
             if r["pair"]:
                 self.assertIn(r["pair"], known, r["id"])
 
-    def test_tsv_has_four_distractors(self):
+    def test_tsv_has_three_distractors(self):
         dist = [r for r in self.rows if r["id"].startswith("distract-")]
         self.assertEqual({r["expected"] for r in dist}, KEPT_DISTRACTORS)
-        self.assertEqual(len(dist), 4)
+        self.assertEqual(len(dist), 3)
         nones = [r for r in self.rows if r["id"].startswith("none-")]
         self.assertEqual(len(nones), 2)
         for r in nones:

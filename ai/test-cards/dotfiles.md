@@ -24,7 +24,7 @@ None configured.
 ## Prerequisites
 
 - Python 3 standard library only.
-- Never run `ai/generate.sh`, `ai/install-skills.sh`, `setup.sh`, or `make` from the worktree. They link into the live `~/.agents` and `~/.claude` stores.
+- Never run `ai/generate.sh`, `setup.sh`, or `make` from the worktree. They link into the live `~/.agents` and `~/.claude` stores.
 - Worktree changes are not live. A subagent that tests a skill reads it from `~/wt/dotfiles/skill-rework/ai/skills/<name>/`.
 - checked 2026-10-30: touched-test exit 0 (`ai.tests.test_plan_lint`), lint exit 0 (`ste-lint.py --baseline 0` on `ai/agents/explorer.md` and `ai/agents/reviewer.md`).
 
