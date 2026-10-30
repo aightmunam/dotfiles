@@ -85,7 +85,7 @@ Before diving into code quality, always establish **what** the feature does befo
 
 1. **Capture the diff ONCE (orchestrator step — the command has Bash; the analyst agents do not).** Run `gh pr diff [PR_NUMBER] --repo [owner/repo]` and save it to a temp file OUTSIDE the repo (your scratchpad) as `[DIFF_PATH]`. Do NOT use `git diff main...HEAD` — the worktree's local `main` may be stale and over-report. You already have the changed-file list and PR body from Step 1.
 
-2. Spawn **2 parallel Task agents** using **`codebase-analyzer`** (keep it — it Reads/Greps the code, which is exactly the job; do NOT downgrade to a generic agent), each with `Working directory: [worktree_path]`. Pass each agent the `[DIFF_PATH]`, the changed-file list, (for the What-analyst) the PR body text, AND the **Mermaid rules block** below verbatim — the agent **Reads** those and the source files; it never runs `git`/`gh`. If an agent returns empty or does no work (0 tool uses), re-dispatch it before continuing.
+2. Spawn **2 parallel Task agents** using the **`reviewer`** agent, each with `Working directory: [worktree_path]`. Pass each agent the `[DIFF_PATH]`, the changed-file list, (for the What-analyst) the PR body text, AND the **Mermaid rules block** below verbatim — the agent **Reads** those and the source files; it never runs `git`/`gh`. If an agent returns empty or does no work (0 tool uses), re-dispatch it before continuing.
 
    **Mermaid rules block (include verbatim in BOTH analyst prompts):**
    ```
@@ -166,7 +166,7 @@ Reviewing branch `branch-name` in repo `repo-name` via worktree located at `work
    - **Python predicate**: any `.py` file in `[CHANGED_FILES]` → dispatch Agent 6.
    - **API predicate**: any path in `[CHANGED_FILES]` matching `router|api/|schema|openapi|urls`, OR `grep -E '@(router|app)\.(get|post|put|patch|delete)\(' [DIFF_PATH]` hits, OR the diff adds/changes endpoint definitions in any framework (Django urls/views, FastAPI/Flask routes, serializers) → dispatch Agent 7. If dispatching, resolve `[REVIEW_API_SKILL_PATH]` first: `echo ~/.claude/skills/review_api/SKILL.md` (subagents' Read tool needs the expanded absolute path, not `~`).
 
-Then spawn **all applicable review agents in one parallel batch** using **`codebase-analyzer`** (keep it — Reading/Greping the code is exactly its job; do NOT downgrade to a generic agent) with specialized prompts. Agents 1–5 always run; Agents 6–7 run when their predicate above is true. Give every agent the `[DIFF_PATH]` and the changed-file list `[CHANGED_FILES]`; the agent **Reads** those and the source files and never runs `git`/`gh`. If an agent returns empty (0 tool uses), re-dispatch it.
+Then spawn **all applicable review agents in one parallel batch** using the **`reviewer`** agent with specialized prompts. Agents 1–5 always run; Agents 6–7 run when their predicate above is true. Give every agent the `[DIFF_PATH]` and the changed-file list `[CHANGED_FILES]`; the agent **Reads** those and the source files and never runs `git`/`gh`. If an agent returns empty (0 tool uses), re-dispatch it.
 
 (There is no separate "change analysis" agent — the Step 3 How-analyst already produces that; reuse its output when synthesizing.)
 
