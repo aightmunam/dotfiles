@@ -10,8 +10,15 @@ every directory of ai/skills there (Claude <scratch>/.claude/skills/<name>,
 Codex <scratch>/.agents/skills/<name>), as pressure-run does for one skill.
 --live links nothing: the CLIs use the installed user-level skills.
 The runner stops each process at the first skill load or the end of the first
-turn. "got" is the skill that loaded first, or "none".
-Results: DIR/<YYYY-MM-DD>-<tool>.tsv (id, expected, got, pass) and
+turn. "got" is the skill that loaded, "none" when none did, "a+b" (a miss) when
+one event loaded more than one, or "error" (a miss, cause in the note column)
+when a run hit its budget or timeout before a load.
+Claude detection accepts a load only after its tool_result arrives without error.
+Default mode links third-party skills installed in ~/.agents/skills (names not
+in ai/skills) next to the repo skills. Codex also still sees the main checkout's
+user-level skills in default mode, so a Codex pass there does not prove the
+worktree text routed; use --live after generate.sh for that.
+Results: DIR/<YYYY-MM-DD>-<tool>.tsv (id, expected, got, pass, note) and
 DIR/raw/<id>-<tool>.jsonl. Default DIR is
 ~/dotfiles/thoughts/shared/research/routing-eval.
 Threshold, per tool: every row with a pair passes, and at most 1 miss in total.
@@ -24,7 +31,10 @@ import datetime
 import importlib.machinery
 import importlib.util
 import json
+import os
+import re
 import shlex
+import signal
 import shutil
 import subprocess
 import sys
@@ -36,6 +46,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 TSV = ROOT / "ai" / "tests" / "routing" / "prompts.tsv"
 DEFAULT_OUT = Path.home() / "dotfiles" / "thoughts" / "shared" / "research" / "routing-eval"
+USER_SKILLS = Path.home() / ".agents" / "skills"
 DEFAULT_BUDGET = 0.30
 RUN_TIMEOUT = 300
 TOOLS = ("claude", "codex")
@@ -76,31 +87,63 @@ def select(rows, id=None, skill=None, pair=None):
     return out
 
 
-def first_loaded(events, tool):
-    """Return the skill that loaded first, or None. Claude order is the stream order."""
-    loaded = PR.skill_loaded(events, tool)
+def confirmed_events(events, tool):
+    """Return events for detection. Claude: drop tool_use items with no tool_result
+    yet, and Skill calls whose result is an error (an attempted load is not a load)."""
+    if tool != "claude":
+        return events
+    resulted = set()
+    for event in events:
+        content = (event.get("message") or {}).get("content") if event.get("type") == "user" else None
+        if isinstance(content, list):
+            for item in content:
+                if isinstance(item, dict) and item.get("type") == "tool_result":
+                    resulted.add(item.get("tool_use_id"))
+    bad = PR._claude_error_ids(events)
+    out = []
+    for event in events:
+        content = (event.get("message") or {}).get("content") if event.get("type") == "assistant" else None
+        if not isinstance(content, list):
+            out.append(event)
+            continue
+        kept = [i for i in content
+                if not (isinstance(i, dict) and i.get("type") == "tool_use"
+                        and (i.get("id") not in resulted
+                             or (i.get("name") == "Skill" and i.get("id") in bad)))]
+        out.append({**event, "message": {**event["message"], "content": kept}})
+    return out
+
+
+def pending_tool_uses(events, tool):
+    """Claude: tool_use ids that have no tool_result yet."""
+    if tool != "claude":
+        return set()
+    ids = {u.get("id") for u in PR._claude_tool_uses(events)}
+    for event in events:
+        content = (event.get("message") or {}).get("content") if event.get("type") == "user" else None
+        if isinstance(content, list):
+            for item in content:
+                if isinstance(item, dict) and item.get("type") == "tool_result":
+                    ids.discard(item.get("tool_use_id"))
+    return ids
+
+
+def loaded_skills(events, tool):
+    return PR.skill_loaded(confirmed_events(events, tool), tool)
+
+
+def got_skill(events, tool, expected=None):
+    """Return the skill name to record. More than one skill loaded gives "a+b" (a miss)."""
+    loaded = loaded_skills(events, tool)
     if not loaded:
-        return None
-    if tool == "claude":
-        for use in PR._claude_tool_uses(events):
-            name = (use.get("input") or {}).get("skill")
-            if use.get("name") == "Skill" and name in loaded:
-                return name
-    return sorted(loaded)[0]
-
-
-def got_skill(events, tool, expected):
-    """Return the skill name to record: the expected one when it is among those loaded."""
-    loaded = PR.skill_loaded(events, tool)
-    if expected in loaded:
-        return expected
-    return first_loaded(events, tool) or "none"
+        return "none"
+    return "+".join(sorted(loaded))
 
 
 def turn_ended(event, tool):
     if tool == "claude":
         return event.get("type") == "result"
-    return event.get("type") in ("turn.completed", "turn.failed", "error")
+    return event.get("type") in ("turn.completed", "turn.failed")
 
 
 def threshold(results):
@@ -115,7 +158,17 @@ def threshold(results):
     return (not reasons, reasons)
 
 
-def prepare_scratch(tool, live):
+def third_party_skills(user_dir=None, exclude=()):
+    """Installed skills to link next to the repo skills: entries of ~/.agents/skills
+    with a SKILL.md, no dot entries, and a name not in exclude."""
+    user_dir = Path(user_dir or USER_SKILLS)
+    if not user_dir.is_dir():
+        return []
+    return [e for e in sorted(user_dir.iterdir())
+            if not e.name.startswith(".") and e.name not in exclude and (e / "SKILL.md").is_file()]
+
+
+def prepare_scratch(tool, live, user_dir=None):
     scratch = Path(tempfile.mkdtemp(prefix=f"routing-{tool}-"))
     if live:
         return scratch
@@ -125,9 +178,13 @@ def prepare_scratch(tool, live):
     base = ".claude" if tool == "claude" else ".agents"
     target = scratch / base / "skills"
     target.mkdir(parents=True)
+    names = set()
     for skill in sorted(PR.SKILLS_DIR.iterdir()):
         if skill.is_dir():
             (target / skill.name).symlink_to(skill)
+            names.add(skill.name)
+    for entry in third_party_skills(user_dir, names):
+        (target / entry.name).symlink_to(entry.resolve())
     return scratch
 
 
@@ -135,16 +192,58 @@ def build_command(tool, prompt, cwd, budget, live):
     return PR.build_command(tool, prompt, cwd, False, budget, "user,project" if live else "project")
 
 
+RUNNING = set()
+RUNNING_LOCK = threading.Lock()
+
+
+def kill_group(proc):
+    """TERM the process group, wait 5 s for the leader, then KILL the group."""
+    try:
+        os.killpg(proc.pid, signal.SIGTERM)
+    except (ProcessLookupError, PermissionError):
+        pass
+    try:
+        proc.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        pass
+    try:
+        os.killpg(proc.pid, signal.SIGKILL)
+    except (ProcessLookupError, PermissionError):
+        pass
+    proc.wait()
+
+
+def kill_all():
+    with RUNNING_LOCK:
+        procs = list(RUNNING)
+    for proc in procs:
+        kill_group(proc)
+
+
+AUTH_RE = re.compile(r"(?i)\b(auth|login|log in|api key|401|403|unauthori[sz]ed|credential)")
+
+
 def run_row(tool, row, args):
-    """Run one prompt. Return (events, raw_text). Stops at the first skill load or turn end."""
+    """Run one prompt. Return (events, raw_text, note). Stops at the first skill load
+    (Claude: its tool_result without error) or the end of the first turn.
+    note is "" or the cause of a budget stop or timeout that left no load."""
     if shutil.which(tool) is None:
         raise SetupError(f"{tool} not found on PATH")
     scratch = prepare_scratch(tool, args.live)
     cmd = build_command(tool, row["prompt"], scratch, args.budget, args.live)
     lines, events = [], []
+    timed_out = []
+    errfile = tempfile.TemporaryFile(mode="w+", encoding="utf-8")
     proc = subprocess.Popen(cmd, cwd=scratch, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE, text=True)
-    timer = threading.Timer(RUN_TIMEOUT, proc.kill)
+                            stderr=errfile, text=True, start_new_session=True)
+    with RUNNING_LOCK:
+        RUNNING.add(proc)
+
+    def on_timeout():
+        timed_out.append(True)
+        kill_group(proc)
+
+    timer = threading.Timer(RUN_TIMEOUT, on_timeout)
     timer.start()
     detected = False
     try:
@@ -157,33 +256,43 @@ def run_row(tool, row, args):
             if not isinstance(event, dict):
                 continue
             events.append(event)
-            if PR.skill_loaded(events, tool):
+            if loaded_skills(events, tool) and not pending_tool_uses(events, tool):
                 detected = True
                 break
             if turn_ended(event, tool):
                 break
     finally:
         timer.cancel()
-        if proc.poll() is None:
-            proc.kill()
-        stderr = proc.stderr.read() if proc.stderr else ""
-        proc.wait()
+        kill_group(proc)
+        with RUNNING_LOCK:
+            RUNNING.discard(proc)
+        errfile.seek(0)
+        stderr = errfile.read()
+        errfile.close()
+        proc.stdout.close()
         shutil.rmtree(scratch, ignore_errors=True)
     raw = "".join(lines)
-    if not detected:
-        cause = PR.run_error(events, tool)
-        if cause:
-            raise SetupError(f"{row['id']} {tool}: {cause} {stderr.strip()[-200:]}")
-    return events, raw
+    if detected or loaded_skills(events, tool):
+        return events, raw, ""
+    if timed_out:
+        return events, raw, f"timed out after {RUN_TIMEOUT}s"
+    if not events:
+        raise SetupError(f"{row['id']} {tool}: no events. {stderr.strip()[-200:]}")
+    cause = PR.run_error(events, tool)
+    if cause:
+        if AUTH_RE.search(cause):
+            raise SetupError(f"{row['id']} {tool}: {cause}")
+        return events, raw, cause
+    return events, raw, ""
 
 
 def write_results(out, tool, results, date):
     out.mkdir(parents=True, exist_ok=True)
     with open(out / f"{date}-{tool}.tsv", "w", encoding="utf-8", newline="") as handle:
         writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
-        writer.writerow(["id", "expected", "got", "pass"])
+        writer.writerow(["id", "expected", "got", "pass", "note"])
         for r in results:
-            writer.writerow([r["id"], r["expected"], r["got"], "yes" if r["pass"] else "no"])
+            writer.writerow([r["id"], r["expected"], r["got"], "yes" if r["pass"] else "no", r.get("note", "")])
 
 
 def parse_args(argv):
@@ -219,44 +328,61 @@ def main(argv=None):
         (out / "raw").mkdir(parents=True, exist_ok=True)
 
         def work(tool, row):
-            events, raw = run_row(tool, row, args)
-            (out / "raw" / f"{row['id']}-{tool}.jsonl").write_text(raw, encoding="utf-8")
-            got = got_skill(events, tool, row["expected"])
-            ok = got == row["expected"]
+            try:
+                events, raw, note = run_row(tool, row, args)
+                (out / "raw" / f"{row['id']}-{tool}.jsonl").write_text(raw, encoding="utf-8")
+            except SetupError:
+                raise
+            except Exception as exc:
+                raise SetupError(f"{row['id']} {tool}: {exc!r}")
+            got = "error" if note else got_skill(events, tool, row["expected"])
             return {"id": row["id"], "expected": row["expected"], "pair": row["pair"],
-                    "got": got, "pass": ok}
+                    "got": got, "pass": got == row["expected"], "note": note}
 
-        with ThreadPoolExecutor(max_workers=max(1, args.jobs)) as pool:
+        pool = ThreadPoolExecutor(max_workers=max(1, args.jobs))
+        try:
             futures = {tool: [pool.submit(work, tool, row) for row in rows] for tool in tools}
-        status = 0
-        for tool in tools:
-            results, errors = [], []
-            for future in futures[tool]:
-                try:
-                    results.append(future.result())
-                except SetupError as exc:
-                    errors.append(str(exc))
-            if results:
-                write_results(out, tool, results, date)
-            for message in errors:
-                print(f"routing-eval: {message}", file=sys.stderr)
-            if errors:
-                status = 2
-                continue
-            ok, reasons = threshold(results)
-            passed = sum(1 for r in results if r["pass"])
-            print(f"{tool}: {'PASS' if ok else 'FAIL'} ({passed}/{len(results)})")
-            for r in results:
-                if not r["pass"]:
-                    print(f"  miss {r['id']}: expected {r['expected']}, got {r['got']}")
-            for reason in reasons:
-                print(f"  - {reason}")
-            if not ok and status == 0:
-                status = 1
+            status = 0
+            for tool in tools:
+                results, errors = [], []
+                for future in futures[tool]:
+                    try:
+                        results.append(future.result())
+                    except SetupError as exc:
+                        errors.append(str(exc))
+                outcome = report_tool(tool, results, errors, out, date)
+                if outcome and (status == 0 or outcome == 2):
+                    status = outcome
+        except KeyboardInterrupt:
+            kill_all()
+            pool.shutdown(wait=False, cancel_futures=True)
+            print("routing-eval: interrupted", file=sys.stderr)
+            return 2
+        finally:
+            pool.shutdown(wait=True, cancel_futures=True)
         return status
     except SetupError as exc:
         print(f"routing-eval: {exc}", file=sys.stderr)
         return 2
+
+
+def report_tool(tool, results, errors, out, date):
+    """Write the TSV and print the verdict. Return 0, 1 or 2."""
+    if results:
+        write_results(out, tool, results, date)
+    for message in errors:
+        print(f"routing-eval: {message}", file=sys.stderr)
+    if errors:
+        return 2
+    ok, reasons = threshold(results)
+    passed = sum(1 for r in results if r["pass"])
+    print(f"{tool}: {'PASS' if ok else 'FAIL'} ({passed}/{len(results)})")
+    for r in results:
+        if not r["pass"]:
+            print(f"  miss {r['id']}: expected {r['expected']}, got {r['got']}" + (f" ({r['note']})" if r.get("note") else ""))
+    for reason in reasons:
+        print(f"  - {reason}")
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":

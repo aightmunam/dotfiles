@@ -3,11 +3,16 @@
 import importlib.machinery
 import importlib.util
 import json
+import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
+import textwrap
+import time
 import unittest
+from unittest import mock
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -77,7 +82,7 @@ class RoutingEvalTest(unittest.TestCase):
 
     def test_tsv_covers_each_pair_side(self):
         sets = tie_break_sets()
-        self.assertEqual(len(sets), 16)
+        self.assertEqual(len(sets), 17)
         for name, sides in sets.items():
             for side in sides:
                 hits = [r for r in self.rows if r["pair"] == name and r["expected"] == side]
@@ -111,6 +116,9 @@ class RoutingEvalTest(unittest.TestCase):
 
     def test_detection_claude_fixture(self):
         events = fixture("claude_skill_tool.jsonl")
+        use_id = next(u["id"] for u in self.re.PR._claude_tool_uses(events) if u["name"] == "Skill")
+        events = events + [{"type": "user", "message": {"content": [
+            {"type": "tool_result", "tool_use_id": use_id, "content": "ok"}]}}]
         self.assertEqual(self.re.got_skill(events, "claude", "pressure-probe"), "pressure-probe")
         self.assertEqual(self.re.got_skill(events, "claude", "tdd"), "pressure-probe")
         self.assertEqual(self.re.got_skill(fixture("claude_result.jsonl"), "claude", "tdd"), "none")
@@ -168,20 +176,98 @@ class RoutingEvalTest(unittest.TestCase):
 
     def test_scratch_exposes_every_skill(self):
         names = {p.name for p in (ROOT / "ai" / "skills").iterdir() if p.is_dir()}
-        for tool, base in (("claude", ".claude"), ("codex", ".agents")):
-            scratch = self.re.prepare_scratch(tool, live=False)
-            try:
-                linked = {p.name for p in (scratch / base / "skills").iterdir()}
-                self.assertEqual(linked, names)
-                self.assertTrue((scratch / "AGENTS.md").is_file())
-            finally:
-                import shutil
-                shutil.rmtree(scratch, ignore_errors=True)
+        with tempfile.TemporaryDirectory() as tmp:
+            for tool, base in (("claude", ".claude"), ("codex", ".agents")):
+                scratch = self.re.prepare_scratch(tool, live=False, user_dir=tmp)
+                try:
+                    linked = {p.name for p in (scratch / base / "skills").iterdir()}
+                    self.assertEqual(linked, names)
+                    self.assertTrue((scratch / "AGENTS.md").is_file())
+                finally:
+                    shutil.rmtree(scratch, ignore_errors=True)
         live = self.re.prepare_scratch("claude", live=True)
         try:
             self.assertEqual(list(live.iterdir()), [])
         finally:
             live.rmdir()
+
+    def test_third_party_skills_filter(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            user = Path(tmp)
+            for name in ("plain", "debug", ".trash", "nodoc"):
+                (user / name).mkdir()
+            for name in ("plain", "debug", ".trash"):
+                (user / name / "SKILL.md").write_text("x")
+            (user / "synced").mkdir()
+            got = [e.name for e in self.re.third_party_skills(user, exclude={"debug"})]
+            self.assertEqual(got, ["plain"])
+            self.assertEqual(self.re.third_party_skills(user / "missing"), [])
+            scratch = self.re.prepare_scratch("claude", live=False, user_dir=user)
+            try:
+                self.assertTrue((scratch / ".claude" / "skills" / "plain").exists())
+                self.assertFalse((scratch / ".claude" / "skills" / ".trash").exists())
+            finally:
+                shutil.rmtree(scratch, ignore_errors=True)
+
+    def test_two_skills_in_one_event_is_a_miss(self):
+        cmd = {"type": "item.completed", "item": {
+            "type": "command_execution", "exit_code": 0,
+            "command": "/bin/zsh -lc 'sed -n 1,80p .agents/skills/debug/SKILL.md .agents/skills/prove/SKILL.md'"}}
+        self.assertEqual(self.re.got_skill([cmd], "codex", "debug"), "debug+prove")
+        claude = {"type": "assistant", "message": {"content": [
+            {"type": "tool_use", "id": "a", "name": "Skill", "input": {"skill": "pr"}},
+            {"type": "tool_use", "id": "b", "name": "Skill", "input": {"skill": "unslop"}}]}}
+        done = {"type": "user", "message": {"content": [
+            {"type": "tool_result", "tool_use_id": "a", "content": "ok"},
+            {"type": "tool_result", "tool_use_id": "b", "content": "ok"}]}}
+        self.assertEqual(self.re.got_skill([claude, done], "claude", "pr"), "pr+unslop")
+
+    def test_claude_load_needs_a_good_tool_result(self):
+        use = {"type": "assistant", "message": {"content": [
+            {"type": "tool_use", "id": "a", "name": "Skill", "input": {"skill": "data-op"}}]}}
+        err = {"type": "user", "message": {"content": [
+            {"type": "tool_result", "tool_use_id": "a", "is_error": True, "content": "Unknown skill"}]}}
+        ok = {"type": "user", "message": {"content": [
+            {"type": "tool_result", "tool_use_id": "a", "content": "loaded"}]}}
+        self.assertEqual(self.re.got_skill([use], "claude"), "none")
+        self.assertEqual(self.re.pending_tool_uses([use], "claude"), {"a"})
+        self.assertEqual(self.re.got_skill([use, err], "claude"), "none")
+        self.assertEqual(self.re.got_skill([use, ok], "claude"), "data-op")
+
+    def test_codex_error_event_does_not_end_the_turn(self):
+        self.assertFalse(self.re.turn_ended({"type": "error"}, "codex"))
+        self.assertTrue(self.re.turn_ended({"type": "turn.failed"}, "codex"))
+
+    def test_run_row_stops_and_kills_children(self):
+        fake = textwrap.dedent("""\
+            #!/usr/bin/env python3
+            import json, subprocess, sys, time
+            def emit(o):
+                print(json.dumps(o)); sys.stdout.flush()
+            child = subprocess.Popen(["sleep", "60"])
+            open(sys.argv[0] + ".pid", "w").write(str(child.pid))
+            emit({"type": "assistant", "message": {"content": [
+                {"type": "tool_use", "id": "a", "name": "Skill", "input": {"skill": "tdd"}}]}})
+            emit({"type": "user", "message": {"content": [
+                {"type": "tool_result", "tool_use_id": "a", "content": "ok"}]}})
+            time.sleep(60)
+        """)
+        with tempfile.TemporaryDirectory() as tmp:
+            exe = Path(tmp) / "claude"
+            exe.write_text(fake)
+            exe.chmod(0o755)
+            args = mock.Mock(live=True, budget=0.3)
+            row = {"id": "x", "prompt": "p", "expected": "tdd", "pair": ""}
+            with mock.patch.dict(os.environ, {"PATH": tmp + os.pathsep + os.environ["PATH"]}):
+                start = time.time()
+                events, raw, note = self.re.run_row("claude", row, args)
+            self.assertLess(time.time() - start, 20)
+            self.assertEqual(self.re.got_skill(events, "claude"), "tdd")
+            self.assertEqual(note, "")
+            pid = int((Path(tmp) / "claude.pid").read_text())
+            time.sleep(0.5)
+            with self.assertRaises(ProcessLookupError):
+                os.kill(pid, 0)
 
 
 if __name__ == "__main__":

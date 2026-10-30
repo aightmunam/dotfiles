@@ -111,6 +111,7 @@ Tie-break lines, one per set:
 - bro / unslop: say the last message again in plain words, `bro`. Clean a given finished text, `unslop`.
 - recall / what-did-i-get-done: catch up so you can keep working, `recall`. A standup summary of finished work, `what-did-i-get-done`.
 - prove / verifier / performance: show that your own change works, `prove`. Build a repo's own verify skill, `verifier`. A speed claim or a measured regression, `performance`.
+- verifier / new-skill: a scripted way to launch, drive and prove one repo's app, `verifier`. Any other skill to write or change, `new-skill`.
 - pr / unslop: write or update a PR body, `pr`. Clean a text that you already wrote, `unslop`.
 - pr / address: reviewer comments that need a code change, `address`. Only the PR body changes, `pr`.
 - staging / prove: Deploy a branch to staging and check it, `staging`. Prove your own change with runs in worktrees before a PR, `prove`.
