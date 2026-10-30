@@ -1,6 +1,7 @@
 """Tests for ai/claude/hooks/commit-gate.sh (stdlib unittest only)."""
 import json
 import os
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -93,6 +94,7 @@ class CommitGateTest(unittest.TestCase):
         self.assertEqual(self._commit_exit("pytest -q && echo ok", "3 passed\nok"), 0)
 
 
+@unittest.skipUnless(shutil.which("just"), "just not installed")
 class CommitGateJustTest(CommitGateTest):
     """Same harness, but the repo has a justfile with lint and test recipes."""
 
