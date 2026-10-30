@@ -9,13 +9,14 @@ Grimoire and The Eye parse this doc. Keep each rule below, or the doc does not r
 - Each H1 heading stays as written. Grimoire splits the doc on H1 only. `##` headings inside an H1 section are fine.
 - Each finding heading is `### <ID> - <title>`. The ID is `C`, `H`, `M`, or `L` and a number: `C` critical, `H` high, `M` medium, `L` low. Use a plain hyphen. Each ID occurs one time.
 - The next line is the italic summary. It starts with the ladder step: `_Ladder step <n>: <what breaks and when, in plain words>_`. Write it to the author. No rule numbers, no paths.
-- Then the `~~~finding` block: a YAML head, a line that is only `---`, then the body. `line` is an integer on the right side of the diff. Put a fix in a `suggestion` fence in the body. Never put `~~~` in the body.
+- Then the `~~~finding` block: a YAML head, a line that is only `---`, then the body. `line` is an integer on the right side of the diff. Put a fix in a `suggestion` fence in the body. Never put `~~~` in the body. Never start a body line with `# `, also in a fence. Grimoire reads that line as a new H1 section. Indent a Python comment, or remove it.
 - No other `###` heading goes in `# Review findings`.
 - Severity is `critical`, `high`, `medium`, or `low`. Put an info item in `low`.
 - In `# Automated checks`, the Status cell is `pass` or `fail`. Use a different word, for example `not run`, when the check did not finish. Never put `|` in a table cell. Grimoire drops that row with no warning.
 - Each mermaid block obeys the mermaid rules in `lenses.md`. If a diagram breaks a rule, fix it. Do not remove its slot.
 - `# What was done` has the Before / After table and the user flow. `# How it was done` has the architecture, the primary flow, and the reading order.
 - No placeholder text stays in the doc.
+- `Principles applied:` lines go only in the reply, never in the doc.
 
 ## Template
 

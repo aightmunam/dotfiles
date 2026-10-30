@@ -116,7 +116,7 @@ Check:
 - Copies of code that already exists in the repo. Give the path of the existing code.
 - Code smells, as judgment calls (a repo standard wins): mysterious name, duplicated code, feature envy, data clumps, primitive obsession, repeated switches, speculative generality, middle man.
 - Python idioms that the repo uses: logging with %s and lazy arguments, pathlib, dataclass or pydantic style, type hints on new public functions.
-Severity: a design problem that makes the next change risky is medium. Style alone is low.
+Report a small number of high-conviction findings. Do not add style nits when a larger structural problem exists.
 ```
 
 ## Test lens (always)

@@ -86,7 +86,7 @@ Pick the skill from this table by the situation. Read the skill before you act.
 | Create or change a named skill | `new-skill` |
 | Deploy a branch to staging and check it | `staging` |
 | A data change touches a real database or a live system | `data-op` |
-| Review a colleague's PR, read-only | `review-pr` |
+| Review a colleague's PR, read-only, or review a PR's API against the Zalando rules | `review-pr` |
 | End of a session: write the state for the next one | `handoff` |
 | Start of a session: catch me up across sessions and repos | `recall` |
 | Say the last message again in plain words | `bro` |
