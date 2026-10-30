@@ -121,8 +121,9 @@ Grimoire renders the plan from the manifest and flags each drift. `plan-lint` pr
 `plan-lint` checks each checkbox step. Each rule below is one line of its output when the step breaks it.
 
 - Write each step as `- [ ] **Step N: <title>**`.
-- A test step title starts with Write or Add and names a test. Name each test in backticks, for example `test_parse_limit`. Give a literal expected value in backticks, for example `parse_limit("5") == 5`.
-- A code step title starts with Implement. Give the signature in backticks as `name(params) -> type`. Give the file path in backticks.
+- A test step writes or changes a test. `plan-lint` finds it by its title (Write or Add with test, or the word test or tests) or by a sentence that starts with Test. Name each test in backticks, for example `test_parse_limit`. Give a literal expected value in backticks, for example `parse_limit("5") == 5`.
+- A code step writes or changes code. `plan-lint` finds it by an Implement title, by a source file in backticks (`.py`, `.sh`, `.js`, `.ts`, `.go`, `.rs`, `.nix`) or by a fenced `def`, `func` or `class`. Give the signature in backticks as `name(params) -> type`. Give the file path in backticks.
+- A prose edit (only `.md` or other non-source files) is not a code step. Do not give it a signature.
 - A verification step gives the command and the output that means it passed.
 
 ## Self-review

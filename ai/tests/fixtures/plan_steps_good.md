@@ -44,6 +44,7 @@ def clamp(value: int, high: int) -> int:
 - [ ] Implement the rules in `ai/skills/example/SKILL.md`.
 - [ ] Create the test `test_zero_limit`. Assert `parse_limit("0") == 0`.
 - [ ] Run `bash ai/example/run.sh`. Expected: exit `0`.
+- [ ] The routing tests exit `0`.
 - [ ] **Step 9: Commit** with message `one: parse the limit`.
 
 #### Automated verification

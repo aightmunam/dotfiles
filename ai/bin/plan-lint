@@ -18,15 +18,26 @@ is a warning too.
 Step rule, for each "- [ ] **Step N: <title>**" item and each other
 "- [ ] " item, with its indented and fenced lines. The title of an item
 without the Step label is its first sentence.
-- A test step has a title that starts with Write or Add and names a test.
-  It needs a test name in backticks (test_x, TestX, x_test, a::b) and a
-  literal expected value: a backticked value with a digit, a quote or
+Kind of each item, by title first and then by content:
+- An item is not checked when its title starts with a backtick or with Run,
+  Commit, Record, Confirm, Inspect, Check or Read. An item is also not
+  checked when its title states a result (exit, exits, pass, passes) and
+  does not start with Write, Add or Implement.
+- A test step has a title that starts with Write or Add and names a test,
+  or it has the word test or tests in its title (not test cards or test
+  harness), or it has a sentence that starts with Test.
+- A code step has a title that starts with Implement, or it names a source
+  file in backticks (.py .sh .js .ts .go .rs .nix) or has a fenced def,
+  func or class. An Implement step that names only other files, such as
+  .md, is a prose edit and is not checked.
+Checks:
+- A test step needs a test name in backticks (test_x, TestX, x_test, a::b)
+  and a literal expected value: a backticked value with a digit, a quote or
   True/False/None, a backticked value after assert, expect, equal, contain,
   print, return or raise, or an assert line in a fenced block.
-- A code step has a title that starts with Implement. It needs a signature
-  in backticks or in a fenced block, as name(params) -> type,
-  name(params): type, or func name(params) type, and a file path in
-  backticks.
+- A code step needs a signature in backticks or in a fenced block, as
+  name(params) -> type, name(params): type, or func name(params) type, and
+  a file path in backticks.
 
 Exit 0 clean, 1 on any warning, 2 on setup error.
 GRIMOIRE_DIR overrides the Grimoire checkout (default ~/Developer/grimoire).
@@ -65,8 +76,15 @@ STEP = re.compile(r"^- \[[ xX]\] \*\*Step (\d+):?(.*)$")
 BARE = re.compile(r"^- \[[ xX]\] (?!\*\*Step )(.*)$")
 BOLD_END = re.compile(r"^(.*?)\*\*(.*)$")
 TICKS = re.compile(r"`([^`\n]+)`")
-TEST_STEP = re.compile(r"^(write|add)\b.*\btests?\b(?!\s+cards?)", re.I)
+TEST_WORD = re.compile(r"\btests?\b(?!\s+(cards?|harness\w*)\b)", re.I)
+TEST_STEP = re.compile(r"^(write|add)\b", re.I)
 CODE_STEP = re.compile(r"^implement\b", re.I)
+NOT_CODE = re.compile(r"^(run|commit|record|confirm|inspect|check|read)\b", re.I)
+SOURCE = re.compile(r"\.(py|sh|js|ts|go|rs|nix)$")
+FENCE_DEF = re.compile(r"^\s*(?:async\s+)?(def|func|class)\s")
+SENTENCE_TEST = re.compile(r"(?:^|[.:]\s+)Tests?\s")
+# A verification item states a result: the tests exit 0, the suite passes.
+RESULT = re.compile(r"\b(exits?|pass(es)?)\b", re.I)
 TEST_NAME = re.compile(r"^\S*?(?:^|::|[./])(test_\w+|Test[A-Z0-9_]\w*|\w+_test)$|^\S+::\S+$")
 FENCE_TEST = re.compile(r"^\s*(?:async\s+)?(?:def|func)\s+(test_\w+|Test\w+)\s*\(")
 LITERAL = re.compile(r"\d|[\x22\x27]|^(True|False|None|true|false|null|nil)$")
@@ -124,12 +142,31 @@ def check_steps(text):
         ticks = TICKS.findall(joined)
         code = fenced(body)
         where = f"line {start}: {label}"
-        if TEST_STEP.match(title):
+        paths = [t.strip() for t in ticks if PATH.match(t.strip())]
+        source = any(SOURCE.search(t) for t in paths) or any(FENCE_DEF.match(l) for l in code)
+        bare_title = TICKS.sub("", title).strip()
+        # A verification item starts with its command, or with Run, Check and the like.
+        if NOT_CODE.match(title) or title.startswith("`"):
+            kind = None
+        elif TEST_STEP.match(title) and TEST_WORD.search(bare_title):
+            kind = "test"
+        elif CODE_STEP.match(title):
+            # A prose edit (only non-source paths, such as .md) is not code.
+            kind = None if paths and not source else "code"
+        elif RESULT.search(title):
+            kind = None
+        elif TEST_WORD.search(bare_title) or SENTENCE_TEST.search(joined):
+            kind = "test"
+        elif source:
+            kind = "code"
+        else:
+            kind = None
+        if kind == "test":
             if not (any(TEST_NAME.match(t.strip()) for t in ticks) or any(FENCE_TEST.match(l) for l in code)):
                 yield f"{where}: test step names no test in backticks"
             if not (any(LITERAL.search(t.strip()) for t in ticks) or CUE.search(joined) or any(FENCE_ASSERT.search(l) for l in code)):
                 yield f"{where}: test step has no literal expected value"
-        elif CODE_STEP.match(title):
+        elif kind == "code":
             if not (any(SIGNATURE.search(t) for t in ticks) or any(SIGNATURE.search(l) for l in code)):
                 yield f"{where}: code step has no signature name(params) -> type"
             if not any(PATH.match(t.strip()) for t in ticks):
