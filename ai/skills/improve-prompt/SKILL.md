@@ -1,9 +1,9 @@
 ---
-name: sharpen
-description: Use when the user asks to sharpen a task or a prompt, or to make it deeper, not bigger. Use when the user wants a prompt rewritten before another agent or session starts the work.
+name: improve-prompt
+description: Use when the user says improve-prompt or sharpen. Use when the user asks to improve a task or a prompt, or to make it deeper, not bigger. Use when the user wants a prompt rewritten before another agent or session starts the work.
 ---
 
-# Sharpen
+# Improve Prompt
 
 ## Definitions
 

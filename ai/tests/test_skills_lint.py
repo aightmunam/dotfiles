@@ -28,7 +28,7 @@ PLANNED = {
     "research", "brainstorm", "make-plan", "build", "tdd", "debug", "prove", "verifier",
     "performance", "pr", "unslop", "technical-writing", "reply", "address", "new-skill", "handoff", "recall", "rephrase",
     "catch-up", "review-pr", "staging", "data-op", "fix-merge-conflicts", "what-did-i-get-done",
-    "reflect", "correct", "automate-me", "explain-code", "sharpen",
+    "reflect", "correct", "automate-me", "explain-code", "improve-prompt",
 }
 # Spec 8.7 table: skill -> principles it must name in SKILL.md or a reference file.
 PRINCIPLE_TARGETS = {

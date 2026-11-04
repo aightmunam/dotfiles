@@ -80,6 +80,6 @@ pair-technical-writing_writing-standard-technical-writing	technical-writing	tech
 pair-technical-writing_writing-standard-writing-standard	none	technical-writing/writing-standard	Write one sentence for the changelog that says what the new --dry-run flag does.
 skill-verifier-maintain	verifier		The verify skill for this repo is stale since last week's route changes. Audit it against the app and fix the drift.
 pair-verifier_new-skill-verifier-maintain	verifier	verifier/new-skill	Update this repo's verify skill. The orders routes moved and two features in its map are out of date.
-skill-sharpen	sharpen		Sharpen this prompt before I hand it to another agent: add a retry to the Salesforce sync job.
-pair-brainstorm_sharpen-brainstorm	brainstorm	brainstorm/sharpen	I want installers to rate each job. Help me design it before we plan anything.
-pair-brainstorm_sharpen-sharpen	sharpen	brainstorm/sharpen	Make this task deeper, not bigger, and give me the rewritten prompt: speed up the invoice export.
+skill-improve-prompt	improve-prompt		Sharpen this prompt before I hand it to another agent: add a retry to the Salesforce sync job.
+pair-brainstorm_improve-prompt-brainstorm	brainstorm	brainstorm/improve-prompt	I want installers to rate each job. Help me design it before we plan anything.
+pair-brainstorm_improve-prompt-improve-prompt	improve-prompt	brainstorm/improve-prompt	Make this task deeper, not bigger, and give me the rewritten prompt: speed up the invoice export.
