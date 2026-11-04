@@ -2,7 +2,7 @@
 
 Fill each section with what step 2 found. Each command must run as written in this repo.
 
-## `.claude/skills/verify/SKILL.md`
+## `~/.agents/verify/<repo name>/SKILL.md`
 
 ```
 ---
@@ -11,6 +11,8 @@ description: Use when you must prove that <app> works through its <surface>. <on
 ---
 
 # Verify <app>
+
+**Location.** This skill lives in `~/.agents/verify/<repo name>/`, outside every repo, and is never committed. Run its commands from the root of the <repo name> checkout under test, main or any worktree. Evidence goes to `~/.cache/rig/<repo name>/`.
 
 ## Launch
 <the exact command, with a free port and scratch data and state dirs as env vars>
@@ -27,7 +29,7 @@ Run it before the first drive and after each failed drive.
 Read `features/README.md`, then the file of the feature that you prove.
 
 ## Evidence
-Save to <evidence dir outside the scratch data>, one file per proof.
+Save to `~/.cache/rig/<repo name>/evidence/<run>/`, one file per proof.
 - Save the action and the result: the request, then the response body.
 - For a change: also save a second read of the stored state (row, file, or event).
 - A status code, a log line, or a "saved" message alone is not proof.
@@ -43,7 +45,7 @@ Then check: the port is free, and the evidence files exist.
 <each script: its path, chmod +x, and its exact call. Or: none>
 ```
 
-## `.claude/skills/verify/features/README.md`
+## `~/.agents/verify/<repo name>/features/README.md`
 
 ```
 # <app> verification map

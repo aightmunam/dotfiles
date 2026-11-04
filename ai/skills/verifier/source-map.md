@@ -13,7 +13,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 
 | Rule | Source | Form | Where enforced | Scenario |
 |---|---|---|---|---|
-| The output is `<repo>/.claude/skills/verify/SKILL.md` with `name: verify`. Monorepo: the touched package. | cvs intro and step 2. brief interface. | P | Definitions. T frontmatter. | GREEN |
+| The output is `~/.agents/verify/<repo name>/SKILL.md` with `name: verify`, local only, linked from the main checkout. Monorepo: `<repo name>-<package>`. | cvs intro and step 2, moved out of the repo by user choice (2026-11-04). | P | Definitions. Loop 6. T frontmatter. | Migrated 4 repos. |
 | Write for an agent that never saw the app. | cvs intro. | D | Definitions. | GREEN |
 | Evidence is a body or a second read of state. A log line, status code, or "saved" alone is not. | cvs step 2 Evidence. cvs create-note Gotchas. spec 8.4. brief (`prove` reads it). | D | Definitions. Rules, proof is a body. Red flags. T Evidence. | RED: Claude's proof is HTTP 200 per route. |
 | Proven means ran once end to end, and evidence exists after cleanup. A draft is not a deliverable. | cvs step 4. spec 8.4 (counts after one run). | D | Definitions. Loop 5. Red flags. Report Status. | RED: neither run ran a skill. |
