@@ -78,3 +78,5 @@ pair-technical-writing_pr-pr	pr	technical-writing/pr	Update the description of m
 pair-technical-writing_pr-technical-writing	technical-writing	technical-writing/pr	Write a reference page for the CLI flags of ai/bin/pressure-run.
 pair-technical-writing_writing-standard-technical-writing	technical-writing	technical-writing/writing-standard	Write a full how-to guide for setting up the local dev stack of this repo, with a reference table of the env vars.
 pair-technical-writing_writing-standard-writing-standard	none	technical-writing/writing-standard	Write one sentence for the changelog that says what the new --dry-run flag does.
+skill-verifier-maintain	verifier		The verify skill for this repo is stale since last week's route changes. Audit it against the app and fix the drift.
+pair-verifier_new-skill-verifier-maintain	verifier	verifier/new-skill	Update this repo's verify skill. The orders routes moved and two features in its map are out of date.

@@ -70,3 +70,8 @@ The failure to fix: no verify skill ran, and the planned proof is a status code,
 Iteration 1 (`--write`) passed the harness for both. Claude could not read the repo outside the scratch dir, so it wrote nothing and reported `Status: blocked`. Codex wrote a draft in its scratch dir and only linked it. The fix: Loop 6 asks for the full text of each file in the answer.
 Iteration 2 (read-only) passed for both. Both report `Status: draft`, and neither claims a pass. Both plan proof as saved response bodies plus a second read, keep the live 8790 instance out, and leave the files uncommitted. Codex gives the full files. Claude gives a plan, because plan mode routes it to a plan file.
 Manual proof: the Codex draft, saved as-is in a trial worktree, ran once and passed. Its evidence holds full response bodies and survives cleanup. The implementer also wrote a verify skill with this skill, and it ran once. Its telemetry read-back found that `/api/events` returns ok for a dropped event.
+
+**Maintain pass, RED with the current skill** (both CLIs, 2026-11-04). The source is pstack `maintain-verification-skill`. The test checked 4 pstack rules that `maintain.md` does not state.
+Scenario 1 (plan the pass for 6 features, a renamed `make` target, a failed helper, teardown): both drive in dependency order on one instance, fix the launch drift and relaunch, drive the feature again after the helper fix, and tear down after the last drive.
+Scenario 2 (doctor fails again after the drift fix): both triage once and stop as `blocked` with no commit.
+No failure, so no text was added. Routing rows `skill-verifier-maintain` and `pair-verifier_new-skill-verifier-maintain` pass under both CLIs.
