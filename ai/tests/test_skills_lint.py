@@ -22,13 +22,13 @@ EM_DASH = chr(0x2014)
 MAX_SKILL_LINES = 80
 # Skills outside the house form.
 KEPT = {
-    "commit", "design-system", "explain_code",
+    "commit", "design-system",
 }
 PLANNED = {
     "research", "brainstorm", "make-plan", "build", "tdd", "debug", "prove", "verifier",
     "performance", "pr", "unslop", "technical-writing", "reply", "address", "new-skill", "handoff", "recall", "bro",
     "ketchup", "review-pr", "staging", "data-op", "fix-merge-conflicts", "what-did-i-get-done",
-    "reflect", "correct", "automate-me",
+    "reflect", "correct", "automate-me", "explain-code",
 }
 # Spec 8.7 table: skill -> principles it must name in SKILL.md or a reference file.
 PRINCIPLE_TARGETS = {

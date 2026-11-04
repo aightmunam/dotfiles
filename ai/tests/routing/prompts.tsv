@@ -41,8 +41,8 @@ pair-reflect_correct_automate-me_new-skill-automate-me	automate-me	reflect/corre
 pair-reflect_correct_automate-me_new-skill-new-skill	new-skill	reflect/correct/automate-me/new-skill	Write a skill named release-notes that drafts our changelog, and add it to the repo.
 pair-tdd_build-tdd	tdd	tdd/build	Add a validator for IBAN fields. Test first, one change, no plan file.
 pair-tdd_build-build	build	tdd/build	We have an approved plan with six tasks in thoughts/shared/plans/. Implement it task by task.
-pair-research_explain_code-research	research	research/explain_code	Before I touch the scheduler, research how it works and write the study to thoughts. No advice.
-pair-research_explain_code-explain_code	explain_code	research/explain_code	Explain in chat, with a diagram, how the retry decorator in this codebase works.
+pair-research_explain-code-research	research	research/explain-code	Before I touch the scheduler, research how it works and write the study to thoughts. No advice.
+pair-research_explain-code-explain-code	explain-code	research/explain-code	Explain in chat, with a diagram, how the retry decorator in this codebase works.
 pair-bro_ketchup-bro	bro	bro/ketchup	You said: "The sync job retries three times with exponential backoff, then marks the row failed and moves on." Restate that one message simply.
 pair-bro_ketchup-ketchup	ketchup	bro/ketchup	You ran many steps while I was away: you edited parser.py, added two tests, and renamed a column in the draft migration. Summarize everything that changed and what needs me.
 pair-bro_unslop-bro	bro	bro/unslop	You said: "The cache key includes the tenant id, so a flush for one tenant leaves the others warm." What did you just say? Put that last message in plain words.
@@ -66,7 +66,7 @@ pair-unslop_writing-standard-unslop	unslop	unslop/writing-standard	This email dr
 pair-unslop_writing-standard-writing-standard	none	unslop/writing-standard	Write two sentences for the README that say what this tool does.
 skill-debug-deploy-spike	debug		Error spike on the planning API right after this morning's deploy. Here are the Sentry traces. It is a regression and nobody knows the cause yet.
 skill-review-pr-local	review-pr		Review PR 512 on the subsidy service locally with a full code analysis. No GitHub actions.
-distract-explain_code	explain_code		Explain in chat, with a diagram, how the cache layer in this codebase works.
+skill-explain-code	explain-code		Teach me why our cache layer is built this way. I am new to it and want to understand it, not a doc.
 distract-commit	commit		Commit these changes with a good message, I approve.
 distract-design-system	design-system		Style the settings page of my work dashboard with my design system.
 none-1	none		What is the capital of Portugal?

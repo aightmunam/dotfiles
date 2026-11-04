@@ -98,6 +98,7 @@ Pick the skill from this table by the situation. Read the skill before you act. 
 | A standup summary of my finished work | `what-did-i-get-done` |
 | Clean AI tells out of a finished text (PR body, reply, message, doc, email) | `unslop` |
 | Write, rewrite or restructure a full doc with several sections (README, RFC, guide, reference page) | `technical-writing` |
+| Explain code, a change, or a subsystem in chat: how it works and why it is that way | `explain-code` |
 
 Tie-break lines, one per set:
 
@@ -107,7 +108,7 @@ Tie-break lines, one per set:
 - recall / ketchup / handoff: this chat since the user's last message, `ketchup`. Across sessions or repos, `recall`. Write state for a later session, `handoff`.
 - reflect / correct / automate-me / new-skill: lessons from a session into skills or AGENTS.md, `reflect`. A repeated mistake guarded in a repo's own code, `correct`. The user's personal working style, `automate-me`. A named skill to write or change, `new-skill`.
 - tdd / build: a plan to execute, `build` (it uses `tdd` per slice). One change with no plan, `tdd`.
-- research / explain_code: a written study before a change, `research`. Explain code to the user in chat, `explain_code`.
+- research / explain-code: a written study before a change, `research`. Explain code to the user in chat, `explain-code`.
 - bro / ketchup: restate one message, `bro`. Catch up on many changes, `ketchup`.
 - bro / unslop: say the last message again in plain words, `bro`. Clean a given finished text, `unslop`.
 - recall / what-did-i-get-done: catch up so you can keep working, `recall`. A standup summary of finished work, `what-did-i-get-done`.
@@ -126,7 +127,6 @@ Not these. Use the kept skill and not a rework skill:
 
 | Situation | Skill |
 |---|---|
-| Explain code in chat | `explain_code` |
 | Make a git commit with no Claude attribution | `commit` |
 | UI work in personal apps | `design-system` |
 

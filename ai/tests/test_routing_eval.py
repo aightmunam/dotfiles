@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "ai" / "bin" / "routing-eval"
 FIXTURES = ROOT / "ai" / "tests" / "fixtures"
 AGENTS = ROOT / "ai" / "AGENTS.md"
-KEPT_DISTRACTORS = {"explain_code", "commit", "design-system"}
+KEPT_DISTRACTORS = {"commit", "design-system"}
 
 
 def load_module():
@@ -117,7 +117,7 @@ class RoutingEvalTest(unittest.TestCase):
 
     def test_tsv_covers_every_planned_skill(self):
         planned = planned_skills()
-        self.assertEqual(len(planned), 27)
+        self.assertEqual(len(planned), 28)
         plain = {r["expected"] for r in self.rows if not r["pair"] and r["id"].startswith("skill-")}
         self.assertEqual(planned - plain, set())
 
@@ -133,10 +133,10 @@ class RoutingEvalTest(unittest.TestCase):
             if r["pair"]:
                 self.assertIn(r["pair"], known, r["id"])
 
-    def test_tsv_has_three_distractors(self):
+    def test_tsv_has_one_distractor_per_kept_skill(self):
         dist = [r for r in self.rows if r["id"].startswith("distract-")]
         self.assertEqual({r["expected"] for r in dist}, KEPT_DISTRACTORS)
-        self.assertEqual(len(dist), 3)
+        self.assertEqual(len(dist), len(KEPT_DISTRACTORS))
         nones = [r for r in self.rows if r["id"].startswith("none-")]
         self.assertEqual(len(nones), 2)
         for r in nones:
