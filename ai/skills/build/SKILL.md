@@ -12,7 +12,7 @@ description: Use when a written plan is ready to execute. Use when the user asks
 - **Red:** the new test fails on its assertion with the value that you predicted. An import error, a collection error, a syntax error, or a wrong argument count is not red.
 - **Receipt:** one line under the phase in the plan: `Fail-first: <test id> expected <x> got <y>`.
 - **Deviation:** one row in `## Deviations` at the end of the plan, for each decision that the plan did not make. Rows are append-only. A wrong row gets a new row that replaces it. The evidence is a pointer (SHA, `file:line`, PR number), not prose.
-- **Touched tests:** the test command of the phase. The plan or the test card `~/dotfiles/ai/test-cards/<repo>.md` gives it.
+- **Touched tests:** the test command of the phase. The plan or the test card `~/.agents/test-cards/<repo>.md` gives it.
 
 You own the run. The implementer writes the code of a phase.
 

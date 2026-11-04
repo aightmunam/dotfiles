@@ -28,7 +28,7 @@ phases:
 **Spec:** `<path>`.
 **Base branch:** `<branch>`. Source: <the user, the spec, or `git symbolic-ref refs/remotes/origin/HEAD`>.
 **Required skills:** <the skills that this plan needs, for example `build`, `tdd`, `data-op`, `staging`, and what each one runs>.
-**Test card:** `~/dotfiles/ai/test-cards/<repo>.md`.
+**Test card:** `~/.agents/test-cards/<repo>.md`.
 **Full suite:** `<command>`. It runs once, in the last phase.
 
 ## Global constraints
