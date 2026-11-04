@@ -31,7 +31,7 @@ Work in `<worktree path>` on branch `<branch>`. The base SHA is `<sha>`.
 - Red is a failed assertion with the value that you predicted. An import error, a collection error, a syntax error, or a wrong argument count is not red. If the test stops before its assertion, add the smallest stub (the name, or the new parameter), then run it again.
 - Run only the touched tests: `<command>`. Do not run the full suite.
 - Do not weaken a test, skip a check, or change a gate to make it pass. If you think that a gate is wrong, stop and report it.
-- No comments that tell what the code does, and no comments that explain a workaround. Change the shape of the code instead.
+- No comments that tell what the code does, and no comments that explain a workaround. Change the shape of the code instead. Keep only a license header, a rule of an outside dependency, a public API doc comment, and an issue link. For a constraint, write a test or a type, not an "IMPORTANT" comment. Add no `# noqa` or `# type: ignore` for a rule that protects correctness.
 - Commit the green tree with the message `<message>`. No attribution lines.
 - never touch a prod Salesforce org, not even --help. `~/.agents/local/work.md` names the prod orgs.
 - No alembic upgrade or downgrade, and no DB mutation, on a production database without in-the-moment user confirmation.

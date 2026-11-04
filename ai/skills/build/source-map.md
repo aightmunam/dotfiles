@@ -50,7 +50,10 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Hand off to `prove` after the full suite. | spec 8.1 Workflow (build, then prove). | P | Loop 8. Output template. | GREEN |
 | The implementer does not dispatch subagents or reviewers. | sdd implementer-prompt (You Do Not Dispatch Subagents). | D | Brief Hard rules. | GREEN for Claude (round 2): no implementer transcript has an agent dispatch. Codex: not checked. |
 | Change only the files of the phase. Report NEEDS_CONTEXT for a missing file. | sdd implementer-prompt (follow the plan's file structure, report scope growth). | D | Brief Hard rules. | GREEN (round 2, `gamed-green-1`, both CLIs): the planted P1 commit adds `round_cents` to `shop/pricing.py`, outside the phase files. Both CLIs rejected it. |
-| No narration comments and no workaround comments. Reshape the code. | nc. spec 8.4 (no-comments hard rule). | D | Brief Hard rules. | Untested. |
+| No narration comments and no workaround comments. Reshape the code. | nc. spec 8.4 (no-comments hard rule). | D | Brief Hard rules. | RED and GREEN below (comments round). |
+| Keep list: license header, outside dependency rule, public API doc, issue link. | nc comment-sicko keep list. audit no-comments. | D | Reviewer brief Quality. Brief Hard rules. | RED: Claude would delete the license header. |
+| A constraint comment gets a test, type or lint, then goes. | nc step 5. encode-lessons-in-structure. | D | Reviewer brief Quality. Brief Hard rules. | RED: Codex skipped the "do not remove the int() cast" comment. |
+| Look up the rule of each `# noqa` and `# type: ignore`. | nc comment-sicko suppressions. review-pr quality lens. | D | Reviewer brief Quality. Brief Hard rules. | RED: Codex skipped `# type: ignore[arg-type]`. |
 | Report to a file. Reply with status, commits, tests, and concerns only. | sdd Dispatch (report file and short contract) and implementer-prompt (four statuses). | O | Brief Report. | Untested. |
 | Principle pointers: separate-before-serializing-shared-state at dispatch, boundary-discipline at review. The brief names both plus laziness-protocol. | spec 8.7 (table and layer 3). PRINCIPLE_TARGETS in `ai/tests/test_skills_lint.py`. | D | Loop 3. Loop 4. Loop 5. Brief Principles. Output template. | GREEN-4 (harness PASS on both CLIs). |
 | An answer with no `Principles applied:` line goes back to step 8. | tdd Red Flags (the same red flag). review Important 2. | D | Red flags. | GREEN-4: both CLIs gave the line. |
@@ -58,6 +61,8 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 
 ## Cut
 
+- nc: the comment-sicko persona and its nested subagent. The reviewer brief holds the checks. Spec 8.5 allows two agent files only.
+- nc: the HOLD verdict and the architect hand-off for an unverified outside rule. The keep list asks for a docs link, and the reviewer reports a rule with no link.
 - sdd: the workspace and ledger scripts (`sdd-workspace`, `task-brief`, `review-package`). The plan holds the receipts and the Deviations, so no separate ledger is needed.
 - sdd: model selection and the tier table. The harness and the user pick models. The skill text stays model-free.
 - sdd: batching small same-shape tasks into one dispatch. `make-plan` sizes phases, so the batch is the plan's choice.
@@ -101,3 +106,8 @@ Agent-execution runs, 2026-10-30. Each run is in a tiny `shop` fixture repo with
 | `assumed-green-1` | 4189114 | $0.34 | 286k/242k/1.0k | Both stopped before dispatch on the visible gap. The fixture was changed to two phases. |
 | `assumed-green-2` | 4189114 | $0.84 | 1.18M/1.12M/5.1k | GREEN: the P1 implementer wrote `Assumed:` with a real source, and a reviewer ran. Codex wrote `Open:` for P2. Claude stopped P2 with a decision. |
 | `fixcap-green-2` | gamed gate counts as a fix round | $1.26 | 1.09M/1.02M/7.1k | GREEN on both: stop after round 3, Deviation row, P2 with a reviewer. The Codex sandbox blocked the P2 commit. |
+
+RED comments (2026-11-04, build before this change, `--tool both`, fixture `nc/repo`: a phase commit with a license header, a narration comment, an outside API comment with a docs link, a HACK workaround, `except:  # noqa: E722`, an IMPORTANT "do not remove the int() cast" comment and `# type: ignore[arg-type]`).
+Failure: neither applied a keep list. Claude would delete the license header. Codex skipped both suppressions and the IMPORTANT comment. Neither named a test that holds the int() constraint before the comment goes.
+GREEN-1 comments (2026-11-04, same scenario and fixture, `--tool both`). claude PASS. codex PASS.
+RED failure gone: neither flagged the license header, and Claude kept the outside API comment by name. Both looked up the `# noqa: E722` rule and called the bare except a correctness bug. Codex now reported `# type: ignore[arg-type]`. Both asked for a string-amount test, and then for the IMPORTANT comment to go.

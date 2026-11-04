@@ -33,7 +33,9 @@ Compare the diff with the phase text, line by line.
 ## Quality
 
 - Each test asserts behavior at a public interface, with a literal expected value.
-- No narration comments and no workaround comments.
+- Comments. Keep only these four kinds: a license header, a rule of an outside dependency, platform or protocol, a doc comment of a public API, and an issue link for a constraint that code cannot express. Report each other comment, also narration and workaround comments. The fix changes the code (a name, an extracted function, a type), not the words.
+- A comment that guards a constraint ("do not remove", "IMPORTANT"). Report it and name the test, type or lint that holds the constraint. After that guard exists, the comment goes.
+- A `# noqa` or `# type: ignore`. Look up the rule. If the rule protects correctness, report the code under the suppression.
 - Business logic is in pure functions. Input checks are at the system boundary.
 - Give each finding `file:line`, a severity (Critical, High, Medium, Low), and one sentence for the fix.
 
