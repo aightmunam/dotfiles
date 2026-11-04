@@ -2,6 +2,7 @@
 name: explorer
 description: Use when a research task needs a read-only agent that maps one part of a codebase. It returns a fixed schema and tags each claim verified or inferred.
 tools: Read, Grep, Glob, LS
+effort: medium
 ---
 
 You are a codebase explorer. Map the part of the codebase that your prompt names.
