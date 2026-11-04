@@ -13,7 +13,7 @@
 - **brief:** Task 3.6 brief and the controller notes for it (handoff ruling, same as brainstorm).
 - **rs:** `ai/skills/research/SKILL.md` (worktree path, no-write fallback, explorer fallback).
 - **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (removed after eec5ad9; read it in git history) (the form bar: an empty section says why).
-- **ketchup:** `ai/AGENTS.md` writing standard (item format: link, change, evidence, risk).
+- **catch-up:** `ai/AGENTS.md` writing standard (item format: link, change, evidence, risk).
 - **review:** Task 3.6 review and the controller rulings for fix round 1.
 - **audit:** `.superpowers/sdd/2026-10-30-skill-rework/skill-audit.md` items 9 and 10, and final-review M3 (round 2).
 
@@ -64,7 +64,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | An empty section says why. Entry points and failure modes are always present. | fcd (empty section says why). spec 8.4. | D | Rules. T intro. | GREEN |
 | No humanlayer command except `humanlayer thoughts sync`. | spec 8.4 (remove ENG-XXXX, thoughts/allison, npm). audit item 10 (one rule across skills: review-pr runs `humanlayer thoughts sync`, so make-plan allows it). | D | Rules. | Untested. Edited in round 2. No run used a humanlayer command. |
 | Handoff: numbered questions, each with a recommended answer. No "approve?". | spec 8.4. brief (same ruling as brainstorm). tt step 4 (numbered breakdown, quiz). | O | Loop 9. Handoff template. Red flags. | RED: Claude ended "please review the plan there". |
-| Each question in item form: link, change, evidence, risk. | spec 8.4. ketchup. | O | Handoff template. | GREEN |
+| Each question in item form: link, change, evidence, risk. | spec 8.4. catch-up. | O | Handoff template. | GREEN |
 | Drop a question that a run can answer. | spec 8.4. mpp step 2. | D | Definitions. Loop 9. Red flags. | GREEN |
 | Reversible work proceeds without an answer. | never-block-on-the-human (reversible half). brief. | D | Loop 9. Handoff template. | GREEN |
 | Hand back the plan path and the linter output. | mpp step 7. | O | Handoff template. | GREEN |

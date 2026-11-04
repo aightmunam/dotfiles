@@ -1,6 +1,6 @@
 ---
 name: unslop
-description: Use when the user asks to clean, unslop or de-AI a finished text (PR body, reply, message, doc, email). Use when a skill such as reply, pr or ketchup runs a pass over a draft that is already written.
+description: Use when the user asks to clean, unslop or de-AI a finished text (PR body, reply, message, doc, email). Use when a skill such as reply, pr or catch-up runs a pass over a draft that is already written.
 ---
 
 # Unslop
@@ -63,4 +63,4 @@ Principles applied: none
 
 ## Roles
 
-Run inline. Do not dispatch an agent. Put the output in the answer. Write a file only when the user names it. When `reply`, `pr` or `ketchup` calls this skill, return only the template.
+Run inline. Do not dispatch an agent. Put the output in the answer. Write a file only when the user names it. When `reply`, `pr` or `catch-up` calls this skill, return only the template.

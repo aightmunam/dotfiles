@@ -10,7 +10,7 @@
 - **retro:** mattpocock-skills `skills/engineering/retro/SKILL.md` (a mechanical violation gets a deterministic check, not a rule in a text file).
 - **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md`, section 8.4 address entry, section 8.7 principle table, and the decisions table (`address` posting).
 - **brief:** task 6.4 brief and the parallel dispatch rules (interfaces, RED failure list, four repo lines, one question with a recommended answer).
-- **ketchup:** spec 8.4 ketchup entry and `ai/AGENTS.md` writing standard (an action item has its link, change, evidence and risk).
+- **catch-up:** spec 8.4 catch-up entry and `ai/AGENTS.md` writing standard (an action item has its link, change, evidence and risk).
 - **agents:** `ai/AGENTS.md`, the `## Skill routing` row and the reply / address tie-break.
 - **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (removed after eec5ad9; read it in git history) (the form bar).
 
@@ -34,7 +34,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Class map for `reply`: push back is decline, done is fix with the existing SHA. | Review item 4. reply Definitions (fix, decline, answer). | P | Loop 6. | Untested (fix round 1). |
 | Three-round stop. Write the shared premise first. | spec 8.4 and 8.7 (attack-the-premise at the stop). babysit step 4. | D | Loop 7. Hard rules. | GREEN-3: both read the principle and wrote a Premise line for round 1. The round-3 stop is Untested. |
 | Show all drafts and ask items. Then wait. | spec 8.4 (show all drafts, then post). | O | Loop 8. Output template. | GREEN-3: both used the template sections. |
-| Each ask item has its link, change, evidence, risk and pick. | spec 8.4 (ketchup item format). ketchup. Controller ruling (recommended answer). | O | Output template. Red flags. | Partial. GREEN-3: Claude has all five for both items. Codex is partial in GREEN-3: the 9002 item has no pick, and the 9003 item has no `Evidence:` label. GREEN-2 Codex had a pick on 9002. |
+| Each ask item has its link, change, evidence, risk and pick. | spec 8.4 (catch-up item format). catch-up. Controller ruling (recommended answer). | O | Output template. Red flags. | Partial. GREEN-3: Claude has all five for both items. Codex is partial in GREEN-3: the 9002 item has no pick, and the 9003 item has no `Evidence:` label. GREEN-2 Codex had a pick on 9002. |
 | Post each OK'd draft in its own thread with `gh api .../replies`. Never resolve a thread with no reply. | spec 8.4 posting. sp-rcr GitHub thread replies. | P | Loop 9. | Untested. No run reached an OK. |
 | Posting gate: post nothing before the user OKs that draft. It holds when other rules say to proceed. An absent user is no OK. | spec 8.4 posting and decisions table. brief RED failure list. | D | Posting gate. Red flags. | Untested. RED also made no write: Claude ran in plan mode, and the scenario blocks edits, commits and pushes, so the setup forces the result. Note: `writes.py` finds no gh write in `red/` or `address-green-1/` to `address-green-3/`. `gh-log.txt` holds only the GREEN-3 Claude calls (4 READ lines). It does not cover GREEN-1, GREEN-2 or any Codex run. |
 | A resolve is a post. It needs the same OK as its reply. | Review item 6. spec 8.4 (never resolve a thread with no reply). | D | Posting gate. | Untested (fix round 1). |

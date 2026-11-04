@@ -29,7 +29,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | `Principles applied:` line. | spec 8.7. unslop has no principle targets. | O | Output template. | GREEN |
 | Write `<em dash>` for an old em dash in a change line. | brief (no em dash left). Audit: GREEN-1 quoted the old em dashes. | D | Rules. Red flags. | GREEN-1 failed. GREEN-2 passed. |
 | The template is the full answer. | brief interfaces. Audit: GREEN-1 Claude added advice after the template. | O | Loop 7. Red flags. | GREEN-1 failed. GREEN-2 passed. |
-| Run inline. Called by `reply`, `pr` or `ketchup`: return only the template. | spec 8.4 (reply runs it on each draft). | O | Roles. | Untested. No run called it from a skill. |
+| Run inline. Called by `reply`, `pr` or `catch-up`: return only the template. | spec 8.4 (reply runs it on each draft). | O | Roles. | Untested. No run called it from a skill. |
 
 ## Cut
 

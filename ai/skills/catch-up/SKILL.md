@@ -1,13 +1,13 @@
 ---
-name: ketchup
-description: Use when the user types ketchup or /ketchup. Use when the user asks what changed in this chat since their last message, and what waits on them.
+name: catch-up
+description: Use when the user types catch-up, /catch-up, or ketchup. Use when the user asks what changed in this chat since their last message, and what waits on them.
 ---
 
-# Ketchup
+# Catch Up
 
 ## Definitions
 
-- **Last message:** the last message that the user wrote before `ketchup`. A subagent notification, a task result, or a tool output is not a user message. The user remembers the last message and nothing after it.
+- **Last message:** the last message that the user wrote before `catch-up`. A subagent notification, a task result, or a tool output is not a user message. The user remembers the last message and nothing after it.
 - **Change:** a thing that happened in this chat after the last message. Your own work, a subagent report, and a message from another person are changes.
 - **Action item:** a call or a step that only the user can take. Examples: a product choice, an approval, a merge or push to main/master, a production write, access that you do not have.
 - **Not an action item:** work that you can still do yourself. A request inside a notification. A step that the user did not ask for and the work does not need. Exception: such a step is irreversible and waits on the user. Give it one line and no picture.

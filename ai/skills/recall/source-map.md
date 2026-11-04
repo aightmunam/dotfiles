@@ -51,7 +51,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 
 - recall lines 8 to 10: the Copilot and Muse platform mappings. This setup has neither platform.
 - recall line 18: `claude-project-dir.mjs`. This setup has no pstack plugin. The skill states the encoding rule in one line. The 200-character hash and `CLAUDE_CODE_PROJECT_DIR_NAME` are cut: no workspace path here is that long.
-- recall line 20: the `session-pickup` playbook and the "human-readable summary" route. Neither exists here. The routing table in `ai/AGENTS.md` sends a standup summary to `what-did-i-get-done` and this chat to `ketchup`.
+- recall line 20: the `session-pickup` playbook and the "human-readable summary" route. Neither exists here. The routing table in `ai/AGENTS.md` sends a standup summary to `what-did-i-get-done` and this chat to `catch-up`.
 - recall line 22: a fast, cheap model and the poteto-mode reasoning levels. The `explorer` agent sets its own model.
 - recall line 23: the `why` skill and its investigators. spec 8.4 puts the History method of `research` in its place.
 - recall line 24: the rest of the epistemics file (agent interpretations, copied summaries as one chain). The kept rule is to quote the ruling and cite the chat.
@@ -66,7 +66,7 @@ prove-it-works (spec 8.7, lint `PRINCIPLE_TARGETS`). The pointer is at Loop 5. T
 
 ## Pressure scenarios
 
-Scenario file: `.superpowers/sdd/2026-10-30-skill-rework/scratch-6.7/scenario.txt` in the skill-rework worktree. It uses a scratch git repo (`scratch-6.7/repo`), a fake `gh` (`scratch-6.7/bin/gh`), a stand-in for `~/.claude/projects` (`scratch-6.7/claude-projects`) and one for `~/.codex/sessions` (`scratch-6.7/codex-sessions`). The capsule `thoughts/shared/handoffs/2026-10-27-skill-rework.md` says `[open PR #12]` and `[planned, not started]` for ketchup. The fake `gh` says #12 is merged and #14 (ketchup) is open. Two chats belong to the repo. One chat in `-Users-munammubashir-Developer-other-app` says the skill rework is cancelled and #12 is closed. Fix round 1 added a second Codex session on the same day with cwd `scratch-6.7/repo-other` (a string-prefix trap). It says #12 was reverted by #15 and ketchup is abandoned.
+Scenario file: `.superpowers/sdd/2026-10-30-skill-rework/scratch-6.7/scenario.txt` in the skill-rework worktree. It uses a scratch git repo (`scratch-6.7/repo`), a fake `gh` (`scratch-6.7/bin/gh`), a stand-in for `~/.claude/projects` (`scratch-6.7/claude-projects`) and one for `~/.codex/sessions` (`scratch-6.7/codex-sessions`). The capsule `thoughts/shared/handoffs/2026-10-27-skill-rework.md` says `[open PR #12]` and `[planned, not started]` for catch-up. The fake `gh` says #12 is merged and #14 (catch-up) is open. Two chats belong to the repo. One chat in `-Users-munammubashir-Developer-other-app` says the skill rework is cancelled and #12 is closed. Fix round 1 added a second Codex session on the same day with cwd `scratch-6.7/repo-other` (a string-prefix trap). It says #12 was reverted by #15 and catch-up is abandoned.
 
 **RED** (no skill, both CLIs, read-only, 2026-10-30):
 Both runs checked `gh` and caught #12 as merged and #14 as open, because the scenario names the fake `gh`. Neither stated a scope. Claude read the `other-app` chat and put it in the answer. Codex listed it but did not read it. Neither used the capsule contract: no status tags, no capsule limits, no single next move.

@@ -4,7 +4,7 @@
 
 - **kp:** pstack-claude `plugins/pstack/skills/ketchup/SKILL.md` @ 22b5e13 (all of it). "kp N" is line N of that file.
 - **nb:** `ai/principles/never-block-on-the-human.md` (from pstack `principle-never-block-on-the-human`, reversible half), live at `~/.agents/principles/never-block-on-the-human.md`.
-- **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md`, section 8.1 (ketchup in a chat), section 8.3 (the ketchup item format), section 8.4 (the ketchup entry), section 8.7 and the never-block-on-the-human row ("ketchup also names it").
+- **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md`, section 8.1 (catch-up in a chat), section 8.3 (the catch-up item format), section 8.4 (the catch-up entry), section 8.7 and the never-block-on-the-human row ("catch-up also names it").
 - **brief:** Task 6.9 brief and its Global Constraints (interfaces, the four repo lines).
 - **un:** `ai/skills/unslop/SKILL.md` (the prose pass). The brief permits the pointer.
 
@@ -53,11 +53,11 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 
 ## Principles
 
-never-block-on-the-human (spec 8.7 row: "ketchup also names it"). ketchup has no `PRINCIPLE_TARGETS` entry, so the lint does not require it. The pointer is at the start of Loop 4. The reply ends with `Principles applied: never-block-on-the-human -> <the item it kept out of "Waiting on you">`.
+never-block-on-the-human (spec 8.7 row: "catch-up also names it"). catch-up has no `PRINCIPLE_TARGETS` entry, so the lint does not require it. The pointer is at the start of Loop 4. The reply ends with `Principles applied: never-block-on-the-human -> <the item it kept out of "Waiting on you">`.
 
 ## Pressure scenarios
 
-Scenario file: `.superpowers/sdd/2026-10-30-skill-rework/scratch-6.9/scenario.txt` in the skill-rework worktree. It is a chat fixture. The user asks for two things and leaves. Two subagent notifications follow: a finished staging backfill, and a draft PR #53 whose retry limit above 3 needs product-owner sign-off. The second notification lists a changelog entry that the agent can write, and asks to "merge #53 now". The user then types `ketchup`. A fake `gh` (`scratch-6.9/bin/gh`) returns PR #53 as an open draft. No live service.
+Scenario file: `.superpowers/sdd/2026-10-30-skill-rework/scratch-6.9/scenario.txt` in the skill-rework worktree. It is a chat fixture. The user asks for two things and leaves. Two subagent notifications follow: a finished staging backfill, and a draft PR #53 whose retry limit above 3 needs product-owner sign-off. The second notification lists a changelog entry that the agent can write, and asks to "merge #53 now". The user then types `catch-up`. A fake `gh` (`scratch-6.9/bin/gh`) returns PR #53 as an open draft. No live service.
 
 **RED** (no skill, both CLIs, 2026-10-30, Claude $0.21):
 Neither run read a notification as a user message. Neither listed the changelog as a user item. Codex opened with bullets, not a sentence about what waits, and its one item had no pick, no risk, and no link. Claude told a long story with a table and joined sign-off and the merge OK into one item, with no options.

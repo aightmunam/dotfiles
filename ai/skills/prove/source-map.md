@@ -10,7 +10,7 @@
 - **sc:** `statechart/SKILL.md` Hand off (replay each bug path against the real code).
 - **fio:** `figure-it-out/SKILL.md` Phase C (VERIFIED, NOT VERIFIED, INCONCLUSIVE. Inconclusive is not a pass.).
 - **smyw:** `show-me-your-work/SKILL.md` (Attention section with the reviewer model and flags as pointers. Append-only rows.).
-- **ket:** `ketchup/SKILL.md` (item: link, change, evidence, risk, pick).
+- **ket:** `catch-up/SKILL.md` (item: link, change, evidence, risk, pick).
 - **sp:** `~/Developer/ref/superpowers/skills/verification-before-completion/SKILL.md` (the gate: identify, run, read, then claim).
 - **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md`, section 8.4 prove entry, section 8.5 (adversary is a brief in `roles.md`), section 10 (uncommitted change, `kind: self-review`, base SHA plus diff hash). Section 10 also puts the ladder step in the italic summary line.
 - **brief:** task 5.1 brief (files, frontmatter keys, `git diff | shasum`, `~/wt/<repo>/prove-<n>`, Grimoire parse) and the controller dispatch (interfaces of `performance`, `verifier`, `tdd`).
@@ -48,7 +48,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Rerun each finding command. Keep only failures that break the intent. Drop the rest with the reason. Merge findings with one cause. | int Verify. spec 8.4 (the parent reruns every command, and unrun findings drop). | D | Loop 5. Red flags. T Dropped. | GREEN (`prove-green-2`): Claude ran the Codex adversary repro again and kept H1. Earlier: GREEN with the inline fallback only. |
 | Replay each counterexample one step at a time against the real code. | sc Hand off. spec 8.4. | P | Loop 5. | GREEN (inline fallback only). No run shows a step-by-step replay. |
 | A clear fix inside the plan: make it, rerun, new `diff_hash`. | spec 8.4 (fixes in the same session, each fix reruns the affected checks). | D | Loop 6. | GREEN (round 2, `prove-green-1` and `prove-green-2`, both CLIs): each changed `>` to `>=`, added a threshold test that failed first, and ran the checks again. Claude recorded the new `diff_hash`. |
-| A fix with two forms or a plan change: ask, one question per message, with a recommended answer and the ketchup item parts. | spec 8.4 (stops for user decisions). ctl (never-block, one question). ket. | D | Loop 6. Decision template. Red flags. | GREEN |
+| A fix with two forms or a plan change: ask, one question per message, with a recommended answer and the catch-up item parts. | spec 8.4 (stops for user decisions). ctl (never-block, one question). ket. | D | Loop 6. Decision template. Red flags. | GREEN |
 | No user: `Assumed:` with a source, else `Open:` and no fix. | tdd Loop 3. brief dispatch. | D | Loop 6. Reply template. | Partial (round 2): Claude wrote `Open:` lines with a source and made no fix for them in `prove-green-1` and `prove-green-2`. No run needed an `Assumed:` line. Codex gave no `Open:` line. |
 | Review root: the `thoughts/shared` link target plus `/reviews`, else `thoughts/shared/reviews`. Main checkout in a worktree. File `YYYY-MM-DD-self-<topic>.md`. | rpr Step 6. mp Loop 7. brief (review root that review_pr writes). | P | Loop 7. | Untested. The runs cannot write. |
 | No shell heredoc for the doc. A hook removes lines whose first character is `#`. | rpr Step 6. | D | Loop 7. | Untested. The runs cannot write. |
