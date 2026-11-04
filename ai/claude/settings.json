@@ -107,18 +107,6 @@
   },
   "model": "claude-opus-4-8",
   "hooks": {
-    "Notification": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "rh=\"$HOME/.claude/npm/lib/node_modules/rins_hooks\"; [ -f \"$rh/hooks/notification/index.js\" ] || rh=\"$(npm root -g)/rins_hooks\"; node \"$rh/hooks/notification/index.js\"",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
     "PermissionRequest": [
       {
         "matcher": "Bash",
@@ -159,16 +147,6 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/activity-logger.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "rh=\"$HOME/.claude/npm/lib/node_modules/rins_hooks\"; [ -f \"$rh/hooks/code-formatter/index.js\" ] || rh=\"$(npm root -g)/rins_hooks\"; node \"$rh/hooks/code-formatter/index.js\"",
-            "timeout": 30
           }
         ]
       }

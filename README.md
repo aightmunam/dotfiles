@@ -100,7 +100,6 @@ To update the upstream Claude hooks, change `CCH_REF` or `CCS_REF` in
 
 | Step | Result |
 |---|---|
-| `npm install -g rins_hooks` | `rins_hooks` in `~/.claude/npm`, for the Claude hooks |
 | `pipx install headroom` | `headroom`, if it is missing |
 | `npm install -g @google/gemini-cli` | Gemini CLI in `~/.local`, if it is missing |
 | the Codex install script | Codex CLI in `~/.local/bin`, if it is missing |

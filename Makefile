@@ -63,9 +63,6 @@ post-install:
 	@export PATH="$$HOME/.nix-profile/bin:$$HOME/.local/bin:$$PATH"; \
 	ok(){ echo "   ✓ $$1"; }; skip(){ echo "   • $$1"; }; warn(){ echo "   ⚠️  $$1"; }; \
 	echo "==> post-install: non-Nix tools, skills, hooks, cross-tool wiring"; \
-	echo "-> rins_hooks (npm global used by Claude hooks)"; \
-	mkdir -p "$$HOME/.claude/npm"; \
-	if npm install -g rins_hooks --prefix "$$HOME/.claude/npm" >/dev/null 2>&1; then ok "installed/updated in ~/.claude/npm"; else warn "'npm install -g rins_hooks' failed — run manually"; fi; \
 	echo "-> headroom MCP (pipx)"; \
 	if command -v headroom >/dev/null 2>&1; then skip "already installed"; \
 	elif pipx install headroom >/dev/null 2>&1; then ok "installed"; \
