@@ -17,15 +17,22 @@
     let
       # --impure: read the invoking user so the same flake works for any account.
       username = builtins.getEnv "USER";
+      # --impure: the absolute path of the checkout that the links point at.
+      # `make build` sets DOTFILES_DIR to the checkout it runs in.
+      dotfilesDir = builtins.getEnv "DOTFILES_DIR";
 
       mkHome = system:
+        let
+          home = if builtins.match ".*-darwin" system != null then "/Users/${username}" else "/home/${username}";
+          repoRoot = if dotfilesDir != "" then dotfilesDir else "${home}/dotfiles";
+        in
         inputs.home-manager.lib.homeManagerConfiguration {
           pkgs = import inputs.nixpkgs {
             inherit system;
             config.allowUnfree = true;
             overlays = [ inputs.herdr.overlays.default ];
           };
-          extraSpecialArgs = { inherit inputs username; };
+          extraSpecialArgs = { inherit inputs username repoRoot; };
           modules = [ ./home.nix ];
         };
     in

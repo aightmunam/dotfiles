@@ -2,9 +2,8 @@
 # store in ~/.agents), herdr, and the runtimes MCP servers/skills depend on.
 # The non-Nix half (npx skills, hooks, Gemini/Codex fan-out) lives in
 # `make post-install` -> ai/*.sh.
-{ config, pkgs, ... }:
+{ config, repoRoot, pkgs, ... }:
 let
-  repoRoot = "${config.home.homeDirectory}/dotfiles";
   # Link a repo-relative path into $HOME as a writable, out-of-store symlink.
   link = path: config.lib.file.mkOutOfStoreSymlink "${repoRoot}/${path}";
   # Link a $HOME-relative path (e.g. the shared ~/.agents skills store) live.

@@ -9,15 +9,13 @@
 # system merges them). A future machine profile can import a subset.
 #
 # Config files are linked with `mkOutOfStoreSymlink`, i.e. they point at the LIVE
-# repo checkout (~/dotfiles), not a read-only copy in the Nix store. Editing any
+# repo checkout (repoRoot, ~/dotfiles by default), not a read-only copy in the Nix store. Editing any
 # linked file (nvim, wezterm, tmux, zsh, Claude skills/hooks, herdr, ...) takes
 # effect immediately with NO rebuild. `home-manager switch` is only needed to
 # change which paths are linked or which packages/programs are installed.
-{ inputs, username, config, lib, pkgs, ... }:
+{ inputs, username, repoRoot, config, lib, pkgs, ... }:
 let
   isDarwin = pkgs.stdenv.isDarwin;
-  # Absolute path to the live checkout. Assumes the repo is cloned to ~/dotfiles.
-  repoRoot = "${config.home.homeDirectory}/dotfiles";
   link = path: config.lib.file.mkOutOfStoreSymlink "${repoRoot}/${path}";
 in
 {
@@ -39,7 +37,7 @@ in
       "/run/current-system/sw/bin"
       "$HOME/.nix-profile/bin"
     ];
-    sessionVariables = { };
+    sessionVariables = { DOTFILES_DIR = repoRoot; };
 
     # Nix / home-manager's own config; everything else lives in modules/.
     file = {

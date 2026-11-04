@@ -55,7 +55,7 @@ build:
 		exit 1; \
 	}
 	@echo "-> Applying home-manager config: $(HM_CONFIG)"
-	NIXPKGS_ALLOW_UNFREE=1 nix run home-manager -- switch --flake ./home-manager#$(HM_CONFIG) --impure -b backup
+	DOTFILES_DIR=$(CURDIR) NIXPKGS_ALLOW_UNFREE=1 nix run home-manager -- switch --flake ./home-manager#$(HM_CONFIG) --impure -b backup
 
 # Non-Nix pieces of the AI toolchain. Best-effort: a failure here never aborts the
 # whole setup, it just prints a warning to resolve manually.

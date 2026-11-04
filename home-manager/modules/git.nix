@@ -1,7 +1,6 @@
 # Git and its ecosystem tooling + config links.
-{ config, pkgs, ... }:
+{ config, repoRoot, pkgs, ... }:
 let
-  repoRoot = "${config.home.homeDirectory}/dotfiles";
   link = path: config.lib.file.mkOutOfStoreSymlink "${repoRoot}/${path}";
 in
 {

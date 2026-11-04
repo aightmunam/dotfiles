@@ -13,7 +13,7 @@ return {
   ---@type AutoSession.Config
   opts = {
     -- log_level = 'debug',
-    allowed_dirs = { '~/Developer', '~/dotfiles' },
+    allowed_dirs = { '~/Developer', vim.env.DOTFILES_DIR or '~/dotfiles' },
     session_lens = {
       picker = nil,
       load_on_setup = true,

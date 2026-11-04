@@ -1,7 +1,6 @@
 # Terminal emulator, multiplexer, editors, and the fonts they render with.
-{ config, lib, pkgs, ... }:
+{ config, repoRoot, lib, pkgs, ... }:
 let
-  repoRoot = "${config.home.homeDirectory}/dotfiles";
   link = path: config.lib.file.mkOutOfStoreSymlink "${repoRoot}/${path}";
 in
 {

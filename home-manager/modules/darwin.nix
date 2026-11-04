@@ -1,9 +1,8 @@
 # macOS-only packages and files. Everything here is guarded by isDarwin so the
 # same module list evaluates cleanly on Linux.
 # (Not to be confused with ../darwin.nix, a vestigial nix-darwin experiment.)
-{ config, lib, pkgs, ... }:
+{ config, repoRoot, lib, pkgs, ... }:
 let
-  repoRoot = "${config.home.homeDirectory}/dotfiles";
   link = path: config.lib.file.mkOutOfStoreSymlink "${repoRoot}/${path}";
 in
 {

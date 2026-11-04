@@ -7,8 +7,9 @@ shared AI setup for Claude Code, Gemini CLI, and Codex CLI.
 
 ## Set up a new machine
 
-Clone the repo to `~/dotfiles`. Each link points at that path, so a clone in
-another place gives broken links.
+You can clone the repo to any path. The steps use `~/dotfiles`. Each link
+points at the checkout that `make build` runs in. To move the checkout, run
+`make build` in the new place.
 
 1. Install the prerequisites.
    - macOS: `xcode-select --install`
@@ -180,8 +181,11 @@ some skills adapt.
 
 By default, home-manager links a config file to a read-only copy in the Nix
 store. A change then needs a rebuild. This repo uses `mkOutOfStoreSymlink`, so
-each link points at the file in `~/dotfiles`, and an edit applies at once. The
-cost is that the checkout must stay at `~/dotfiles`.
+each link points at the file in the checkout, and an edit applies at once.
+`make build` passes the checkout path to the flake in `DOTFILES_DIR`. The
+`--impure` flag lets the flake read it. Without `DOTFILES_DIR`, the flake uses
+`~/dotfiles`. home-manager also exports `DOTFILES_DIR` to your shell. The cost
+is that a moved checkout gives broken links until the next `make build`.
 
 `~/.claude/settings.json` is the exception. Claude Code writes to that file
 while it runs, and the file can hold values for one machine only. A link would

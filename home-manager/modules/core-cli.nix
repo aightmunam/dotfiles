@@ -1,8 +1,7 @@
 # Core shell + CLI: zsh and its rc files, modern CLI replacements, and
 # system/networking utilities. Wanted on every machine, headless or not.
-{ config, pkgs, ... }:
+{ config, repoRoot, pkgs, ... }:
 let
-  repoRoot = "${config.home.homeDirectory}/dotfiles";
   link = path: config.lib.file.mkOutOfStoreSymlink "${repoRoot}/${path}";
 in
 {
