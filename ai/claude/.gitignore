@@ -19,7 +19,6 @@ hooks/decision-warn.sh
 hooks/destructive-guard.sh
 hooks/no-ask-human.sh
 hooks/secret-guard.sh
-hooks/syntax-check.sh
 # From yurukusa/cc-safe-setup:
 hooks/auto-approve-compound-git.sh
 hooks/auto-approve-docker.sh

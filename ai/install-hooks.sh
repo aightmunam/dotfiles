@@ -62,7 +62,7 @@ fetch_hooks() {
 CCH_REF="4e62261f5036a0b166aba65c502258710d5f8322"
 fetch_hooks "yurukusa/claude-code-hooks @ ${CCH_REF:0:7}" \
   "https://raw.githubusercontent.com/yurukusa/claude-code-hooks/${CCH_REF}/hooks" \
-  destructive-guard.sh secret-guard.sh syntax-check.sh
+  destructive-guard.sh secret-guard.sh
 
 # --- yurukusa/cc-safe-setup (pinned, examples/) -----------------------------
 CCS_REF="07f676f8960cffca8e16767e1b1c90ef813905e9"
