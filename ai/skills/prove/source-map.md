@@ -74,7 +74,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 - sc: the TLA+ model, the chart, and TLC. Only the replay rule survives.
 - smyw: the TSV log, `log.sh`, and the transcript audit. The plan `## Deviations` section holds the trail (spec 8.4 build). The adversaries are the cross-model view.
 - fio: Phases A, B, D, and E. `make-plan` and `build` own the playbook. Only the three outcomes survive.
-- rpr: the What and How analyst sections, Mermaid diagrams, the Zalando check, and `humanlayer thoughts sync`. A self-review needs no PR walkthrough. spec 8.4 make-plan removes the humanlayer residue.
+- rpr: the What and How analyst sections, Mermaid diagrams, the REST API guidelines check, and `humanlayer thoughts sync`. A self-review needs no PR walkthrough. spec 8.4 make-plan removes the humanlayer residue.
 - rpr: "Write the review document with the Write tool". A controller ruling forbids a sentence that tells the agent to use a specific file-read tool. The heredoc warning stays.
 
 ## Principles

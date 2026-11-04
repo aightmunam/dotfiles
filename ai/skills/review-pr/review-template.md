@@ -136,7 +136,7 @@ side: RIGHT
 | Check | Status | Notes |
 |---|---|---|
 | <name> | <pass or fail> | `<command with no pipe>`. Exit <code>. <short note> |
-| Zalando API guidelines | <PASS, WARN or FAIL> | <only if the API lens ran: counts> |
+| REST API guidelines | <PASS, WARN or FAIL> | <only if the API lens ran: counts> |
 
 # Questions for author
 

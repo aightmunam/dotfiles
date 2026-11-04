@@ -191,7 +191,7 @@ Report each entry point that runs the new behavior with no flag check.
 ## API lens (if a changed path matches router, api/, schema, openapi, or urls, or the diff adds a route decorator)
 
 ```
-Lens: the API surface against the Zalando REST rules.
+Lens: the API surface against the REST API guidelines.
 Read <absolute path of api-checklist.md> and apply its rules, its severity map, and its convention rules.
 Use the diff and the changed files. Do not run git or gh.
 End with the PASS, WARN, or FAIL verdict.

@@ -1,6 +1,6 @@
 # API Checklist
 
-Use this list in the API lens of `review-pr`. The rules are the Zalando RESTful API Guidelines: https://opensource.zalando.com/restful-api-guidelines/.
+Use this list in the API lens of `review-pr`. The rules are the REST API guidelines.
 
 ## How to apply
 
@@ -33,7 +33,7 @@ Each finding has category `api` and the rule number in its title.
 - WARN: only SHOULD or MAY violations, not counting conventions.
 - FAIL: one or more MUST violations that are not conventions.
 
-Give the verdict and the counts in one row of `# Automated checks`: `| Zalando API guidelines | <PASS, WARN or FAIL> | <n> MUST, <n> SHOULD, <n> MAY, <n> conventions |`.
+Give the verdict and the counts in one row of `# Automated checks`: `| REST API guidelines | <PASS, WARN or FAIL> | <n> MUST, <n> SHOULD, <n> MAY, <n> conventions |`.
 
 ## Rules
 

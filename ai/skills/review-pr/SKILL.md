@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: Use when the user asks you to review a colleague's PR or someone else's branch, read-only. Use when the user asks for an API review of a PR against the Zalando rules. Use when The Eye starts a PR review.
+description: Use when the user asks you to review a colleague's PR or someone else's branch, read-only. Use when the user asks for an API review of a PR against the REST API guidelines. Use when The Eye starts a PR review.
 ---
 
 # Review PR
