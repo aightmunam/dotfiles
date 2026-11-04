@@ -15,6 +15,7 @@
 - **ag:** `ai/agents/reviewer.md`.
 - **eye:** `~/Developer/work-dashboard/eye/services/firefighter/review_play.py` and `review_documents.py` (read only).
 - **gr:** `~/Developer/grimoire/app/data/parser.py` (read only).
+- **tw:** `ai/skills/technical-writing/layers.md` (pstack technical-writing, adapted).
 - **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (removed after eec5ad9; read it in git history) (the form bar).
 - **ia:** pstack-claude `plugins/pstack/skills/interrogate/SKILL.md`, lines 26-30 (verify each finding by its command, drop the rest).
 - **do:** `ai/skills/data-op/SKILL.md` line 36 (`lock_timeout`, data before DDL) and `data-op/paths.md` "Alembic data migration". **fmc:** `ai/skills/fix-merge-conflicts/SKILL.md` line 22 (heads from `revision` and `down_revision`).
@@ -62,6 +63,12 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | The italic summary starts with `Ladder step <n>:`. | spec line 509. Task 1.2 parked finding. sr+prove review-template. | O | T format rules. | GREEN-2 |
 | Each finding has a `comment` fence after `---`: 1 to 3 sentences to the author, what is wrong and the fix or a question, `nit: ` on a low finding, no ladder step, lens, severity or `Evidence:`. The detail stays below it. Grimoire posts the comment when it stages a finding. | User, 2026-11-03: "every review comment has both a unslopped postable version, and then one version with more detail", and "natural, and brief". RED-C1. gr parser.py `_COMMENT`. | O | Loop 6. T format rules and template slot. Red flags. | GREEN-C1 (see `## Pressure scenarios`). |
 | Apply unslop `rules.md` to each comment in step 6. Do not run the unslop skill on the doc, because its `Changes:` list would land in the doc. | User, 2026-11-03: "No slop /unslop" for the posted comments. | D | Loop 6. Red flags. | GREEN-C1. |
+| Apply `layers.md` to each part outside the comment fences in step 6. Do not run the technical-writing skill on the doc, because its output template would land in the doc. | User, 2026-11-04: the review doc is "a bit hard to read", and only the comments are posted. tw. | P, D | Loop 6. Red flags. T writing rules. | RED-W1, GREEN-W1, GREEN-W2. |
+| `# Summary` starts with the verdict list (verdict, fix before merge, not checked), then 2 to 4 sentences. Nothing else comes before `## Lens runs`. | tw (common case first). RED-W1: Claude wrote no verdict line, Codex put it in paragraph 2 of 6. GREEN-W1: Codex added counts and a path paragraph. | O | T template. T writing rules. Red flags. | GREEN-W2. |
+| The finding detail is a labelled list: Problem, Failure path (numbered `file:line` hops), Severity, Fix, Lenses and Source, Evidence. | tw (one mode for each section). RED-W1: 3 and 7 prose paragraphs, with the fix after the severity reason. gr: `marked` runs with `breaks: false`, so bare label lines merge into one paragraph. | O | T template. T writing rules. Red flags. | GREEN-W1, GREEN-W2. |
+| The italic ladder line is one sentence of at most 25 words. | tw (vary the length). RED-W1: 27 and 30 words. | O | T format rules. | GREEN-W1, GREEN-W2. |
+| One mode for each H1, and the Global English items. | tw. | D | T writing rules. | Untested for `# What was done` and `# How it was done` (the scenario kept them). |
+| `## Lens runs` stays at the end of `# Summary`. | gr `_CHECK_ROW` reads any 3-column row under `# Automated checks` as a check. `_split_sections` keeps H1 sections that no view shows. | O | T format rules. | Not a behavior change. |
 | Guard: Grimoire warns about a finding with no comment fence and about an em dash in a comment (unslop rule 13). | encode-lessons-in-structure (a structure holds the part that needs no judgment). | O | gr `app/data/parser.py`, tests in `tests/test_review_format.py`. | Grimoire tests `test_finding_without_comment_fence_warns_that_staging_posts_the_body` and `test_em_dash_in_comment_fence_warns`. |
 | No body line starts with `# `, also in a fence. | gr parser.py:8 (the H1 split does not skip fences). | O | T format rules. | Untested. Added after GREEN-2. |
 | `Principles applied:` lines go only in the reply, never in the doc. | spec 8.7. Codex GREEN-2 put them in `# Automated checks`. | O | T format rules. | Untested. Added after GREEN-2. |
@@ -119,3 +126,8 @@ PR #<k> at head 3ef4cf71, detached worktree under `~/wt/orders-service/review/`,
 **Comment fence round** (2026-11-03):
 RED-C1 (audit, this session): a work PR review under the old skill had detailed bodies only. The user then asked for a second pass to get "natural, and brief" postable comments, unslopped. Grimoire staged the full body. The review doc was later backfilled with comment fences.
 GREEN-C1 (step 6 only scenario: three merged findings from that review, doc in the answer, both CLIs): `pressure-run` PASS for claude and codex. Each doc parsed in Grimoire with `warnings []`, `is_structured True`, 3 findings, 3 comment fences, `nit: ` on both low findings, no em dash. Gap: both wrote "nit: The" with a capital letter.
+
+**Readability round** (2026-11-04). Scenario: step 6 only, one work PR with 3 merged findings, the What and How sections kept, the doc in the answer. `pressure-run --skill review-pr --tool both`.
+RED-W1 (the skill at dc8fc41): both PASS the old checks. Failure: neither `# Summary` leads with the verdict, and both write the failure path of M1 as prose (Claude 3 paragraphs, Codex 7) with the fix last.
+GREEN-W1: claude PASS, codex PASS. Both start `# Summary` with the verdict list and write M1 as a labelled list with 6 and 7 numbered hops. Both docs parse in Grimoire with `warnings []`, `is_structured True`, 3 findings, 3 comment fences. Gap: Codex put a counts paragraph and a doc path paragraph before `## Lens runs`.
+GREEN-W2 (after "Put nothing else before `## Lens runs`"): claude PASS, codex PASS. Both Summaries stop after 4 and 4 sentences. Gap: Codex writes `Fix:` as a statement, not an instruction.

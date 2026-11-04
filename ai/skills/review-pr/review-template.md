@@ -8,7 +8,7 @@ Grimoire and The Eye parse this doc. Keep each rule below, or the doc does not r
 - `repo` comes from `gh repo view --json nameWithOwner -q .nameWithOwner`. `head_sha` is `headRefOid` from step 1.
 - Each H1 heading stays as written. Grimoire splits the doc on H1 only. `##` headings inside an H1 section are fine.
 - Each finding heading is `### <ID> - <title>`. The ID is `C`, `H`, `M`, or `L` and a number: `C` critical, `H` high, `M` medium, `L` low. Use a plain hyphen. Each ID occurs one time.
-- The next line is the italic summary. It starts with the ladder step: `_Ladder step <n>: <what breaks and when, in plain words>_`. Write it to the author. No rule numbers, no paths.
+- The next line is the italic summary. It starts with the ladder step: `_Ladder step <n>: <what breaks and when, in plain words>_`. Write it to the author in one sentence of at most 25 words. No rule numbers, no paths.
 - Then the `~~~finding` block: a YAML head, a line that is only `---`, then the comment fence, then the detail. `line` is an integer on the right side of the diff. Put a fix in a `suggestion` fence after the detail. Never put `~~~` in the body. Never start a body line with `# `, also in a fence. Grimoire reads that line as a new H1 section. Indent a Python comment, or remove it.
 - No other `###` heading goes in `# Review findings`.
 - The comment fence is the text that Grimoire posts on the PR line. The detail stays in the doc. Write the comment to the author, as one colleague to another, in 1 to 3 sentences. Say what is wrong and the fix. Ask a question when the fix is a choice for the author. Start a low finding with `nit: `. Do not put ladder steps, lens names, severity words, or `Evidence:` in the comment. Do not put a fence inside it. The suggestion fence gives the code.
@@ -19,8 +19,19 @@ Grimoire and The Eye parse this doc. Keep each rule below, or the doc does not r
 - `# What was done` has the Before / After table and the user flow. `# How it was done` has the architecture, the primary flow, and the reading order.
 - No placeholder text stays in the doc.
 - `Principles applied:` lines go only in the reply, never in the doc.
-- `## Lens runs` in `# Summary` has one row for each lens: the lens, the prompt file, and the agent id. A lens that you did yourself has `self` and the reason. A lens that did not run has `no agent` and the reason. With no file write, the prompt cell is `not written`.
+- `## Lens runs` stays at the end of `# Summary`. Under `# Automated checks`, Grimoire reads each 3-column row as a check. Grimoire does not show an H1 that it does not know.
+- `## Lens runs` has one row for each lens: the lens, the prompt file, and the agent id. A lens that you did yourself has `self` and the reason. A lens that did not run has `no agent` and the reason. With no file write, the prompt cell is `not written`.
 - A critical or high finding has an `Evidence:` line in its body: the command and its exit code, or the file:line hops that you read.
+
+## Writing rules outside the comment fences
+
+The user reads the doc to understand the PR. Only the comment fences go to the author. Apply `~/.agents/skills/technical-writing/layers.md` to the rest.
+
+- **The verdict comes first.** `# Summary` starts with the verdict list from the template. Then write 2 to 4 sentences: what the PR does and what is solid. Put nothing else before `## Lens runs`. The severity counts and the doc path go in the reply.
+- **One mode for each H1.** `# What was done` is explanation. `# How it was done` is reference and follows the order of the code. `# Review findings` and `# Automated checks` are reference. `# Questions for author` is a list.
+- **The finding detail is a list, not paragraphs.** Grimoire renders markdown with `breaks: false`, so two label lines with no list marker merge into one paragraph. Use the labels in the template. Put each hop of a traced failure path on its own numbered line, with its `file:line`. Leave out `Failure path:` when the finding traces no path.
+- **The fix has its own label.** Do not put the severity reason or the author's context in `Fix:`.
+- **Each sentence reads once.** Make each "it", "this" and "they" point at one noun. Break up long noun strings. Put "only" and "not" next to the word that they change.
 
 ## Template
 
@@ -40,7 +51,11 @@ status: review_complete
 
 # Summary
 
-<!-- optional: your own summary of the PR -->
+- **Verdict:** `<approve | request_changes | comment>`. <one clause: the reason>
+- **Fix before merge:** <finding ids, or "none">
+- **Not checked:** <each check that did not run, or "none">
+
+<2 to 4 sentences: what the PR does and what is solid>
 
 ## Lens runs
 
@@ -102,9 +117,14 @@ side: RIGHT
 <1 to 3 sentences to the author: what is wrong and the fix, or a question. Low: start with "nit: ">
 ```
 
-<what is wrong>. <the failure path, with file:line for each hop>. <the fix>.
-Lenses: <lens names>. Source: <"review", or "comment by @<login>">
-Evidence: <for critical or high: the command and exit code, or the file:line hops that you read>
+- **Problem:** <what is wrong, in 1 or 2 sentences>
+- **Failure path:**
+  1. `<file:line>`: <what happens at this hop>
+  2. `<file:line>`: <the next hop, up to the visible failure>
+- **Severity:** <why this level, and the author's context if it lowers it>
+- **Fix:** <the change, in 1 or 2 sentences>
+- **Lenses:** <lens names>. **Source:** <"review", or "comment by @<login>">
+- **Evidence:** <for critical or high: the command and exit code, or the file:line hops that you read>
 
 ```suggestion
 <optional replacement code for that line>
