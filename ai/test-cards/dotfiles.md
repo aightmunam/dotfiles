@@ -1,6 +1,6 @@
 # Test card: dotfiles
 
-Repo: `~/dotfiles`. Work in the skill-rework worktree at `~/wt/dotfiles/skill-rework`. Run every command from the worktree root. There is no justfile and no pyproject, so commit-gate does not gate commits here. Run the tests anyway.
+Repo: `git -C ~/.agents/bin rev-parse --show-toplevel` (`~/dotfiles` by default). Work in the skill-rework worktree at `~/wt/dotfiles/skill-rework`. Run every command from the worktree root. There is no justfile and no pyproject, so commit-gate does not gate commits here. Run the tests anyway.
 
 ## Touched tests
 

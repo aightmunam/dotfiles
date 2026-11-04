@@ -21,7 +21,7 @@ worktree text routed; use --live after generate.sh for that.
 Results: DIR/<YYYY-MM-DD>-<tool>.tsv (id, expected, got, pass, note; a full
 run replaces it, a filtered run updates its rows) and
 DIR/raw/<id>-<tool>.jsonl. Default DIR is
-~/dotfiles/thoughts/shared/research/routing-eval.
+<repo>/thoughts/shared/research/routing-eval.
 Threshold, per tool: every row with a pair passes, and at most 1 miss in total.
 Exit 0 threshold met, 1 not met, 2 setup error.
 """
@@ -44,7 +44,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 TSV = ROOT / "ai" / "tests" / "routing" / "prompts.tsv"
-DEFAULT_OUT = Path.home() / "dotfiles" / "thoughts" / "shared" / "research" / "routing-eval"
+DEFAULT_OUT = ROOT / "thoughts" / "shared" / "research" / "routing-eval"
 USER_SKILLS = Path.home() / ".agents" / "skills"
 # Live runs start here, not in the system temp dir. Claude skips the user
 # CLAUDE.md @AGENTS.md import in an untrusted folder, so the router would be absent.

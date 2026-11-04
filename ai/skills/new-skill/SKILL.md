@@ -15,7 +15,7 @@ description: Use when the user asks to create, write, or change a skill, or to e
 
 ## The Loop
 
-Run each command from the dotfiles root: the root of your dotfiles worktree, or `cd "$(git -C ~/dotfiles rev-parse --show-toplevel)"`. Put run output in a scratch dir of this session.
+Run each command from the dotfiles root: the root of your dotfiles worktree, or `cd "$(git -C ~/.agents/bin rev-parse --show-toplevel)"`. Put run output in a scratch dir of this session.
 
 1. **Guard first.** If a lint, test, or script can enforce the rule, use only that guard. Read ~/.agents/principles/encode-lessons-in-structure.md before this step, as a read of that file alone. Build the guard, or give it in full when you cannot write. A skill keeps only the part that needs judgment. If no part needs judgment, write no skill and stop at step 9.
 2. **Name.** Read `house-form.md`. Your skill must pass each line of it. Do the name check in it. Read the `## Skill routing` table in `ai/AGENTS.md`. If a skill already covers the case, change that skill.

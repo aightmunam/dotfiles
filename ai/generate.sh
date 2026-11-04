@@ -65,6 +65,7 @@ if [ -d "$AI/skills" ]; then
 fi
 safe_link "$AI/principles" "$HOME/.agents/principles"
 safe_link "$AI/test-cards" "$HOME/.agents/test-cards"
+safe_link "$AI/bin" "$HOME/.agents/bin"
 # Work overlay (gitignored): company names and org aliases. See ai/local.example/work.md.
 [ -d "$AI/local" ] && safe_link "$AI/local" "$HOME/.agents/local"
 

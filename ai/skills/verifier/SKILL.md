@@ -38,7 +38,7 @@ description: Use when a repo needs its own verify skill. Use when the user asks 
 - **Cleanup keeps the evidence.** Cleanup removes instances and scratch data. It does not remove the evidence directory.
 - **Never weaken a journey.** If seed data lacks a precondition, the journey fails. Write the reason in that feature's `Gotchas`.
 - **Name the stand-in.** If you proved it in a stand-in (a worktree, a container, a local stack), list each setup step that the real target does not get.
-- **Local only.** Never commit the verify skill to the product repo. Never add a remote to `~/.agents/verify`. Never put it in `~/dotfiles`, because that repo is public.
+- **Local only.** Never commit the verify skill to the product repo. Never add a remote to `~/.agents/verify`. Never put it in the dotfiles repo (`git -C ~/.agents/bin rev-parse --show-toplevel`), because that repo is public.
 - **Any checkout.** No command and no helper names a fixed checkout path. A worktree must test its own code, not the code of the main checkout.
 
 ## Red Flags

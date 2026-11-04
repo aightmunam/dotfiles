@@ -7,7 +7,8 @@ description: Use when the user asks to capture, update, or refresh their working
 
 ## Definitions
 
-- **Target:** the `## Working style` section of `~/dotfiles/ai/AGENTS.md`. Put it after `## Writing standard`. Never make a `-mode` skill.
+- **Repo:** the dotfiles repo. Find it with `git -C ~/.agents/bin rev-parse --show-toplevel`.
+- **Target:** the `## Working style` section of `ai/AGENTS.md` in the repo. Put it after `## Writing standard`. Never make a `-mode` skill.
 - **History:** the transcripts and the `feedback_*.md` memory files of the active workspace. `<enc>` is the absolute workspace path with each character that is not a letter, a digit, or `-` changed to `-`. Claude transcripts: `~/.claude/projects/<enc>/*.jsonl`. Memory: `~/.claude/projects/<enc>/memory/feedback_*.md`. Codex: each `~/.codex/sessions/**/*.jsonl` whose first line has `payload.cwd` equal to the workspace path. Do not search other projects.
 - **Instance:** one user message or one memory file that states a preference. An agent message is not an instance.
 - **Signal:** a preference with two instances, or with instances in two slices.
@@ -16,11 +17,11 @@ description: Use when the user asks to capture, update, or refresh their working
 
 ## The Loop
 
-1. **Mode.** Find `## Working style` in the target. If it exists, use update mode. Get its last commit date with `git -C ~/dotfiles log -1 --format=%cI -s -L '/^## Working style/,/^## /:ai/AGENTS.md'`. Read only history after that date. For a memory file, use its `date:` field. If it has none, use its mtime. Keep each line that no new instance contradicts.
+1. **Mode.** Find `## Working style` in the target. If it exists, use update mode. Get its last commit date with `git -C ~/.agents/bin log -1 --format=%cI -s -L '/^## Working style/,/^## /:ai/AGENTS.md'`. Read only history after that date. For a memory file, use its `date:` field. If it has none, use its mtime. Keep each line that no new instance contradicts.
 2. **Slice.** Split the transcripts of the last four weeks into three date ranges. The memory files are a fourth slice. If the user gives other history paths, use only those paths.
 3. **Mine.** Give each slice to one `explorer` agent in one message. Use the brief below. If no `explorer` type exists, give the brief to a read-only general-purpose agent. With no dispatch tool, do each slice yourself with the same brief.
 4. **Cross-check.** Merge the slice lists. Keep each signal. Drop each noise item and write its reason. Ask about a contradiction that has no winner (step 6).
-5. **Classify.** When you write the same instruction a second time, encode it as a lint, a check, or a script. Do not write more text. Read ~/.agents/principles/encode-lessons-in-structure.md before this step. Put each enforceable signal in the diff as a new hook, lint, or check file. Use `~/dotfiles/ai/claude/hooks/` with `~/dotfiles/ai/claude/settings.json`, or `~/dotfiles/ai/tests/`. If only one repo can hold the check, do not write it. Name `correct` under `Open questions`. Do not add an AGENTS.md line for it. Each other signal becomes one line in the target.
+5. **Classify.** When you write the same instruction a second time, encode it as a lint, a check, or a script. Do not write more text. Read ~/.agents/principles/encode-lessons-in-structure.md before this step. Put each enforceable signal in the diff as a new hook, lint, or check file. Use `ai/claude/hooks/` with `ai/claude/settings.json`, or `ai/tests/`, in the repo. If only one repo can hold the check, do not write it. Name `correct` under `Open questions`. Do not add an AGENTS.md line for it. Each other signal becomes one line in the target.
 6. **Ask.** Ask at most two multiple-choice questions, then one free-form question. Ask one question per message. Give your recommended answer with each question. If the user is not present, do not ask. Put the questions under `Open questions`.
 7. **Draft.** Write the section in ASD-STE100 strict mode. Make a unified diff of each file that you change. Show the full diff in your reply.
 8. **Approve.** Ask for one OK for the full diff. The user can remove lines from it. Apply only the lines that the user keeps. Do not write a file before the OK. With no OK, write nothing. Commit the kept lines. Do not push to master without a separate OK that lists the commits.
@@ -56,7 +57,7 @@ Return one row for each: preference (user's words) | class | file and line or ti
 - An enforceable signal written as an AGENTS.md line. Go back to step 5.
 - A `-mode` skill or a new skill file in the diff. Go back to step 7.
 - A read outside the history paths. Go back to step 2.
-- A file outside `~/dotfiles` in the diff. Go back to step 5.
+- A file outside the repo in the diff. Go back to step 5.
 - An edit or a write before the OK. Undo it. Go back to step 8.
 - No `Principles applied:` line. Go back to step 5.
 
