@@ -9,7 +9,7 @@ shared AI setup for Claude Code, Gemini CLI, and Codex CLI.
 
 You can clone the repo to any path. The steps use `~/dotfiles`. Each link
 points at the checkout that `make build` runs in. To move the checkout, run
-`make build` in the new place.
+`make build` and `bash ai/generate.sh` in the new place.
 
 1. Install the prerequisites.
    - macOS: `xcode-select --install`
@@ -54,8 +54,9 @@ Then run `bash ai/generate.sh` if you added a skill, changed a skill, or changed
 an MCP server. Gemini slash commands are copies of the skill text, so they do
 not see a skill edit until `generate.sh` writes them again.
 
-`~/.claude/settings.json` is a copy, not a link. Edit that file for this
-machine. Edit `ai/claude/settings.json` to change the template for a new machine.
+`~/.claude/settings.json` is a copy, not a link, because Claude Code writes to
+it while it runs. Edit that file for this machine. Edit
+`ai/claude/settings.json` to change the template for a new machine.
 
 ## Keep secrets out of the repo
 
@@ -175,28 +176,6 @@ the same directory, and `ai/claude/.gitignore` keeps them out of git:
 `ai/bin/` holds helper tools. `pressure-run` and `routing-eval` test the skills
 under Claude Code and Codex. `plan-lint` checks plan files. `migration-drift`
 compares the Alembic heads of a repo with staging. Skills call them through
-`~/.agents/bin`. `routing-eval` writes its results to `thoughts/` in the main
-checkout, also when you run it from a worktree. The tests of these tools are in
-`ai/tests/`. Run them with `uvx pytest -q ai/tests`. `ai/sources.lock` pins the upstream skill repos that
+`~/.agents/bin`. Their tests are in `ai/tests/`. Run them with
+`uvx pytest -q ai/tests`. `ai/sources.lock` pins the upstream skill repos that
 some skills adapt.
-
-## Why the links point at this checkout
-
-By default, home-manager links a config file to a read-only copy in the Nix
-store. A change then needs a rebuild. This repo uses `mkOutOfStoreSymlink`, so
-each link points at the file in the checkout, and an edit applies at once.
-`make build` passes the checkout path to the flake in `DOTFILES_DIR`. The
-`--impure` flag lets the flake read it. Without `DOTFILES_DIR`, the flake uses
-`~/dotfiles`. home-manager writes `DOTFILES_DIR` to `hm-session-vars.sh`, and
-`.zshenv` loads that file in every zsh. The cost
-is that a moved checkout gives broken links until the next `make build` and
-`bash ai/generate.sh`.
-
-Skills do not read `DOTFILES_DIR`. A skill can run in a shell that is not zsh,
-and then the variable is not set. A skill uses the `~/.agents` links. To find the checkout, a skill runs
-`git -C ~/.agents/bin rev-parse --show-toplevel`.
-
-`~/.claude/settings.json` is the exception. Claude Code writes to that file
-while it runs, and the file can hold values for one machine only. A link would
-put those writes into this public repo. So `make post-install` copies a
-template one time and then leaves the file alone.
