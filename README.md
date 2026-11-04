@@ -13,6 +13,7 @@ another place gives broken links.
 1. Install the prerequisites.
    - macOS: `xcode-select --install`
    - Debian or Ubuntu: `sudo apt-get update && sudo apt-get install -y git make curl xz-utils`
+   - Arch Linux or CachyOS: `sudo pacman -Syu --needed git make curl xz zsh`
 2. Clone the repo and run the install:
 
    ```sh
@@ -26,10 +27,12 @@ another place gives broken links.
 3. Put your machine-local secrets in `~/.zshenv.local`. See
    [Keep secrets out of the repo](#keep-secrets-out-of-the-repo).
 4. Start a new shell with `exec zsh`. To make zsh your login shell, run
-   `chsh -s "$(command -v zsh)"`.
+   `chsh -s "$(command -v zsh)"`. `chsh` accepts only a shell that
+   `/etc/shells` lists. If `chsh` rejects the Nix zsh, use the distro zsh:
+   `chsh -s /usr/bin/zsh`.
 5. Start Claude Code one time. It installs the plugins that `enabledPlugins` in
    `~/.claude/settings.json` lists.
-6. On Linux, install WezTerm from your distro (for example `pacman -S wezterm`).
+6. On Linux, install WezTerm from your distro (on Arch Linux or CachyOS, `sudo pacman -S wezterm`).
    The Nix build of WezTerm cannot find the GPU drivers on a Linux that is not
    NixOS.
 7. To see the links and MCP servers of each AI tool, run `make verify-ai`.
