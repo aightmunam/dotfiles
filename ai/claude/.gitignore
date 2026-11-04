@@ -12,7 +12,6 @@ hooks/herdr-agent-state.sh
 # so not vendored. Custom, user-authored hooks stay tracked.
 # From yurukusa/claude-code-hooks:
 hooks/auto-approve-readonly.sh
-hooks/branch-guard.sh
 hooks/cd-git-allow.sh
 hooks/comment-strip.sh
 hooks/context-monitor.sh
@@ -29,7 +28,6 @@ hooks/auto-approve-test.sh
 hooks/auto-git-checkpoint.sh
 hooks/backup-before-refactor.sh
 hooks/env-source-guard.sh
-hooks/memory-write-guard.sh
 hooks/no-sudo-guard.sh
 hooks/prefer-builtin-tools.sh
 hooks/protect-claudemd.sh

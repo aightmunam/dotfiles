@@ -184,15 +184,6 @@
             "command": "$HOME/.claude/hooks/no-claude-attribution.sh"
           }
         ]
-      },
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash $HOME/.claude/hooks/memory-write-guard.sh"
-          }
-        ]
       }
     ],
     "SessionStart": [

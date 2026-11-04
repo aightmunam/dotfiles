@@ -62,13 +62,13 @@ fetch_hooks() {
 CCH_REF="4e62261f5036a0b166aba65c502258710d5f8322"
 fetch_hooks "yurukusa/claude-code-hooks @ ${CCH_REF:0:7}" \
   "https://raw.githubusercontent.com/yurukusa/claude-code-hooks/${CCH_REF}/hooks" \
-  branch-guard.sh destructive-guard.sh secret-guard.sh syntax-check.sh
+  destructive-guard.sh secret-guard.sh syntax-check.sh
 
 # --- yurukusa/cc-safe-setup (pinned, examples/) -----------------------------
 CCS_REF="07f676f8960cffca8e16767e1b1c90ef813905e9"
 fetch_hooks "yurukusa/cc-safe-setup @ ${CCS_REF:0:7}" \
   "https://raw.githubusercontent.com/yurukusa/cc-safe-setup/${CCS_REF}/examples" \
-  env-source-guard.sh memory-write-guard.sh no-sudo-guard.sh \
+  env-source-guard.sh no-sudo-guard.sh \
   prefer-builtin-tools.sh scope-guard.sh
 
 # --- portability patches -----------------------------------------------------
