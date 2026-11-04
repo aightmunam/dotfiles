@@ -133,20 +133,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.claude/hooks/max-session-duration.sh"
-          },
-          {
-            "type": "command",
             "command": "$HOME/.claude/hooks/commit-gate.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/activity-logger.sh"
           }
         ]
       }
@@ -216,28 +203,6 @@
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/herdr-agent-state.sh\" session",
             "timeout": 10
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/proof-log-session.sh"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/prompt-injection-detector.sh"
           }
         ]
       }

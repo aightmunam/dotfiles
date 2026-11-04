@@ -62,39 +62,16 @@ fetch_hooks() {
 CCH_REF="4e62261f5036a0b166aba65c502258710d5f8322"
 fetch_hooks "yurukusa/claude-code-hooks @ ${CCH_REF:0:7}" \
   "https://raw.githubusercontent.com/yurukusa/claude-code-hooks/${CCH_REF}/hooks" \
-  activity-logger.sh branch-guard.sh destructive-guard.sh \
-  proof-log-session.sh secret-guard.sh syntax-check.sh
+  branch-guard.sh destructive-guard.sh secret-guard.sh syntax-check.sh
 
 # --- yurukusa/cc-safe-setup (pinned, examples/) -----------------------------
 CCS_REF="07f676f8960cffca8e16767e1b1c90ef813905e9"
 fetch_hooks "yurukusa/cc-safe-setup @ ${CCS_REF:0:7}" \
   "https://raw.githubusercontent.com/yurukusa/cc-safe-setup/${CCS_REF}/examples" \
-  env-source-guard.sh loop-detector.sh max-session-duration.sh \
-  memory-write-guard.sh no-sudo-guard.sh notify-waiting.sh prefer-builtin-tools.sh \
-  prompt-injection-detector.sh scope-guard.sh
+  env-source-guard.sh memory-write-guard.sh no-sudo-guard.sh \
+  prefer-builtin-tools.sh scope-guard.sh
 
 # --- portability patches -----------------------------------------------------
-# The pinned upstreams use GNU-only `stat -c %Y`; macOS ships BSD stat, which
-# rejects -c, and the `|| echo 0` fallback then silently yields mtime 0, so
-# proof-log-session.sh logs an absurd session duration. Rewrite the call to try
-# BSD `stat -f %m` first with the GNU form as fallback. Idempotent: files
-# already containing the BSD form are skipped. Drop this once fixed upstream
-# and the *_REF pins move.
-echo "-> portability patches (BSD/GNU stat)"
-for f in proof-log-session.sh; do
-  if [ ! -f "$dest/$f" ]; then
-    warn "$f missing — fetch failed above?"
-  elif grep -q 'stat -f %m' "$dest/$f"; then
-    skip "$f already portable"
-  elif sed -i.bak -E 's/stat -c %Y ("[^"]+") 2>\/dev\/null/stat -f %m \1 2>\/dev\/null || &/' "$dest/$f" \
-       && grep -q 'stat -f %m' "$dest/$f"; then
-    rm -f "$dest/$f.bak"; ok "$f: stat mtime lookup made BSD+GNU portable"
-  else
-    rm -f "$dest/$f.bak" 2>/dev/null
-    warn "$f: expected GNU stat pattern not found — upstream changed? review manually"; fail_total=$((fail_total + 1))
-  fi
-done
-
 # destructive-guard.sh needs two more fixes (multi-line, so a pinned diff via
 # `patch` instead of sed):
 #   (a) Check 1's regex has no word boundary, so `rm\s+~/` matches INSIDE words

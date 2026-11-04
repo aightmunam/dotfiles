@@ -11,7 +11,6 @@ hooks/herdr-agent-state.sh
 # Upstream safety hooks, fetched (pinned) by install-hooks.sh and used verbatim,
 # so not vendored. Custom, user-authored hooks stay tracked.
 # From yurukusa/claude-code-hooks:
-hooks/activity-logger.sh
 hooks/auto-approve-readonly.sh
 hooks/branch-guard.sh
 hooks/cd-git-allow.sh
@@ -20,7 +19,6 @@ hooks/context-monitor.sh
 hooks/decision-warn.sh
 hooks/destructive-guard.sh
 hooks/no-ask-human.sh
-hooks/proof-log-session.sh
 hooks/secret-guard.sh
 hooks/syntax-check.sh
 # From yurukusa/cc-safe-setup:
@@ -31,13 +29,9 @@ hooks/auto-approve-test.sh
 hooks/auto-git-checkpoint.sh
 hooks/backup-before-refactor.sh
 hooks/env-source-guard.sh
-hooks/loop-detector.sh
-hooks/max-session-duration.sh
 hooks/memory-write-guard.sh
 hooks/no-sudo-guard.sh
-hooks/notify-waiting.sh
 hooks/prefer-builtin-tools.sh
-hooks/prompt-injection-detector.sh
 hooks/protect-claudemd.sh
 hooks/scope-guard.sh
 hooks/skill-gate.sh
