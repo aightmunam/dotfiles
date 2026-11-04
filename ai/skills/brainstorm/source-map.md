@@ -9,6 +9,7 @@
 - **interrogate:** pstack-claude `plugins/pstack/skills/interrogate/SKILL.md` (for a design, run a prototype or probe the current tree).
 - **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md`, section 8.4 brainstorm entry and the never-block-on-the-human row.
 - **ruling:** controller ruling for Task 3.5 (2026-10-30).
+- **sharpen:** pstack-claude `plugins/pstack/skills/sharpen/SKILL.md` (the four questions). The user asked on 2026-11-04 to make it a part of brainstorm.
 - **rs:** `ai/skills/research/SKILL.md` (worktree path and no-write fallback).
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
@@ -42,6 +43,8 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Use the `thoughts/` of the repo where the change lands. In a worktree, find the main checkout with `git rev-parse --git-common-dir`. | rs Loop 6. Review M2. | P | Loop 5. | Untested. |
 | The design doc and throwaway scripts are not builds. Product code, scaffolds, and installs before approval send you back to the gate. | sp HARD-GATE (building list, reading and exploring are fine). Review I3. | D | Hard gate. Red flags. | GREEN-2: neither run changed the repo. |
 | Four repo lines, verbatim. | Brief Global Constraints. | D | Repo Rules. | Untested. |
+| Sharpen the idea: a professional move, the rawest material, the methods, the outside check. A move that adds scope is a decision. | sharpen. | P, D | Loop 1. Red flags. | RED and GREEN below (sharpen round). |
+| The doc has an Outside check section. | sharpen question 4. | O | Design doc template. Red flags. | RED: Codex fixed a 30 s TTL as "your call" and had no outside check section. |
 
 ## Cut
 
@@ -75,3 +78,9 @@ The failure: several decisions in one message, and a question about a fact that 
 Iteration 1 passed for both on the manual checks. Claude loaded the skill with the Skill tool. Codex read `.agents/skills/brainstorm/SKILL.md`. Each run found `~/Developer/work-dashboard` and read the review code before it asked. Each answer ends with one decision (fire on `request_changes`), with a recommended answer. Neither run changed the repo. Claude wrote only its plan-mode file under `~/.claude/plans/`.
 The harness exit is 1 for both runs, with "answer has no 'Principles applied:' line". Commit 4840ae0 removed that check for runs with no `--principle`.
 Iteration 2 ran after the changes from the review (I1 to I3, M2 to M8). The harness passed both runs (exit 0). Claude loaded the skill, read `review.py`, `review_store.py`, and `notifier.py`, and ended with one Decision and a Recommended answer. Codex read the skill, cited `review.py:68` and `notifier.py`, gave a recommendation with a reason, and ended with one question. Codex did not use the template labels. Neither run changed the repo. Claude wrote only its plan-mode file.
+
+**RED sharpen round** (current skill, both CLIs, 2026-11-04, fixture `nc/repo`): add caching to `fetch_invoices` so the dashboard loads faster. The user's answers are given, and the run writes the draft doc.
+Failure: both took the cache as given and designed it in full before any timing existed. Claude made "measure first" one decision among six. Codex fixed a 30 s TTL and an LRU of 128 as "your call".
+
+**GREEN-1 sharpen round** (same scenario, `--skill brainstorm --tool both`). claude PASS. codex PASS.
+RED failure gone: both docs have an Outside check section (dashboard load time, cold and warm, before and after). Codex left the freshness limit open. Claude made the cold versus warm target its first question.

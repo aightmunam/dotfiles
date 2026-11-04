@@ -73,6 +73,7 @@ Pick the skill from this table by the situation. Read the skill before you act. 
 |---|---|
 | Learn how code works before a change, written to thoughts, no recommendations | `research` |
 | An idea is vague and needs a design before a plan | `brainstorm` |
+| Make a task or a prompt deeper, not bigger, and rewrite it before the work starts | `sharpen` |
 | A spec or design is ready and needs ordered, checkable tasks | `make-plan` |
 | A written plan is ready to execute | `build` |
 | One change, test first, with no plan | `tdd` |
@@ -108,6 +109,7 @@ Tie-break lines, one per set:
 - recall / ketchup / handoff: this chat since the user's last message, `ketchup`. Across sessions or repos, `recall`. Write state for a later session, `handoff`.
 - reflect / correct / automate-me / new-skill: lessons from a session into skills or AGENTS.md, `reflect`. A repeated mistake guarded in a repo's own code, `correct`. The user's personal working style, `automate-me`. A named skill to write or change, `new-skill`.
 - tdd / build: a plan to execute, `build` (it uses `tdd` per slice). One change with no plan, `tdd`.
+- brainstorm / sharpen: an idea that needs a design doc, `brainstorm` (it asks the sharpen questions in step 1). A prompt to rewrite and hand on, with no design doc, `sharpen`.
 - research / explain-code: a written study before a change, `research`. Explain code to the user in chat, `explain-code`.
 - bro / ketchup: restate one message, `bro`. Catch up on many changes, `ketchup`.
 - bro / unslop: say the last message again in plain words, `bro`. Clean a given finished text, `unslop`.
