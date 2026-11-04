@@ -151,6 +151,7 @@ old nix-darwin test).
 | `claude/statusline-command.sh` | `~/.claude/statusline-command.sh` | `ai.nix` |
 | each skill in `skills/` | `~/.agents/skills/<name>` | `generate.sh` |
 | `principles/`, `test-cards/`, `local/` | `~/.agents/principles`, `~/.agents/test-cards`, `~/.agents/local` | `generate.sh` |
+| `bin/` | `~/.agents/bin` | `generate.sh` |
 
 `~/.agents/skills` is the shared skill store. `ai.nix` links `~/.claude/skills`
 to it. `generate.sh` links each store skill into `~/.gemini/skills` and
@@ -173,8 +174,10 @@ the same directory, and `ai/claude/.gitignore` keeps them out of git:
 
 `ai/bin/` holds helper tools. `pressure-run` and `routing-eval` test the skills
 under Claude Code and Codex. `plan-lint` checks plan files. `migration-drift`
-compares the Alembic heads of a repo with staging. Their tests are in `ai/tests/`. Run them with
-`uvx pytest -q ai/tests`. `ai/sources.lock` pins the upstream skill repos that
+compares the Alembic heads of a repo with staging. Skills call them through
+`~/.agents/bin`. `routing-eval` writes its results to `thoughts/` in the main
+checkout, also when you run it from a worktree. The tests of these tools are in
+`ai/tests/`. Run them with `uvx pytest -q ai/tests`. `ai/sources.lock` pins the upstream skill repos that
 some skills adapt.
 
 ## Why the links point at this checkout
@@ -185,7 +188,13 @@ each link points at the file in the checkout, and an edit applies at once.
 `make build` passes the checkout path to the flake in `DOTFILES_DIR`. The
 `--impure` flag lets the flake read it. Without `DOTFILES_DIR`, the flake uses
 `~/dotfiles`. home-manager also exports `DOTFILES_DIR` to your shell. The cost
-is that a moved checkout gives broken links until the next `make build`.
+is that a moved checkout gives broken links until the next `make build` and
+`bash ai/generate.sh`.
+
+Skills do not read `DOTFILES_DIR`. On macOS, `.zshrc` loads it, so the
+non-interactive shell of an agent does not have it. A skill uses the
+`~/.agents` links. To find the checkout, a skill runs
+`git -C ~/.agents/bin rev-parse --show-toplevel`.
 
 `~/.claude/settings.json` is the exception. Claude Code writes to that file
 while it runs, and the file can hold values for one machine only. A link would
