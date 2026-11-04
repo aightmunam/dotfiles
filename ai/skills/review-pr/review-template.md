@@ -9,8 +9,10 @@ Grimoire and The Eye parse this doc. Keep each rule below, or the doc does not r
 - Each H1 heading stays as written. Grimoire splits the doc on H1 only. `##` headings inside an H1 section are fine.
 - Each finding heading is `### <ID> - <title>`. The ID is `C`, `H`, `M`, or `L` and a number: `C` critical, `H` high, `M` medium, `L` low. Use a plain hyphen. Each ID occurs one time.
 - The next line is the italic summary. It starts with the ladder step: `_Ladder step <n>: <what breaks and when, in plain words>_`. Write it to the author. No rule numbers, no paths.
-- Then the `~~~finding` block: a YAML head, a line that is only `---`, then the body. `line` is an integer on the right side of the diff. Put a fix in a `suggestion` fence in the body. Never put `~~~` in the body. Never start a body line with `# `, also in a fence. Grimoire reads that line as a new H1 section. Indent a Python comment, or remove it.
+- Then the `~~~finding` block: a YAML head, a line that is only `---`, then the comment fence, then the detail. `line` is an integer on the right side of the diff. Put a fix in a `suggestion` fence after the detail. Never put `~~~` in the body. Never start a body line with `# `, also in a fence. Grimoire reads that line as a new H1 section. Indent a Python comment, or remove it.
 - No other `###` heading goes in `# Review findings`.
+- The comment fence is the text that Grimoire posts on the PR line. The detail stays in the doc. Write the comment to the author, as one colleague to another, in 1 to 3 sentences. Say what is wrong and the fix. Ask a question when the fix is a choice for the author. Start a low finding with `nit: `. Do not put ladder steps, lens names, severity words, or `Evidence:` in the comment. Do not put a fence inside it. The suggestion fence gives the code.
+- Each comment obeys the unslop rules (`~/.agents/skills/unslop/rules.md`). Grimoire warns about a finding with no comment fence and about an em dash in a comment.
 - Severity is `critical`, `high`, `medium`, or `low`. Put an info item in `low`.
 - In `# Automated checks`, the Status cell is `pass` or `fail`. Use a different word, for example `not run`, when the check did not finish. Never put `|` in a table cell. Grimoire drops that row with no warning.
 - Each mermaid block obeys the mermaid rules in `lenses.md`. If a diagram breaks a rule, fix it. Do not remove its slot.
@@ -96,6 +98,10 @@ file: <repo-relative path>
 line: <integer>
 side: RIGHT
 ---
+```comment
+<1 to 3 sentences to the author: what is wrong and the fix, or a question. Low: start with "nit: ">
+```
+
 <what is wrong>. <the failure path, with file:line for each hop>. <the fix>.
 Lenses: <lens names>. Source: <"review", or "comment by @<login>">
 Evidence: <for critical or high: the command and exit code, or the file:line hops that you read>
