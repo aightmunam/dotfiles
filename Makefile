@@ -56,6 +56,8 @@ build:
 	}
 	@echo "-> Applying home-manager config: $(HM_CONFIG)"
 	DOTFILES_DIR=$(CURDIR) NIXPKGS_ALLOW_UNFREE=1 nix run home-manager -- switch --flake ./home-manager#$(HM_CONFIG) --impure -b backup
+	@echo "-> Linking skills, instructions and MCP servers for each AI tool"
+	@bash ai/generate.sh || echo "⚠️  cross-tool wiring failed. Run again: bash ai/generate.sh"
 
 # Non-Nix pieces of the AI toolchain. Best-effort: a failure here never aborts the
 # whole setup, it just prints a warning to resolve manually.

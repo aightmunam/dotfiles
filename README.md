@@ -9,7 +9,7 @@ shared AI setup for Claude Code, Gemini CLI, and Codex CLI.
 
 You can clone the repo to any path. The steps use `~/dotfiles`. Each link
 points at the checkout that `make build` runs in. To move the checkout, run
-`make build` and `bash ai/generate.sh` in the new place.
+`make build` in the new place.
 
 1. Install the prerequisites.
    - macOS: `xcode-select --install`
@@ -93,7 +93,7 @@ To update the upstream Claude hooks, change `CCH_REF` or `CCS_REF` in
 |---|---|
 | `make install` | Runs `setup`, `build`, and `post-install` in that order. |
 | `make setup` | If `nix` is not on `PATH`, runs the Nix installer and adds `experimental-features = nix-command flakes` to `~/.config/nix/nix.conf`. If Nix is there, it changes nothing. |
-| `make build` | Runs `home-manager switch` with the flake in `home-manager/`. It picks `mynixos-<arch>-<os>` from `uname`. A file that is in the way gets the `.backup` suffix. |
+| `make build` | Runs `home-manager switch` with the flake in `home-manager/`. It picks `mynixos-<arch>-<os>` from `uname`. A file that is in the way gets the `.backup` suffix. Then it runs `ai/generate.sh`. |
 | `make post-install` | Installs the parts that Nix does not manage (see the next table). A failed step prints a warning, and the next step runs. |
 | `make verify-ai` | Runs `ai/verify.sh`. It shows the instruction and skill links of each AI tool and the MCP servers that each tool has. |
 | `make help` | Lists the targets. |
