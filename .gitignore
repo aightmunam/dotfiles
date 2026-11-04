@@ -73,3 +73,7 @@ __pycache__/
 
 # Work overlay: company names, org aliases, job names. See ai/local.example/work.md.
 /ai/local/
+
+# superpowers plugin output: specs and plans go to thoughts/, not the repo
+docs/superpowers/
+.superpowers/
