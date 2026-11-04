@@ -90,7 +90,7 @@ Pick the skill from this table by the situation. Read the skill before you act. 
 | Review a colleague's PR, read-only, or review a PR's API against the REST API guidelines | `review-pr` |
 | End of a session: write the state for the next one | `handoff` |
 | Start of a session: catch me up across sessions and repos | `recall` |
-| Say the last message again in plain words | `bro` |
+| Say the last message again in plain words | `rephrase` |
 | What changed in this chat since my last message, and what waits on me | `catch-up` |
 | Turn the lessons of a session into skill or AGENTS.md edits | `reflect` |
 | Agents repeat a mistake in a repo: add a guard in that repo's code | `correct` |
@@ -111,8 +111,8 @@ Tie-break lines, one per set:
 - tdd / build: a plan to execute, `build` (it uses `tdd` per slice). One change with no plan, `tdd`.
 - brainstorm / sharpen: an idea that needs a design doc, `brainstorm` (it asks the sharpen questions in step 1). A prompt to rewrite and hand on, with no design doc, `sharpen`.
 - research / explain-code: a written study before a change, `research`. Explain code to the user in chat, `explain-code`.
-- bro / catch-up: restate one message, `bro`. Catch up on many changes, `catch-up`.
-- bro / unslop: say the last message again in plain words, `bro`. Clean a given finished text, `unslop`.
+- rephrase / catch-up: restate one message, `rephrase`. Catch up on many changes, `catch-up`.
+- rephrase / unslop: say the last message again in plain words, `rephrase`. Clean a given finished text, `unslop`.
 - recall / what-did-i-get-done: catch up so you can keep working, `recall`. A standup summary of finished work, `what-did-i-get-done`.
 - prove / verifier / performance: show that your own change works, `prove`. Build a repo's own verify skill, `verifier`. A speed claim or a measured regression, `performance`.
 - verifier / new-skill: a scripted way to launch, drive and prove one repo's app, `verifier`. Any other skill to write or change, `new-skill`.

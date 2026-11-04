@@ -18,7 +18,7 @@ skill-data-op-2	data-op		Delete duplicate plan rows in orders-service prod.
 skill-review-pr	review-pr		Review my colleague's PR 482 on the planning service. Read-only, do not post anything.
 skill-handoff	handoff		I am done for today. Write the state down so the next session can continue.
 skill-recall	recall		I am starting work. Catch me up on what happened across my sessions and repos.
-skill-bro	bro		You said: "The migration holds an exclusive lock on the plans table, so concurrent writers queue until the backfill commits." I did not follow that. Say that again in plain words.
+skill-rephrase	rephrase		You said: "The migration holds an exclusive lock on the plans table, so concurrent writers queue until the backfill commits." I did not follow that. Say that again in plain words.
 skill-catch-up	catch-up		I stepped away. While I was gone you renamed retry_count to max_retries in client.py, added a test for the timeout path, and bumped httpx to 0.28. What changed in this chat since my last message, and what is waiting on me?
 skill-reflect	reflect		Turn the lessons from this session into edits to our skills or AGENTS.md.
 skill-correct	correct		Agents keep forgetting to pass the tenant id in this repo. Add a guard in the repo code so it cannot repeat.
@@ -43,10 +43,10 @@ pair-tdd_build-tdd	tdd	tdd/build	Add a validator for IBAN fields. Test first, on
 pair-tdd_build-build	build	tdd/build	We have an approved plan with six tasks in thoughts/shared/plans/. Implement it task by task.
 pair-research_explain-code-research	research	research/explain-code	Before I touch the scheduler, research how it works and write the study to thoughts. No advice.
 pair-research_explain-code-explain-code	explain-code	research/explain-code	Explain in chat, with a diagram, how the retry decorator in this codebase works.
-pair-bro_catch-up-bro	bro	bro/catch-up	You said: "The sync job retries three times with exponential backoff, then marks the row failed and moves on." Restate that one message simply.
-pair-bro_catch-up-catch-up	catch-up	bro/catch-up	You ran many steps while I was away: you edited parser.py, added two tests, and renamed a column in the draft migration. Summarize everything that changed and what needs me.
-pair-bro_unslop-bro	bro	bro/unslop	You said: "The cache key includes the tenant id, so a flush for one tenant leaves the others warm." What did you just say? Put that last message in plain words.
-pair-bro_unslop-unslop	unslop	bro/unslop	Take this Slack message I wrote and remove the AI tone from it: "I am thrilled to delve into this pivotal update."
+pair-bro_catch-up-rephrase	rephrase	rephrase/catch-up	You said: "The sync job retries three times with exponential backoff, then marks the row failed and moves on." Restate that one message simply.
+pair-bro_catch-up-catch-up	catch-up	rephrase/catch-up	You ran many steps while I was away: you edited parser.py, added two tests, and renamed a column in the draft migration. Summarize everything that changed and what needs me.
+pair-bro_unslop-rephrase	rephrase	rephrase/unslop	You said: "The cache key includes the tenant id, so a flush for one tenant leaves the others warm." What did you just say? Put that last message in plain words.
+pair-bro_unslop-unslop	unslop	rephrase/unslop	Take this Slack message I wrote and remove the AI tone from it: "I am thrilled to delve into this pivotal update."
 pair-recall_what-did-i-get-done-recall	recall	recall/what-did-i-get-done	I want to keep working on the billing task. Catch me up on where it stands.
 pair-recall_what-did-i-get-done-what-did-i-get-done	what-did-i-get-done	recall/what-did-i-get-done	Summarize my finished work from the last two days for the standup.
 pair-prove_verifier_performance-prove	prove	prove/verifier/performance	I changed the address parser. Check that it works with real runs before I open the PR.

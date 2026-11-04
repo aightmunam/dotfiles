@@ -26,7 +26,7 @@ KEPT = {
 }
 PLANNED = {
     "research", "brainstorm", "make-plan", "build", "tdd", "debug", "prove", "verifier",
-    "performance", "pr", "unslop", "technical-writing", "reply", "address", "new-skill", "handoff", "recall", "bro",
+    "performance", "pr", "unslop", "technical-writing", "reply", "address", "new-skill", "handoff", "recall", "rephrase",
     "catch-up", "review-pr", "staging", "data-op", "fix-merge-conflicts", "what-did-i-get-done",
     "reflect", "correct", "automate-me", "explain-code", "sharpen",
 }
@@ -69,7 +69,7 @@ REPO_RULES = (
     "Do not read .env files.",
     "Worktrees only under ~/wt/<repo>/<name>.",
 )
-TEXT_ONLY = {"bro", "unslop"}
+TEXT_ONLY = {"rephrase", "unslop"}
 
 
 def new_form(skills_dir=SKILLS_DIR):

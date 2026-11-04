@@ -38,7 +38,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 - pstack :16 "uncommitted changes": the spec scope is commits and PRs. Excluding them needs no rule.
 - pstack :23 "Prioritize substantial behavior or architecture changes": the format-only cut (:24) and one line per item cover it. A ranking rule has no test.
 - pstack :31 "2-5 bullets for major changes only": a hard count drops items in a multi-repo standup. One line per item is kept.
-- The `Principles applied:` line (spec 8.7): what-did-i-get-done has no principle targets, and the line is noise in a standup. Same ruling as `bro`.
+- The `Principles applied:` line (spec 8.7): what-did-i-get-done has no principle targets, and the line is noise in a standup. Same ruling as `rephrase`.
 
 ## Pressure scenarios
 

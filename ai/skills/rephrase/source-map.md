@@ -3,8 +3,8 @@
 `ai/sources.lock` pins the sources. Paths are under `~/Developer/ref/`.
 
 - **pstack:** pstack-claude `plugins/pstack/skills/bro/SKILL.md` (one paragraph).
-- **agents:** `ai/AGENTS.md`, the `## Skill routing` row and the bro tie-break lines.
-- **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md`, section 8.1 (bro: say it plainly) and section 8.7.
+- **agents:** `ai/AGENTS.md`, the `## Skill routing` row and the rephrase tie-break lines.
+- **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md`, section 8.1 (rephrase: say it plainly) and section 8.7.
 - **brief:** task 6.8 brief (interfaces, the RED scenario, the failures to look for).
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
@@ -23,15 +23,15 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 ## Cut
 
 - pstack frontmatter description: it is not "Use when" triggers.
-- The `Principles applied:` line (spec 8.7): bro has no principle targets, and the line is noise in a chat reply. Controller ruling, cut after GREEN-1, so the template without it is Untested.
-- The four repo lines: bro restates a chat message. It does not work in a repo.
+- The `Principles applied:` line (spec 8.7): rephrase has no principle targets, and the line is noise in a chat reply. Controller ruling, cut after GREEN-1, so the template without it is Untested.
+- The four repo lines: rephrase restates a chat message. It does not work in a repo.
 
 ## Pressure scenarios
 
-Scenario: the previous message is a dense 140-word paragraph about Alembic multiple heads, `down_revision`, two revision ids and an `alembic merge` command. The user replies "bro". The file is `scratch-6.8/scenario.txt`.
+Scenario: the previous message is a dense 140-word paragraph about Alembic multiple heads, `down_revision`, two revision ids and an `alembic merge` command. The user replies "rephrase". The file is `scratch-6.8/scenario.txt`.
 
 **RED** (no skill, both CLIs, `scratch-6.8/red/`, 2026-10-30):
-Claude wrote 152 words, more than the message. It kept `down_revision`, both ids and the command in a code block. It used a numbered list and bold. It added a recommendation ("Pick option 1 unless..."). Codex wrote 51 plain words with no list or code, but it named Alembic twice. Its transcript shows no bro skill read. Only Claude failed RED.
+Claude wrote 152 words, more than the message. It kept `down_revision`, both ids and the command in a code block. It used a numbered list and bold. It added a recommendation ("Pick option 1 unless..."). Codex wrote 51 plain words with no list or code, but it named Alembic twice. Its transcript shows no rephrase skill read. Only Claude failed RED.
 
 **GREEN-1** (skill, both CLIs, `scratch-6.8/green-1/`, 2026-10-30):
 Both passed the harness. Claude wrote 135 words and Codex 71, not counting the template line. Neither answer has jargon, an id, a command, a list, bold text or a code block. Both keep the two fixes and the shared-environment limit. Neither adds advice.

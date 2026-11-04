@@ -1,9 +1,9 @@
 ---
-name: bro
-description: Use when the user says bro, or asks you to say the last message again in plain words.
+name: rephrase
+description: Use when the user says rephrase or bro, or asks you to say the last message again in plain words.
 ---
 
-# Bro
+# Rephrase
 
 ## Definitions
 
