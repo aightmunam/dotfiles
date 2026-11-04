@@ -320,5 +320,48 @@ class RoutingEvalTest(unittest.TestCase):
                 os.kill(pid, 0)
 
 
+class DefaultOutTest(unittest.TestCase):
+    """Results go to the main checkout's thoughts/, from any copy of the script."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.tmp = Path(tmp.name).resolve()
+        self.main = self.tmp / "main"
+        shutil.copytree(SCRIPT.parent, self.main / "ai" / "bin", ignore=shutil.ignore_patterns("__pycache__"))
+        git = ["git", "-C", str(self.main)]
+        subprocess.run(git + ["init", "-q"], check=True)
+        subprocess.run(git + ["add", "."], check=True)
+        subprocess.run(git + ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "x"], check=True)
+        self.want = self.main / "thoughts" / "shared" / "research" / "routing-eval"
+
+    def default_out(self, script):
+        out = subprocess.run([sys.executable, "-c",
+            "import importlib.machinery, sys; "
+            "m = importlib.machinery.SourceFileLoader('r', sys.argv[1]).load_module(); "
+            "print(m.DEFAULT_OUT)", str(script)],
+            capture_output=True, text=True, check=True, cwd=self.tmp)
+        return Path(out.stdout.strip())
+
+    def test_main_checkout(self):
+        self.assertEqual(self.default_out(self.main / "ai" / "bin" / "routing-eval"), self.want)
+
+    def test_through_a_link_to_ai_bin(self):
+        link = self.tmp / "agents-bin"
+        link.symlink_to(self.main / "ai" / "bin")
+        self.assertEqual(self.default_out(link / "routing-eval"), self.want)
+
+    def test_worktree_writes_to_the_main_checkout(self):
+        wt = self.tmp / "wt"
+        subprocess.run(["git", "-C", str(self.main), "worktree", "add", "-q", str(wt)], check=True)
+        self.assertEqual(self.default_out(wt / "ai" / "bin" / "routing-eval"), self.want)
+
+    def test_copy_outside_git_uses_its_own_root(self):
+        loose = self.tmp / "loose"
+        shutil.copytree(SCRIPT.parent, loose / "ai" / "bin", ignore=shutil.ignore_patterns("__pycache__"))
+        self.assertEqual(self.default_out(loose / "ai" / "bin" / "routing-eval"),
+                         loose / "thoughts" / "shared" / "research" / "routing-eval")
+
+
 if __name__ == "__main__":
     unittest.main()

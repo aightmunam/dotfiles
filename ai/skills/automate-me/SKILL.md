@@ -17,7 +17,7 @@ description: Use when the user asks to capture, update, or refresh their working
 
 ## The Loop
 
-1. **Mode.** Find `## Working style` in the target. If it exists, use update mode. Get its last commit date with `git -C ~/.agents/bin log -1 --format=%cI -s -L '/^## Working style/,/^## /:ai/AGENTS.md'`. Read only history after that date. For a memory file, use its `date:` field. If it has none, use its mtime. Keep each line that no new instance contradicts.
+1. **Mode.** Find `## Working style` in the target. If it exists, use update mode. Get its last commit date with `git -C "$(git -C ~/.agents/bin rev-parse --show-toplevel)" log -1 --format=%cI -s -L '/^## Working style/,/^## /:ai/AGENTS.md'`. Read only history after that date. For a memory file, use its `date:` field. If it has none, use its mtime. Keep each line that no new instance contradicts.
 2. **Slice.** Split the transcripts of the last four weeks into three date ranges. The memory files are a fourth slice. If the user gives other history paths, use only those paths.
 3. **Mine.** Give each slice to one `explorer` agent in one message. Use the brief below. If no `explorer` type exists, give the brief to a read-only general-purpose agent. With no dispatch tool, do each slice yourself with the same brief.
 4. **Cross-check.** Merge the slice lists. Keep each signal. Drop each noise item and write its reason. Ask about a contradiction that has no winner (step 6).
