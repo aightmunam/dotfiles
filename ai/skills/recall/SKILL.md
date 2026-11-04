@@ -43,7 +43,7 @@ description: Use when a session starts and you must rebuild the working state fr
 
 ## Repo Rules
 
-- never touch a prod Salesforce org, not even --help.
+- never touch a prod Salesforce org, not even --help. `~/.agents/local/work.md` names the prod orgs.
 - No alembic upgrade or downgrade, and no DB mutation, on a production database without in-the-moment user confirmation.
 - Do not read .env files.
 - Worktrees only under ~/wt/<repo>/<name>.

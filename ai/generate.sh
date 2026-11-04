@@ -64,6 +64,8 @@ if [ -d "$AI/skills" ]; then
   log "linked $n custom skills into ~/.agents/skills"
 fi
 safe_link "$AI/principles" "$HOME/.agents/principles"
+# Work overlay (gitignored): company names and org aliases. See ai/local.example/work.md.
+[ -d "$AI/local" ] && safe_link "$AI/local" "$HOME/.agents/local"
 
 # --- Skills store: link into Gemini + Codex (whole-dir, or per-skill if real) ---
 echo "-> skills store (shared store -> Gemini + Codex)"

@@ -29,7 +29,7 @@ Send both in one message.
 > Keep repros in your worktree. Do not touch any other directory.
 > For each finding, report a title, the exact command, the output that it printed, and the output that the intent needs. Leave out anything that you did not run: style, names, structure, and risks that need a future change.
 > No findings is a valid result. Give your model name on the first line.
-> never touch a prod Salesforce org, not even --help. No alembic upgrade or downgrade, and no DB mutation. Do not read .env files.
+> never touch a prod Salesforce org, not even --help. `~/.agents/local/work.md` names the prod orgs. No alembic upgrade or downgrade, and no DB mutation. Do not read .env files.
 
 ## Fallback
 

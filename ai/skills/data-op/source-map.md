@@ -9,7 +9,7 @@
 - **inc-46e:** migration 46e24552e1eb re-categorised 190 works, also works in progress and completed. Two revert PRs followed. Audit 2.4.
 - **inc-224:** session 224db801. The user said "DO NOT MAKE CHANGES" and the agent backfilled. Audit 2.4.
 - **inc-lock:** `ALTER TABLE project RENAME` failed 4 times with LockNotAvailable (2026-08-21). Data before DDL cut the block from 19.55s to 0.45s. Audit 2.4 and orders-service memory `reference_hot_table_migration_locking.md`.
-- **fo:** `~/Developer/fo-backfill/fo_backfill.py` (path A model).
+- **fo:** a backfill CLI in a work repo (path A model). `~/.agents/local/work.md` names it.
 - **prN, prM:** orders-service PRs #<n> (adds `scripts/cleanup_duplicates.py` and its runbook body) and #<m> (deletes it).
 - **brief:** task 8.2 brief, Global Constraints.
 
