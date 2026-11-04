@@ -187,13 +187,13 @@ store. A change then needs a rebuild. This repo uses `mkOutOfStoreSymlink`, so
 each link points at the file in the checkout, and an edit applies at once.
 `make build` passes the checkout path to the flake in `DOTFILES_DIR`. The
 `--impure` flag lets the flake read it. Without `DOTFILES_DIR`, the flake uses
-`~/dotfiles`. home-manager also exports `DOTFILES_DIR` to your shell. The cost
+`~/dotfiles`. home-manager writes `DOTFILES_DIR` to `hm-session-vars.sh`, and
+`.zshenv` loads that file in every zsh. The cost
 is that a moved checkout gives broken links until the next `make build` and
 `bash ai/generate.sh`.
 
-Skills do not read `DOTFILES_DIR`. On macOS, `.zshrc` loads it, so the
-non-interactive shell of an agent does not have it. A skill uses the
-`~/.agents` links. To find the checkout, a skill runs
+Skills do not read `DOTFILES_DIR`. A skill can run in a shell that is not zsh,
+and then the variable is not set. A skill uses the `~/.agents` links. To find the checkout, a skill runs
 `git -C ~/.agents/bin rev-parse --show-toplevel`.
 
 `~/.claude/settings.json` is the exception. Claude Code writes to that file

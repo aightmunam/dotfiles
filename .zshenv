@@ -10,10 +10,13 @@ export RAINFROG_CONFIG=$HOME/.config/rainfrog
 # before .zshrc needs pyenv, zoxide and the plugins. macOS uses nix-daemon.sh from .zshrc.
 if [[ "$OSTYPE" == linux* ]] && [ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
   . "$HOME/.nix-profile/etc/profile.d/nix.sh"
-  [ -e "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ] && . "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
   # Make nix desktop apps visible to launchers
   export XDG_DATA_DIRS="$HOME/.nix-profile/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
 fi
+
+# home-manager session variables (DOTFILES_DIR and others), on every OS and in
+# every zsh, also the non-interactive shell of an agent.
+[ -e "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ] && . "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
 
 if [ -f ~/.zshenv.local ]; then
   source ~/.zshenv.local
