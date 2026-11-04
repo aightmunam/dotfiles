@@ -89,6 +89,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 - old: everything except the manifest, the diagrams, and the phase headings. The source rule (spec 8.2a) cuts its research flow, sub-task agents, ticket file names, and `npm` commands. Audit item 10 keeps `humanlayer thoughts sync` (see Rules). It also cuts the Testing Strategy, Performance, Migration Notes, and References sections.
 - old: the "Implementation Note" that pauses for manual confirmation after each phase. never-block-on-the-human overrides it.
 - spec 8.4: "ste-lint flavored checks" on the plan. `ste-lint.py` has no flavored mode. The controller's own plan, which passes `plan-lint`, has 102 strict violations. Plan prose follows the AGENTS.md writing standard. `plan-lint` is the only gate. Controller ruling: the cut stands (review M7).
+- sequence-verifiable-units: "a schema change goes in an earlier phase than the code that reads it". The user asked for it on 2026-11-04. RED with the current skill showed no failure (see `## Pressure scenarios`), so no rule fixes it. Step 4 (data structures before logic, riskiest unknown first) already gives that order.
 
 ## Principles
 
@@ -127,3 +128,5 @@ green-2 (read-only scenario, Claude only): FAIL. Claude read the four principle 
 green-3 (read-only, Claude, after the fix): PASS, 0.95 USD. The extracted plan exits 0 under the new plan-lint (not run in the loop, the session cannot write). Each code step has a backticked signature and path, and each test step a name and a value.
 green-4 (`--write`, Codex, after the fix): PASS. 361,462 input tokens (310,656 cached), 11,335 output tokens. Codex read the plan-lint usage, wrote the plan, and ran plan-lint: exit 0, no output. Its code step is `validate_evidence(record: dict) -> list[str]` in `ai/skills/staging/scripts/check_evidence.py`. Its test steps name each test and the expected exit code.
 Concern: Claude used Implement steps for Markdown edits, with forced signatures such as `Definitions(Case kind, Run key) -> 2 bullets`. The rule passes them. A prose edit is not code, and the template does not yet say which title to use for it.
+schema-order RED (2026-11-04, current skill, `--tool both`, scenario: plan a `reviewer_model` column on the Grimoire `events` table, where `CREATE TABLE IF NOT EXISTS` never adds a column to an existing `grimoire.db`). claude PASS. codex PASS. No failure.
+Both plans put an idempotent `ALTER TABLE ... ADD COLUMN` with a test on an old 7-column DB in P1. The writer is P2 (blocked by P1) and the stats reader is P3 (blocked by P2). No line was added.
