@@ -38,7 +38,7 @@ description: Use when your own branch is ready for a PR and the user asks to ope
 
 ## Repo Rules
 
-- never touch a prod Salesforce org, not even --help.
+- never touch a prod Salesforce org, not even --help. `~/.agents/local/work.md` names the prod orgs.
 - No alembic upgrade or downgrade, and no DB mutation, on a production database without in-the-moment user confirmation.
 - Do not read .env files.
 - Worktrees only under ~/wt/<repo>/<name>.

@@ -31,7 +31,7 @@ pair-reply_address-address	address	reply/address	The reviewer wants the loop mov
 pair-debug_prove-debug	debug	debug/prove	The export returns an empty file for some users and I have no idea why. Find out.
 pair-debug_prove-prove	prove	debug/prove	I finished the export fix. Run it and show evidence that it works before I hand it over.
 pair-pr_review-pr-pr	pr	pr/review-pr	I pushed my branch feat/export-csv. Create the pull request for it.
-pair-pr_review-pr-review-pr	review-pr	pr/review-pr	Look at Anna's open PR on the fulfillment service and tell me what you find. Do not touch her branch.
+pair-pr_review-pr-review-pr	review-pr	pr/review-pr	Look at Anna's open PR on the orders service and tell me what you find. Do not touch her branch.
 pair-recall_ketchup_handoff-recall	recall	recall/ketchup/handoff	Where did I leave off last week? Pull it together across my repos and sessions.
 pair-recall_ketchup_handoff-ketchup	ketchup	recall/ketchup/handoff	Catch me up on this chat. Since my last message you edited export.py, added test_export.py, and left one question open about the date format. What changed and what waits on me?
 pair-recall_ketchup_handoff-handoff	handoff	recall/ketchup/handoff	Write a note for the next session that picks this work up tomorrow.

@@ -10,7 +10,7 @@
 - **audit:** `thoughts/shared/research/2026-10-30-skill-rework-audits/deploy-maintain.md` (sections 1.1, 2.1, 2.2, ADD 1).
 - **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md`, section 8.4 staging entry.
 - **brief:** the Task 8.1 brief and its Global Constraints.
-- **pipeline:** orders-service `.github/workflows/manual_deploy.yml` (origin/main 3d033fcd), <actions-repo> `build-push-docker/action.yml` and `deploy-cloud-run/action.yml` (deb8901). Read-only.
+- **pipeline:** orders-service `.github/workflows/manual_deploy.yml` (origin/main 3d033fcd), the org actions repo `build-push-docker/action.yml` and `deploy-cloud-run/action.yml` (deb8901). Read-only.
 - **drift:** `ai/bin/migration-drift` (Task 8.3).
 - **review:** Task 8.1 review, fix round 1 (I1 to I4, M1 to M5).
 

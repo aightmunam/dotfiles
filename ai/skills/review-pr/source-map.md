@@ -96,7 +96,7 @@ Iteration 2 passed for both. Claude read `lenses.md` and the five principle file
 The Pocock smell line in the quality lens went in before GREEN-2.
 
 **REAL-1** (headless `claude -p`, real PR, 2026-10-30, after fix round 1):
-PR #<k> in <owner>/orders-service by a colleague, in a detached worktree under `~/wt/orders-service/review/`. A gh guard on PATH passed only `pr view`, `pr diff`, `pr checks`, `repo view` and `pr list`. Its log has 4 reads and no write. The `reviewer` agent came from `ai/agents/reviewer.md` through `--agents`. Cost 1.44 USD.
+PR #<k> in the work service repo by a colleague, in a detached worktree under `~/wt/orders-service/review/`. A gh guard on PATH passed only `pr view`, `pr diff`, `pr checks`, `repo view` and `pr list`. Its log has 4 reads and no write. The `reviewer` agent came from `ai/agents/reviewer.md` through `--agents`. Cost 1.44 USD.
 The run wrote the doc to the review root. Grimoire `parse_review` gives `warnings []` and `is_structured True`, verdict `comment`, 4 findings (M1 at ladder step 3, L1 to L3 at step 2), each summary starts with `Ladder step`. The checks are `not run`, because the worktree has no Poetry environment and the prompt said not to install one.
 Gaps: the run put all lenses into 2 `reviewer` agents on a cheaper model "to stay within the budget", and wrote the walkthrough itself. It read the principle files after the lens agents returned, not before. Step 2, step 7, `report_progress`, and the Loop 5 targeted command did not run.
 

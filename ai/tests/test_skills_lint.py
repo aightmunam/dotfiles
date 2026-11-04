@@ -63,7 +63,7 @@ NEW_AGENTS = {"reviewer", "explorer"}
 # The four Repo Rules lines, verbatim (ai/skills/debug/SKILL.md). Every PLANNED skill
 # except the text-only ones carries them in SKILL.md (final review I3, M7).
 REPO_RULES = (
-    "never touch a prod Salesforce org, not even --help.",
+    "never touch a prod Salesforce org, not even --help. `~/.agents/local/work.md` names the prod orgs.",
     "No alembic upgrade or downgrade, and no DB mutation, on a production database"
     " without in-the-moment user confirmation.",
     "Do not read .env files.",

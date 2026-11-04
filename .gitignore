@@ -70,3 +70,6 @@ __pycache__/
 *.crt
 *.enc
 *.local
+
+# Work overlay: company names, org aliases, job names. See ai/local.example/work.md.
+/ai/local/
