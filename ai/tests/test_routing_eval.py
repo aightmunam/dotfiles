@@ -117,13 +117,13 @@ class RoutingEvalTest(unittest.TestCase):
 
     def test_tsv_covers_every_planned_skill(self):
         planned = planned_skills()
-        self.assertEqual(len(planned), 26)
+        self.assertEqual(len(planned), 27)
         plain = {r["expected"] for r in self.rows if not r["pair"] and r["id"].startswith("skill-")}
         self.assertEqual(planned - plain, set())
 
     def test_tsv_covers_each_pair_side(self):
         sets = tie_break_sets()
-        self.assertEqual(len(sets), 17)
+        self.assertEqual(len(sets), 20)
         for name, sides in sets.items():
             for side in sides:
                 hits = [r for r in self.rows if r["pair"] == name and r["expected"] == side]

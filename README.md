@@ -1,128 +1,187 @@
 # dotfiles
 
-Cross-platform (macOS + Linux) dev environment, managed with Nix + home-manager.
-Covers the shell, editors, terminal, window manager **and** the AI-coding
-toolchain (Claude Code, herdr).
+My development environment for macOS and Linux. Nix and home-manager install the
+packages and link each config file from this checkout into `$HOME`. The config
+covers zsh, git, tmux, Vim, Neovim, WezTerm, AeroSpace (macOS), herdr, and one
+shared AI setup for Claude Code, Gemini CLI, and Codex CLI.
 
-## Setup
+## Set up a new machine
 
-The whole environment installs with **one command** on a fresh machine. Clone to
-`~/dotfiles` — the path matters, because every config file is symlinked out of
-this checkout:
+Clone the repo to `~/dotfiles`. Each link points at that path, so a clone in
+another place gives broken links.
 
-```sh
-git clone https://github.com/aightmunam/dotfiles.git ~/dotfiles
-cd ~/dotfiles
-make install
-```
+1. Install the prerequisites.
+   - macOS: `xcode-select --install`
+   - Debian or Ubuntu: `sudo apt-get update && sudo apt-get install -y git make curl xz-utils`
+2. Clone the repo and run the install:
 
-`make install` runs three steps (each also available on its own):
+   ```sh
+   git clone https://github.com/aightmunam/dotfiles.git ~/dotfiles
+   cd ~/dotfiles
+   make install
+   ```
 
-1. **`make setup`** — installs Nix with flakes enabled, if it is missing.
-2. **`make build`** — applies the home-manager config, auto-selecting the system
-   (`aarch64-darwin`, `x86_64-darwin`, `x86_64-linux`, `aarch64-linux`) from
-   `uname`.
-3. **`make post-install`** — the non-Nix bits: the global npm package the Claude hooks need (`rins_hooks`), `headroom` (via
-   `pipx`), the **Gemini CLI** (`npm`, into `~/.local`) and **Codex CLI** (its
-   standalone installer, which self-updates), the installable agent skills (`npx
-   skills`), the tool-managed and upstream Claude hooks, the cross-tool wiring
-   (Gemini/Codex instruction + skills symlinks and MCP fan-out via `generate.sh`),
-   and a scaffolded `~/.zshenv.local` for secrets.
-
-### macOS
-
-```sh
-# 1. Command line tools (gives you git + a compiler toolchain)
-xcode-select --install
-
-# 2. Clone and install
-git clone https://github.com/aightmunam/dotfiles.git ~/dotfiles
-cd ~/dotfiles
-make install
-```
-
-- Nix installs multi-user via a launchd-managed daemon; the installer prompts for
-  confirmation and your password.
-- Nerd Fonts land in `~/Library/Fonts` automatically.
-- The macOS-only pieces (AeroSpace, JankyBorders, Raycast scripts) are linked
-  only on Darwin.
-- Homebrew is **not** required — everything here is managed by Nix. `.zshrc`
-  picks up an existing Homebrew if you have one, but nothing depends on it.
-
-### Linux
-
-```sh
-# 1. Prerequisites (Debian/Ubuntu shown; use your distro's package manager)
-sudo apt-get update && sudo apt-get install -y git curl xz-utils
-
-# 2. Clone and install
-git clone https://github.com/aightmunam/dotfiles.git ~/dotfiles
-cd ~/dotfiles
-make install
-```
-
-- Nix installs multi-user, which needs **systemd** (present on all mainstream
-  desktop distros). A minimal/container environment without an init system needs
-  a single-user install instead:
-  `sh <(curl -L https://nixos.org/nix/install) --no-daemon`.
-- The macOS-only packages are skipped automatically.
-- The first build compiles **herdr** from source (its vendored Zig
-  `libghostty-vt`), which is memory-hungry: give the machine or VM **at least
-  ~4 GB of free RAM (8 GB is comfortable)**. A 2 GB environment OOM-kills the Zig
-  build. Everything else comes prebuilt from the binary cache and is cheap.
-
-### After setup (both platforms)
-
-1. Fill in `~/.zshenv.local` with any machine-local secrets/overrides.
-2. Restart your shell (`exec zsh`). To make zsh your login shell:
+   If `make install` stops after the Nix install because `nix` is not found,
+   open a new shell and run `make install` again.
+3. Put your machine-local secrets in `~/.zshenv.local`. See
+   [Keep secrets out of the repo](#keep-secrets-out-of-the-repo).
+4. Start a new shell with `exec zsh`. To make zsh your login shell, run
    `chsh -s "$(command -v zsh)"`.
-3. Launch Claude Code once — it auto-installs its plugins from `settings.json`.
+5. Start Claude Code one time. It installs the plugins that `enabledPlugins` in
+   `~/.claude/settings.json` lists.
+6. On Linux, install WezTerm from your distro (for example `pacman -S wezterm`).
+   The Nix build of WezTerm cannot find the GPU drivers on a Linux that is not
+   NixOS.
+7. To see the links and MCP servers of each AI tool, run `make verify-ai`.
 
-Other targets: `make setup`, `make build`, `make post-install`, `make help`.
+`make install` installs no Claude Code binary. Install Claude Code on its own.
 
-## What is managed
+## Edit a config file
 
-| Area | Where |
+To change a config, edit the file in `~/dotfiles`. The change applies at once,
+and `git status` shows it. Restart or reload the program if it reads its config
+only at start.
+
+To change which packages home-manager installs or which files it links, edit
+`home-manager/modules/` and run `make build`.
+
+To change a skill, an MCP server, or `ai/AGENTS.md`, edit the file under `ai/`.
+Then run `bash ai/generate.sh` if you added a skill, changed a skill, or changed
+an MCP server. Gemini slash commands are copies of the skill text, so they do
+not see a skill edit until `generate.sh` writes them again.
+
+`~/.claude/settings.json` is a copy, not a link. Edit that file for this
+machine. Edit `ai/claude/settings.json` to change the template for a new machine.
+
+## Keep secrets out of the repo
+
+This repo is public.
+
+- Put each secret in `~/.zshenv.local` as an `export` line. `~/.zshenv` sources
+  that file. Git ignores it through the `*.local` pattern.
+- To use a secret in an MCP server or in `~/.claude/settings.json`, write it as
+  `${VAR}`. Claude Code reads the value from the environment.
+- Put shell overrides in `~/.zshrc.local` and git overrides (for example your
+  name and email) in `~/.gitconfig.local`.
+- To keep work names (company, org aliases, services) on one machine, copy
+  `ai/local.example/` to `ai/local/` and fill it in. Git ignores `ai/local/`.
+  `ai/generate.sh` links it to `~/.agents/local`.
+- To add a work MCP server, run `claude mcp add` on that machine. Do not add it
+  to `ai/mcp/servers.json`.
+
+## Update a pinned dependency
+
+To update herdr:
+
+1. Change the tag in `herdr.url` in `home-manager/flake.nix`.
+2. In `home-manager/`, run `nix flake update herdr`.
+3. Run `make build`.
+
+To update the upstream Claude hooks, change `CCH_REF` or `CCS_REF` in
+`ai/install-hooks.sh`, then run `bash ai/install-hooks.sh`.
+
+## Reference
+
+### Make targets
+
+| Target | What it does |
 |---|---|
-| Shell (zsh), git, tmux, vim/nvim, wezterm | `.*`, `nvim/`, `tmux/`, `wezterm/`, `git/` |
-| Window manager (macOS) | `aerospace/` |
-| Nix / home-manager | `home-manager/`, `nix/` |
-| Claude Code (settings, skills, agents, commands, hooks, output-styles, rules) | `claude/` |
-| herdr | `herdr/config.toml` |
-| Packages + herdr | `home-manager/home.nix` (+ herdr flake input) |
+| `make install` | Runs `setup`, `build`, and `post-install` in that order. |
+| `make setup` | If `nix` is not on `PATH`, runs the Nix installer and adds `experimental-features = nix-command flakes` to `~/.config/nix/nix.conf`. If Nix is there, it changes nothing. |
+| `make build` | Runs `home-manager switch` with the flake in `home-manager/`. It picks `mynixos-<arch>-<os>` from `uname`. A file that is in the way gets the `.backup` suffix. |
+| `make post-install` | Installs the parts that Nix does not manage (see the next table). A failed step prints a warning, and the next step runs. |
+| `make verify-ai` | Runs `ai/verify.sh`. It shows the instruction and skill links of each AI tool and the MCP servers that each tool has. |
+| `make help` | Lists the targets. |
 
-## Live editing (no rebuild)
+`make post-install` runs these steps in order:
 
-Config is linked with home-manager's `mkOutOfStoreSymlink`, so the symlinks in
-`$HOME` point at this live checkout. **Editing any config file takes effect
-immediately — no `make build` needed.** You only rebuild to change *which* files
-are linked or *which* packages/programs are installed. Edits show up in
-`git status` here.
+| Step | Result |
+|---|---|
+| `npm install -g rins_hooks` | `rins_hooks` in `~/.claude/npm`, for the Claude hooks |
+| `pipx install headroom` | `headroom`, if it is missing |
+| `npm install -g @google/gemini-cli` | Gemini CLI in `~/.local`, if it is missing |
+| the Codex install script | Codex CLI in `~/.local/bin`, if it is missing |
+| `bash ai/install-hooks.sh` | the Claude hooks that git does not track |
+| `bash ai/generate.sh` | the links and MCP servers of each AI tool |
+| copy `ai/claude/settings.json` | `~/.claude/settings.json`, if it is missing |
+| copy `zshenv.local.example` | `~/.zshenv.local`, if it is missing |
 
-## Secrets
+### Links
 
-Real secrets never live in this (public) repo. `settings.json` and other configs
-reference `${VARS}`; the real values go in `~/.zshenv.local` (gitignored via
-`*.local`, sourced by `~/.zshenv`). Copy `zshenv.local.example` to
-`~/.zshenv.local` and fill it in (`make install` does this for you if it is
-missing).
+Each module in `home-manager/modules/` lists its packages and its links.
 
-## Notes on the AI toolchain
+| Repo path | Link in `$HOME` | Module |
+|---|---|---|
+| `.zshrc`, `.zshenv`, `.zsh_functions`, `.zsh_prompt`, `.dircolors` | same name | `core-cli.nix` |
+| `atuin/config.toml` | `.config/atuin/config.toml` | `core-cli.nix` |
+| `git/.gitconfig`, `git/.gitignore_global` | same name | `git.nix` |
+| `tmux/.tmux.conf`, `.vimrc` | same name | `terminal.nix` |
+| `nvim/` | `.config/nvim` | `terminal.nix` |
+| `wezterm/` | `.config/wezterm` | `terminal.nix` |
+| `aerospace/` | `.config/aerospace` (macOS) | `darwin.nix` |
+| `raycast-scripts/` | `raycast-scripts` (macOS) | `darwin.nix` |
+| `herdr/config.toml` | `.config/herdr/config.toml` | `ai.nix` |
+| `herdr/herdr-bar.json` | `.config/herdr/plugins/config/herdr-bar/config.json` | `ai.nix` |
+| `nix/` | `.config/nix` | `home.nix` |
+| `home-manager/` | `.config/home-manager` | `home.nix` |
 
-- **herdr** is pinned via its own Nix flake (`home-manager/flake.nix`). Update it
-  with `nix flake update herdr` after bumping the tag.
-- **MCP servers** are defined in `claude/settings.json` (generic tools only:
-  `approvals`, `sentry`). Work-specific servers are kept out of this public repo;
-  re-add any you need locally with `claude mcp add`.
-- **Skills**: the skills live in `ai/skills/`. `ai/generate.sh` links them into
-  `~/.agents/skills`. No third-party skills are installed.
-- **Excluded skills**: some skills are work-specific or personal-confidential and
-  are gitignored (this repo is public). They stay in your live `~/.claude`; keep
-  them in a private repo if you want them reproduced across machines.
-- **Hooks**: only genuinely custom hooks (6) in `claude/hooks/` are versioned
-  (`no-claude-attribution`, `dj`, `auto-commit-wrapper`, `api-error-alert`,
-  `guard-test-required`, `guard-thoughts`). Everything else is restored by
-  `claude/install-hooks.sh` (run by `make install`), not tracked:
-  `herdr-agent-state.sh` from its own tool (`herdr integration install claude`); and upstream safety hooks fetched pinned
-  from [`yurukusa/claude-code-hooks`](https://github.com/yurukusa/claude-code-hooks)
-  (12) and [`yurukusa/cc-safe-setup`](https://github.com/yurukusa/cc-safe-setup) (20).
+On macOS, `darwin.nix` also installs `aerospace`, `jankyborders`,
+`reattach-to-user-namespace`, and Raycast. On Linux, `terminal.nix` adds
+`wl-clipboard` and leaves out WezTerm, and `home.nix` turns on fontconfig.
+
+These paths are in the repo, but no module links them: `hypr/`, `hyprland/`,
+`vim/`, `setup.sh` (an older install script), and `home-manager/darwin.nix` (an
+old nix-darwin test).
+
+### AI toolchain
+
+`ai/AGENTS.md` is the one instruction file for all three AI tools.
+
+| Source in `ai/` | Link | Made by |
+|---|---|---|
+| `AGENTS.md` | `~/.claude/AGENTS.md` | `ai.nix` |
+| `AGENTS.md` | `~/.gemini/GEMINI.md`, `~/.codex/AGENTS.md` | `generate.sh` |
+| `claude/CLAUDE.md` | `~/.claude/CLAUDE.md` | `ai.nix` |
+| `agents/` | `~/.claude/agents` | `ai.nix` |
+| `claude/hooks/` | `~/.claude/hooks` | `ai.nix` |
+| `claude/output-styles/` | `~/.claude/output-styles` | `ai.nix` |
+| `claude/statusline-command.sh` | `~/.claude/statusline-command.sh` | `ai.nix` |
+| each skill in `skills/` | `~/.agents/skills/<name>` | `generate.sh` |
+| `principles/`, `test-cards/`, `local/` | `~/.agents/principles`, `~/.agents/test-cards`, `~/.agents/local` | `generate.sh` |
+
+`~/.agents/skills` is the shared skill store. `ai.nix` links `~/.claude/skills`
+to it. `generate.sh` links each store skill into `~/.gemini/skills` and
+`~/.codex/skills`, and writes one Gemini slash command for each skill into
+`~/.gemini/commands/`.
+
+`ai/mcp/servers.json` lists the MCP servers. `generate.sh` adds each one to
+Claude Code, Gemini CLI, and Codex CLI with the `mcp add` command of that tool.
+You can run `generate.sh` again with no harm.
+
+Git tracks only the hooks that I wrote. To list them, run
+`git ls-files ai/claude/hooks`. `ai/install-hooks.sh` adds the other hooks to
+the same directory, and `ai/claude/.gitignore` keeps them out of git:
+
+- `herdr-agent-state.sh`, from `herdr integration install claude`
+- safety hooks from
+  [yurukusa/claude-code-hooks](https://github.com/yurukusa/claude-code-hooks)
+  and [yurukusa/cc-safe-setup](https://github.com/yurukusa/cc-safe-setup), at
+  the commits in `CCH_REF` and `CCS_REF`
+
+`ai/bin/` holds helper tools. `pressure-run` and `routing-eval` test the skills
+under Claude Code and Codex. `plan-lint` checks plan files. `migration-drift`
+compares the Alembic heads of a repo with staging. Their tests are in `ai/tests/`. Run them with
+`uvx pytest -q ai/tests`. `ai/sources.lock` pins the upstream skill repos that
+some skills adapt.
+
+## Why the links point at this checkout
+
+By default, home-manager links a config file to a read-only copy in the Nix
+store. A change then needs a rebuild. This repo uses `mkOutOfStoreSymlink`, so
+each link points at the file in `~/dotfiles`, and an edit applies at once. The
+cost is that the checkout must stay at `~/dotfiles`.
+
+`~/.claude/settings.json` is the exception. Claude Code writes to that file
+while it runs, and the file can hold values for one machine only. A link would
+put those writes into this public repo. So `make post-install` copies a
+template one time and then leaves the file alone.

@@ -97,6 +97,7 @@ Pick the skill from this table by the situation. Read the skill before you act. 
 | A merge or rebase stopped with conflicts | `fix-merge-conflicts` |
 | A standup summary of my finished work | `what-did-i-get-done` |
 | Clean AI tells out of a finished text (PR body, reply, message, doc, email) | `unslop` |
+| Write, rewrite or restructure a full doc with several sections (README, RFC, guide, reference page) | `technical-writing` |
 
 Tie-break lines, one per set:
 
@@ -117,6 +118,9 @@ Tie-break lines, one per set:
 - staging / prove: Deploy a branch to staging and check it, `staging`. Prove your own change with runs in worktrees before a PR, `prove`.
 - staging / data-op: Deploy a branch to staging and check it, `staging`. A data change on a real database or a live system, `data-op`.
 - unslop / the writing standard: the `## Writing standard` section in this file guides text while it is written. `unslop` is a pass over a text that is already written.
+- technical-writing / unslop: write or restructure a doc, `technical-writing` (it runs `unslop` at the end). Clean a given finished text and keep its structure, `unslop`.
+- technical-writing / pr: a PR body, `pr`. A doc file in the repo (README, guide, RFC), `technical-writing`.
+- technical-writing / the writing standard: a full doc, `technical-writing` (it adds one mode for each section, headings, live counts). A few sentences, the writing standard alone.
 
 Not these. Use the kept skill and not a rework skill:
 

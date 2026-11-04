@@ -26,7 +26,7 @@ KEPT = {
 }
 PLANNED = {
     "research", "brainstorm", "make-plan", "build", "tdd", "debug", "prove", "verifier",
-    "performance", "pr", "unslop", "reply", "address", "new-skill", "handoff", "recall", "bro",
+    "performance", "pr", "unslop", "technical-writing", "reply", "address", "new-skill", "handoff", "recall", "bro",
     "ketchup", "review-pr", "staging", "data-op", "fix-merge-conflicts", "what-did-i-get-done",
     "reflect", "correct", "automate-me",
 }

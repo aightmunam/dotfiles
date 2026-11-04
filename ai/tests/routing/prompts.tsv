@@ -71,3 +71,10 @@ distract-commit	commit		Commit these changes with a good message, I approve.
 distract-design-system	design-system		Style the settings page of my work dashboard with my design system.
 none-1	none		What is the capital of Portugal?
 none-2	none		Convert 3.5 miles to kilometers.
+skill-technical-writing	technical-writing		Rewrite the README of this repo so a new teammate can set it up on the first read.
+pair-technical-writing_unslop-technical-writing	technical-writing	technical-writing/unslop	Our deploy guide mixes steps and background and nobody can follow it. Restructure it.
+pair-technical-writing_unslop-unslop	unslop	technical-writing/unslop	This doc paragraph is done, just strip the AI tells: "We seamlessly leverage a robust pipeline."
+pair-technical-writing_pr-pr	pr	technical-writing/pr	Update the description of my open PR so it says what the branch does now.
+pair-technical-writing_pr-technical-writing	technical-writing	technical-writing/pr	Write a reference page for the CLI flags of ai/bin/pressure-run.
+pair-technical-writing_writing-standard-technical-writing	technical-writing	technical-writing/writing-standard	Write a full how-to guide for setting up the local dev stack of this repo, with a reference table of the env vars.
+pair-technical-writing_writing-standard-writing-standard	none	technical-writing/writing-standard	Write one sentence for the changelog that says what the new --dry-run flag does.
