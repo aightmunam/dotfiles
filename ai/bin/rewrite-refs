@@ -11,6 +11,10 @@ import tempfile
 from pathlib import Path
 
 
+class ReceiptError(ValueError):
+    pass
+
+
 def validate_template(pattern: re.Pattern, template: str) -> None:
     pattern.sub(template, "")
 
@@ -70,6 +74,29 @@ def receipt_path(map_text: str, files: list[Path]) -> Path:
     return root / (digest(identity) + ".json")
 
 
+def read_receipt(path: Path, file_count: int, row_count: int) -> dict | None:
+    if not path.exists():
+        return None
+    try:
+        prior = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(prior, dict) or not {"sources", "targets", "expansions"} <= prior.keys():
+            raise ValueError("expected an object with sources, targets, and expansions")
+        for field, size in (("sources", file_count), ("targets", file_count), ("expansions", row_count)):
+            values = prior[field]
+            if not isinstance(values, list) or len(values) != size:
+                raise ValueError(f"{field} must be an array of length {size}")
+        for field in ("sources", "targets"):
+            if any(not isinstance(value, str) or re.fullmatch(r"[0-9a-f]{64}", value) is None
+                   for value in prior[field]):
+                raise ValueError(f"{field} must contain SHA-256 hex strings")
+        if any(not isinstance(row, list) or any(not isinstance(value, str) for value in row)
+               for row in prior["expansions"]):
+            raise ValueError("expansions must contain arrays of strings")
+    except ValueError as exc:
+        raise ReceiptError(f"invalid receipt {path}: {exc}") from exc
+    return prior
+
+
 def rewrite_files(args: argparse.Namespace) -> int:
     map_text = args.map.read_bytes().decode("utf-8")
     rows = []
@@ -81,7 +108,7 @@ def rewrite_files(args: argparse.Namespace) -> int:
     originals = texts[:]
     receipt = receipt_path(map_text, args.files)
     sources = [digest(text) for text in texts]
-    prior = json.loads(receipt.read_text()) if receipt.exists() else None
+    prior = read_receipt(receipt, len(args.files), len(rows))
     completed = [prior is not None and prior["targets"][i] == value
                  for i, value in enumerate(sources)]
     if all(completed):
@@ -138,7 +165,9 @@ def main(argv: list[str] | None = None) -> int:
         return rewrite_files(args)
     except (ValueError, OSError) as exc:
         print(f"error: {exc}", file=sys.stderr)
-        print("fix: check the map row and input files", file=sys.stderr)
+        fix = ("repair the receipt before retrying; preserve its retry evidence"
+               if isinstance(exc, ReceiptError) else "check the map row and input files")
+        print(f"fix: {fix}", file=sys.stderr)
         return 1
 
 

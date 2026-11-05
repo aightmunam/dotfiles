@@ -1,4 +1,5 @@
 """CLI tests for rewrite-refs, using only the standard library."""
+import json
 import os
 import subprocess
 import sys
@@ -180,6 +181,67 @@ class RewriteRefsTest(unittest.TestCase):
         self.assertEqual(retry.returncode, 0, retry.stderr)
         self.assertEqual(self.file.read_bytes(), b"ba\n")
 
+    def test_rejects_receipts_without_required_keys_or_object_root(self):
+        self.map.write_text("a\tba\n")
+        self.file.write_bytes(b"a\n")
+        first = self.run_rewrite()
+        self.assertEqual(first.returncode, 0, first.stderr)
+        receipt_path, = self.cache.glob("*.json")
+        receipt = json.loads(receipt_path.read_bytes())
+        invalid = [None, False, 1, "receipt", [], {}]
+        invalid.extend({key: value for key, value in receipt.items() if key != missing}
+                       for missing in receipt)
+        for payload in invalid:
+            with self.subTest(payload=payload):
+                self.file.write_bytes(b"a\n")
+                before = json.dumps(payload).encode("utf-8")
+                receipt_path.write_bytes(before)
+                result = self.run_rewrite()
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertNotIn("Traceback", result.stderr)
+                self.assertIn("fix:", result.stderr)
+                self.assertIn(str(receipt_path), result.stderr)
+                self.assertEqual(result.stdout, "")
+                self.assertEqual(self.file.read_bytes(), b"a\n")
+                self.assertEqual(receipt_path.read_bytes(), before)
+
+    def test_rejects_invalid_receipt_fields_before_writes_or_completed_retry(self):
+        self.map.write_text("a\tba\nc\tdc\ndc\tdc\n")
+        self.file.write_bytes(b"a\n")
+        other = self.root / "other.md"
+        other.write_bytes(b"c\n")
+        first = self.run_rewrite(self.file, other)
+        self.assertEqual(first.returncode, 0, first.stderr)
+        receipt_path, = self.cache.glob("*.json")
+        receipt = json.loads(receipt_path.read_bytes())
+        invalid = [(field, value) for field in ("sources", "targets", "expansions")
+                   for value in (None, False, 1, "wrong", {})]
+        invalid.extend((field, value) for field in ("sources", "targets", "expansions")
+                       for value in ([], receipt[field][:1], receipt[field] + receipt[field][:1]))
+        invalid.extend((field, [value, receipt[field][1]])
+                       for field in ("sources", "targets")
+                       for value in (None, False, 1, {}, [], "", "a" * 63, "a" * 65,
+                                     "g" * 64, "A" * 64, "a" * 64 + "\n"))
+        invalid.extend(("expansions", [value, *receipt["expansions"][1:]])
+                       for value in (None, False, 1, {}, "ba", [None], [False], [1], [{}], [[]]))
+        for field, value in invalid:
+            for originals in ((b"a\n", b"c\n"), (b"ba\n", b"dc\n")):
+                for dry_run in (False, True):
+                    with self.subTest(field=field, value=value, originals=originals, dry_run=dry_run):
+                        self.file.write_bytes(originals[0])
+                        other.write_bytes(originals[1])
+                        before = json.dumps(receipt | {field: value}).encode("utf-8")
+                        receipt_path.write_bytes(before)
+                        result = self.run_rewrite(self.file, other, dry_run=dry_run)
+                        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                        self.assertNotIn("Traceback", result.stderr)
+                        self.assertIn("fix:", result.stderr)
+                        self.assertIn(str(receipt_path), result.stderr)
+                        self.assertEqual(result.stdout, "")
+                        self.assertEqual(self.file.read_bytes(), originals[0])
+                        self.assertEqual(other.read_bytes(), originals[1])
+                        self.assertEqual(receipt_path.read_bytes(), before)
+
     def test_rewrites_each_pair(self):
         self.map.write_text("a.sh up\trig up\n", encoding="utf-8")
         self.file.write_text("run a.sh up\n", encoding="utf-8")
@@ -311,18 +373,12 @@ class RewriteRefsTest(unittest.TestCase):
     def test_failed_replace_keeps_original_bytes(self):
         self.map.write_text("a.sh up\trig up\n")
         self.file.write_bytes(b"a.sh up\n")
-        launcher = (
-            "import runpy, sys\nfrom unittest.mock import patch\n"
-            "script = sys.argv.pop(1)\n"
-            "with patch('os.replace', side_effect=OSError('rename failed')):\n"
-            "    runpy.run_path(script, run_name='__main__')\n")
-        result = subprocess.run(
-            [sys.executable, "-c", launcher, str(SCRIPT), str(self.map), str(self.file)],
-            capture_output=True, text=True, env=self.env)
+        result = self.run_interrupted(self.file)
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertNotIn("Traceback", result.stderr)
         self.assertEqual(self.file.read_bytes(), b"a.sh up\n")
         self.assertEqual(sorted(path.name for path in self.root.iterdir()), ["guide.md", "map.tsv"])
+        self.assertEqual(len(list(self.cache.glob("*.json"))), 1)
 
     def test_regex_identity_second_run_changes_nothing(self):
         self.map.write_text(r"re:(rig \S+)" + "\t" + r"\1" + "\n")
