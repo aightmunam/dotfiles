@@ -14,7 +14,7 @@
 - **sp:** `~/Developer/ref/superpowers/skills/verification-before-completion/SKILL.md` (the gate: identify, run, read, then claim).
 - **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md`, section 8.4 prove entry, section 8.5 (adversary is a brief in `roles.md`), section 10 (uncommitted change, `kind: self-review`, base SHA plus diff hash). Section 10 also puts the ladder step in the italic summary line.
 - **brief:** task 5.1 brief (files, frontmatter keys, `git diff | shasum`, `~/wt/<repo>/prove-<n>`, Grimoire parse) and the controller dispatch (interfaces of `performance`, `verifier`, `tdd`).
-- **rpr:** old `ai/skills/review_pr/SKILL.md` (removed after eec5ad9; read it in git history) Step 6 (review root, C+ light format rules, no shell heredoc).
+- **rpr:** old `ai/skills/review_pr/SKILL.md` (removed after eec5ad9. Read it in git history) Step 6 (review root, C+ light format rules, no shell heredoc).
 - **perf:** `ai/skills/performance/SKILL.md` (dispatch line and report labels).
 - **ver:** `ai/skills/verifier/verify-template.md` (Launch, Doctor, Drive, Evidence, Cleanup).
 - **tdd:** `ai/skills/tdd/SKILL.md` Loop 3 (`Assumed:` and `Open:` lines).
@@ -23,7 +23,7 @@
 - **ctl:** controller rulings in `parallel-dispatch.md` (one question per message with a recommended answer, never-block-on-the-human, principle pointer form, four repo lines).
 - **fr1:** controller rulings for fix round 1 of task 5.1. C1: the change is the diff from the merge-base. I1: `add -N` in the worktree. I2: no pipe in a cell. M4: the Deviation row of `build`.
 - **bld:** `ai/skills/build/SKILL.md` Definitions (Deviation row: append-only, the evidence is a pointer).
-- **audit:** `.superpowers/sdd/2026-10-30-skill-rework/skill-audit.md` G8 (prove's adversaries Untested; proposed red flag: only the inline fallback ran, write `adversary: inline`, not `done`).
+- **audit:** `.superpowers/sdd/2026-10-30-skill-rework/skill-audit.md` G8 (prove's adversaries Untested. Proposed red flag: only the inline fallback ran, write `adversary: inline`, not `done`).
 - **rig-plan:** `thoughts/shared/plans/2026-11-05-rig-cli.md`, Phase 10 Step 3, Global constraints, and Deviation 20.
 - **rig-cli:** `ai/bin/rig`, command help, `verify_root`, `cache_root`, `info`, and `cleanup`.
 
@@ -34,11 +34,12 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | The change is `git diff <base_sha>`, with `base_sha` the merge-base of the plan `base` and HEAD. It holds the committed phases and the uncommitted edits. Record `base_sha`, `head_sha`, and `diff_hash`. | spec 10. fr1 C1 (build commits each phase). brief. sw Phase A step 4 (record SHAs). | P | Definitions. Loop 1. T frontmatter. Reply template. | RED: neither doc had a diff hash or the frontmatter keys. GREEN-2: both used the merge-base `5e853ae` and `diff_hash` 413eb95e (committed phase plus edit), not the working-tree hash c3700d22. |
 | `git add -N` each new file, so that the diff and the adversary patch hold it. In the adversary worktree, `git add -N .` after the apply. | spec 10 (worktree with the diff applied). fr1 I1. | P | Loop 1. R Set up. | Untested. The scenarios add no file. The reviewer reproduced the worktree hash mismatch and the `add -N .` fix by hand. |
 | Read the plan, the task, the diff, and the test card. A missing card: take the commands from the repo config and say so. | spec 8.4 (consumes the plan, the diff, the test card). mp Loop 2. | P | Loop 1. | GREEN |
-| State the intent in one sentence. A finding must break the intent. | int Frame and Verify. | P | Loop 1, Loop 5. T Summary. | GREEN |
+| State the intent in one sentence. A finding must break the intent. | int `Frame` and `Verify`. | P | Loop 1, Loop 5. T Summary. | GREEN |
 | Ladder of five steps. Each finding carries its step. | br How sure are you. spec 8.4, spec 10 (italic summary line). | O | Definitions. T finding summary. | RED: no run gave a ladder step. |
 | Name the one safety fact. Prove it at ladder step 4, or write "unproven". | br Steps 2 and 5. spec 8.4. | D | Definitions. Loop 2. Red flags. Outcome rule. | RED: no run named a safety fact. |
 | Look past grep: data files, wire formats, DB columns, flags. | br Step 3. | P | Loop 2. R brief. | GREEN |
 | Principle pointer at Loop 3. | piw. spec 8.7. ctl. | P | Loop 3. Red flags. Reply template. T last line. | GREEN |
+| Read the principle alone at Loop 3. Include the reply template's principle line in partial reports. | piw (prove the process). ctl pointer form. P10 review finding and reference-only Claude failure. | P, O | Loop 3. Reply template. | P10 fix 1: legacy and main scenarios pass under both models. |
 | Read the exit code. `\| tail`, `; true`, `\|\| true` hide it. | piw ("Output cut by \| tail -1 ... prove nothing"). brief Review Focus 1. | D | Rules. | GREEN |
 | Run the repo `verify` skill when it exists: Launch, Doctor, Drive, Evidence, Cleanup. | spec 8.4. cvs section 2. ver. | P | Loop 3. | Untested. The scratch repo has no `verify` skill. |
 | A speed claim goes to `performance`. The prompt opens with "The prove skill dispatched you". Copy its five labels. With no dispatch, do the skill yourself. | spec 8.4. bc (owned by perf). perf Loop 7. | P | Loop 3. | Untested. The scenario has no speed claim. |
@@ -47,7 +48,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Fallback: no worktree or no dispatch, run the brief yourself, label it inline, flag it under Attention. One adversary missing: go on, record the gap. | sw Phase B (proceed with N-1, note it). sw Phase C (a gap is not a pass). Form bar (roles with a fallback). | P | R Fallback. | GREEN (round 2, `prove-green-2`): one adversary missing. Both CLIs went on with the other, named the gap, gave INCONCLUSIVE, and kept `status: in-progress`. Earlier: GREEN for the inline fallback. |
 | Set `status: done` only when both adversaries ran. With the inline fallback or one adversary, write `adversary: inline (<reason>)` or `<name> missing` on the Outcome line and keep `status: in-progress`. | audit G8 (if the adversaries never run, "done" means the same model read it again). sw Phase C (a gap is not a pass). | D | Loop 8. Red flags. Reply template. | Partial (`prove-green-2`): Claude wrote `adversary: claude missing` on the Outcome line. Both CLIs kept `status: in-progress`, but the INCONCLUSIVE outcome and the older one-adversary-missing rule already force that, so the run does not test this clause. Codex named the missing adversary in prose, not on the Outcome line. Untested: a VERIFIED outcome with one adversary missing (the only case this clause decides), and the inline-only case and its red flag. |
 | Do the adversary brief yourself only for a reason in the fallback. Cost and time are not reasons. | int Fan out (the adversaries are the second view). audit G8. | D | Red flags. | RED: in `prove-green-1` Claude skipped the dispatch "because of the budget cap" and gave VERIFIED. GREEN (`prove-green-2`): Claude dispatched both. |
-| Rerun each finding command. Keep only failures that break the intent. Drop the rest with the reason. Merge findings with one cause. | int Verify. spec 8.4 (the parent reruns every command, and unrun findings drop). | D | Loop 5. Red flags. T Dropped. | GREEN (`prove-green-2`): Claude ran the Codex adversary repro again and kept H1. Earlier: GREEN with the inline fallback only. |
+| Rerun each finding command. Keep only failures that break the intent. Drop the rest with the reason. Merge findings with one cause. | int `Verify`. spec 8.4 (the parent reruns every command, and unrun findings drop). | D | Loop 5. Red flags. T Dropped. | GREEN (`prove-green-2`): Claude ran the Codex adversary repro again and kept H1. Earlier: GREEN with the inline fallback only. |
 | Replay each counterexample one step at a time against the real code. | sc Hand off. spec 8.4. | P | Loop 5. | GREEN (inline fallback only). No run shows a step-by-step replay. |
 | A clear fix inside the plan: make it, rerun, new `diff_hash`. | spec 8.4 (fixes in the same session, each fix reruns the affected checks). | D | Loop 6. | GREEN (round 2, `prove-green-1` and `prove-green-2`, both CLIs): each changed `>` to `>=`, added a threshold test that failed first, and ran the checks again. Claude recorded the new `diff_hash`. |
 | A fix with two forms or a plan change: ask, one question per message, with a recommended answer and the catch-up item parts. | spec 8.4 (stops for user decisions). ctl (never-block, one question). ket. | D | Loop 6. Decision template. Red flags. | GREEN |
@@ -126,19 +127,42 @@ Agent-execution runs in a tiny `shop` fixture repo, 2026-10-30, budget 1.5 USD. 
 ## Phase 10 pressure scenarios
 
 Evidence root: `~/.cache/build/2026-11-05-rig-cli/phase-10/pressure/`.
-`prove-direct.txt` and `prove-legacy-direct.txt` are read-only fixture scenarios. Each RED and GREEN pair uses the same prompt.
+The fixture scenarios `prove-direct.txt` and `prove-legacy-direct.txt` permit reads only. Each RED and GREEN pair uses the same prompt.
 
 **RED:** both baselines select rig, including beside legacy manual instructions. The new conditional has a plan source, not a baseline failure.
 `red-prove-legacy/` and `red-prove-legacy-direct/` include the unsupported `RIG_VERIFY_ROOT` variable. Some answers defer evidence lookup until after cleanup.
 
-**GREEN main:** both saved answers in `green-prove-final/` pass the harness and were read.
+**GREEN main:** both saved answers in `green-prove-final/` pass the harness. The worker read both saved answers.
 Both use `RIG_VERIFY_DIR`, `RIG_CACHE_DIR`, rig lifecycle commands, touched-feature proof, and evidence reads after cleanup.
 Both report INCONCLUSIVE because the evaluation cannot launch the app. The root-variable failure is gone.
 
-**Legacy follow-up:** both answers in `green-prove-legacy-final/` select rig over manual steps and use the supported root variables.
-The harness still fails: Claude omits the principle line; Codex omits the principle read and line. Codex also reports the sibling reference absent.
-These are recorded evaluation gaps. No claim that every pressure run passes applies to this scenario.
+**Earlier legacy follow-up:** both answers in `green-prove-legacy-final/` select rig over manual steps and use the supported root variables.
+The harness still fails: Claude omits the principle line. Codex omits the principle read and line. Codex also reports the sibling reference absent.
+The record retains these evaluation gaps. No claim that every pressure run passes applies to this scenario.
 
 The first GREEN runs also had skill reads hidden in shell loops. Direct-read repeats make loading observable.
 The main scenario covers Loop 3 only. No live fixture proof, adversary pass, or plan closure ran.
 Descriptions, routing, and eval prompts stay unchanged because the triggers did not change.
+
+### Phase 10 fix 1 closes the legacy gate
+
+Evidence root: `~/.cache/build/2026-11-05-rig-cli/phase-10-fix1/`.
+`premise.json` shows that both original scratch layouts lack the sibling verifier reference, while the worktree source exists.
+The cache-only `reference-run.py` adds `skills/verifier/verify-template.md` beside the selected prove skill in each isolated setup.
+It uses the existing pressure-run model commands, main function, and checks. The scenario and every assertion stay unchanged.
+
+**Reference-only control:** `legacy-reference-only/` uses the unchanged public skill at `9139eda`.
+Codex passes. Claude still omits the principle read and line. Reference exposure alone does not close the gate.
+Claude costs $0.3487979. Codex usage is 147657 input, 127232 cached input, and 1904 output tokens.
+
+**GREEN legacy:** both saved answers in `legacy-green-1/claude.txt` and `legacy-green-1/codex.txt` pass the existing harness.
+Both transcripts show successful separate principle reads and sibling-reference reads. Both answers include `Principles applied:`.
+Both select rig over legacy manual instructions, use the supported roots, preserve cleanup and evidence rereads, and report INCONCLUSIVE.
+Claude costs $0.3198186. Codex usage is 176698 input, 139392 cached input, and 1578 output tokens.
+
+**GREEN main:** the affected main scenario also passes under both models in `main-green-1/` after the skill change.
+Both answers retain the same proof decisions, principle reads, and principle lines. Claude costs $0.35820399999999997.
+Codex usage is 174094 input, 153216 cached input, and 1503 output tokens. Codex dollar prices are unavailable.
+Each run's `inspection.json` records exact answer and transcript paths, hashes, checks, model argv, costs, and usage.
+`transcript-evidence.json` records the read calls, results, and transcript line numbers. This worker read all saved answers.
+The earlier failures remain evidence. These evaluations cover read-only Loop 3 decisions, not live app proof or plan closure.
