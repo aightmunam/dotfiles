@@ -2,6 +2,8 @@
 """Rewrite file references from a literal or regex TSV map."""
 import argparse
 import difflib
+import hashlib
+import json
 import os
 import re
 import sys
@@ -9,45 +11,39 @@ import tempfile
 from pathlib import Path
 
 
-def rewrite_text(text: str, old: str, new: str) -> tuple[str, int]:
+def validate_template(pattern: re.Pattern, template: str) -> None:
+    pattern.sub(template, "")
+
+
+def rewrite_text(text: str, old: str, new: str) -> tuple[str, int, list[str]]:
     if old.startswith("re:"):
         pattern = re.compile(old[3:])
-        pattern.sub(new, "")  # Validate replacement references even without a match.
+        validate_template(pattern, new)
         changes = 0
+        expansions = []
 
         def replace(match: re.Match) -> str:
             nonlocal changes
             replacement = match.expand(new)
             changes += replacement != match[0]
+            expansions.append(replacement)
             return replacement
 
-        return pattern.sub(replace, text), changes
+        rewritten = pattern.sub(replace, text)
+        return rewritten, changes, expansions
+    expansions = [new] if old in text else []
     if old == new:
-        return text, 0
-    return text.replace(old, new), text.count(old)
+        return text, 0, expansions
+    return text.replace(old, new), text.count(old), expansions
 
 
-def replacement_present(text: str, old: str, new: str) -> bool:
+def replacement_present(text: str, old: str, new: str, observed: set[str]) -> bool:
     if not old.startswith("re:"):
         return new in text
-    source = re.compile(old[3:])
-    tokens = re.compile(r"\\(?:0[0-7]{0,2}|[0-7]{3}|g<([^>]+)>|([1-9][0-9]?)|[\s\S])")
-    parts = []
-    seen = set()
-    cursor = 0
-    for token in tokens.finditer(new):
-        parts.append(re.escape(new[cursor:token.start()]))
-        reference = token[1] or token[2]
-        if reference is not None:
-            number = int(reference) if reference.isdecimal() else source.groupindex[reference]
-            name = f"ref_{number}"
-            parts.append(f"(?P={name})" if number in seen else f"(?P<{name}>[\\s\\S]*?)")
-            seen.add(number)
-        else:
-            parts.append(re.escape(re.match("", "").expand(token[0])))
-        cursor = token.end()
-    parts.append(re.escape(new[cursor:]))
-    return re.search("".join(parts), text) is not None
+    tokens = re.compile(r"\\(?:0[0-7]{0,2}|[0-7]{3}|(g<[^>]+>|[1-9][0-9]?)|[\s\S])")
+    if any(token[1] is not None for token in tokens.finditer(new)):
+        return any(expansion in text for expansion in observed)
+    return re.match("", "").expand(new) in text
 
 
 def atomic_write(path: Path, text: str) -> None:
@@ -57,34 +53,65 @@ def atomic_write(path: Path, text: str) -> None:
         with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as staged:
             temporary = Path(staged.name)
             staged.write(text.encode("utf-8"))
-        temporary.chmod(path.stat().st_mode & 0o7777)
+        temporary.chmod(path.stat().st_mode & 0o7777 if path.exists() else 0o600)
         os.replace(temporary, path)
     finally:
         if temporary is not None:
             temporary.unlink(missing_ok=True)
 
 
+def digest(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def receipt_path(map_text: str, files: list[Path]) -> Path:
+    identity = json.dumps([map_text, [str(path.absolute()) for path in files]])
+    root = Path(os.environ.get("REWRITE_REFS_CACHE_DIR", "~/.cache/rewrite-refs")).expanduser()
+    return root / (digest(identity) + ".json")
+
+
 def rewrite_files(args: argparse.Namespace) -> int:
+    map_text = args.map.read_bytes().decode("utf-8")
     rows = []
-    for number, line in enumerate(args.map.read_text(encoding="utf-8").splitlines(), 1):
+    for number, line in enumerate(map_text.splitlines(), 1):
         if line.count("\t") != 1:
             raise ValueError(f"map row {number} needs old<TAB>new: {line}")
         rows.append(line.split("\t", 1))
     texts = [path.read_bytes().decode("utf-8") for path in args.files]
     originals = texts[:]
+    receipt = receipt_path(map_text, args.files)
+    sources = [digest(text) for text in texts]
+    prior = json.loads(receipt.read_text()) if receipt.exists() else None
+    completed = [prior is not None and prior["targets"][i] == value
+                 for i, value in enumerate(sources)]
+    if all(completed):
+        print("total 0")
+        return 0
+    resuming = prior is not None and all(
+        value in (source, target)
+        for value, source, target in zip(sources, prior["sources"], prior["targets"]))
     counts = [0] * len(texts)
+    observed = []
     for number, (old, new) in enumerate(rows, 1):
         try:
-            results = [rewrite_text(text, old, new) for text in texts]
+            results = [(text, 0, []) if done else rewrite_text(text, old, new)
+                       for text, done in zip(texts, completed)]
         except (re.error, IndexError) as exc:
             raise ValueError(f"invalid map row {number}: {old}\t{new}: {exc}") from exc
-        if not any(changes for _, changes in results) and not any(
-                replacement_present(text, old, new) for text in texts):
+        expansions = set(prior["expansions"][number - 1]) if prior else set()
+        if not resuming and not any(matches for _, _, matches in results) and not any(
+                replacement_present(text, old, new, expansions) for text in texts):
             print(f"error: map row matches nothing: {old}\t{new}", file=sys.stderr)
             print("fix: check the map row and input files", file=sys.stderr)
             return 1
-        texts = [text for text, _ in results]
-        counts = [count + changes for count, (_, changes) in zip(counts, results)]
+        expansions.update(value for _, _, matches in results for value in matches)
+        observed.append(sorted(expansions))
+        texts = [text for text, _, _ in results]
+        counts = [count + changes for count, (_, changes, _) in zip(counts, results)]
+    if not args.dry_run:
+        receipt.parent.mkdir(parents=True, exist_ok=True)
+        atomic_write(receipt, json.dumps({
+            "sources": sources, "targets": [digest(text) for text in texts], "expansions": observed}))
     total = 0
     for path, original, text, count in zip(args.files, originals, texts, counts):
         if count:
