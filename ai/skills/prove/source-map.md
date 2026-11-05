@@ -24,6 +24,8 @@
 - **fr1:** controller rulings for fix round 1 of task 5.1. C1: the change is the diff from the merge-base. I1: `add -N` in the worktree. I2: no pipe in a cell. M4: the Deviation row of `build`.
 - **bld:** `ai/skills/build/SKILL.md` Definitions (Deviation row: append-only, the evidence is a pointer).
 - **audit:** `.superpowers/sdd/2026-10-30-skill-rework/skill-audit.md` G8 (prove's adversaries Untested; proposed red flag: only the inline fallback ran, write `adversary: inline`, not `done`).
+- **rig-plan:** `thoughts/shared/plans/2026-11-05-rig-cli.md`, Phase 10 Step 3, Global constraints, and Deviation 20.
+- **rig-cli:** `ai/bin/rig`, command help, `verify_root`, `cache_root`, `info`, and `cleanup`.
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output. "Loop N" is a step in SKILL.md. "T" is `review-template.md`. "R" is `roles.md`.
 
@@ -61,6 +63,9 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Outcome from the checks: any finding gives NOT VERIFIED, then INCONCLUSIVE, then VERIFIED. | fio Phase C. spec 8.4. | O | Rules. T frontmatter. Reply template. | GREEN |
 | Each check names the `diff_hash` that it ran against. Rerun after a fix. | sw Phase A step 4 (SHAs and method). spec 10 (each fix reruns the affected checks). | D | Rules. | GREEN for Claude (`prove-green-2`: the Outcome line names the `diff_hash` after the fix). Untested for Codex. |
 | Four repo lines, verbatim. | brief Global Constraints. | D | Repo Rules. R Brief (three of them). | Untested. The runs do not touch prod. |
+| A local `rig.toml` selects `rig check`, `rig up`, `rig doctor`, the touched feature recipes, and `rig cleanup`. | rig-plan Step 3 and Global constraints. | P | Loop 3. | P10 prove and prove-legacy. Both baseline answers already selected rig. |
+| Record the evidence path before cleanup. Read the saved evidence after cleanup on success or failure. | rig-plan Step 3. piw. cvs step 4. rig-cli info and cleanup. | P | Loop 3. | P10 prove-legacy: RED Claude deferred the evidence lookup until after its exit cleanup. |
+| Use `RIG_VERIFY_DIR` and `RIG_CACHE_DIR` for isolated fixtures. Read the verifier configuration reference for rig details. Retain the app-skill fallback when no `rig.toml` exists. | rig-plan Step 3. ver configuration reference. rig-cli roots. | P | Loop 3. | P10 prove-legacy: first GREEN Codex invented `RIG_VERIFY_ROOT`. |
 
 ## Cut
 
@@ -76,6 +81,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 - fio: Phases A, B, D, and E. `make-plan` and `build` own the playbook. Only the three outcomes survive.
 - rpr: the What and How analyst sections, Mermaid diagrams, the REST API guidelines check, and `humanlayer thoughts sync`. A self-review needs no PR walkthrough. spec 8.4 make-plan removes the humanlayer residue.
 - rpr: "Write the review document with the Write tool". A controller ruling forbids a sentence that tells the agent to use a specific file-read tool. The heredoc warning stays.
+- P10: manual lifecycle steps beside a configured rig app. The existing `rig.toml` selects the shared lifecycle.
 
 ## Principles
 
@@ -116,3 +122,23 @@ Agent-execution runs in a tiny `shop` fixture repo, 2026-10-30, budget 1.5 USD. 
 - `prove-green-1` (text before the G8 rows): Claude $0.49 skipped both adversaries "because of the budget cap" and gave VERIFIED. RED. Codex 445k/419k/6.3k could not make a worktree (sandbox), ran the inline fallback, and gave INCONCLUSIVE.
 - `prove-green-2` (G8 rows): harness PASS on both. Claude $0.78 made `~/wt/<repo>/prove-1` and `prove-2`. Its Claude adversary could not run Bash (headless denies `cd X && git` in sub-agents). It ran Codex as the second adversary, which found H1 (5000 gave 495). Claude reran H1, fixed it in 8df5b07, and gave INCONCLUSIVE with `adversary: claude missing`. Codex 788k/751k/9.2k made both worktrees and spawned a Codex adversary. `claude -p` from the Codex sandbox was not logged in, so the Claude adversary was missing. INCONCLUSIVE, plan in-progress.
 - Untested on Codex: a Claude adversary (no Claude login in its sandbox). Untested on both: two adversaries that both run to the end.
+
+## Phase 10 pressure scenarios
+
+Evidence root: `~/.cache/build/2026-11-05-rig-cli/phase-10/pressure/`.
+`prove-direct.txt` and `prove-legacy-direct.txt` are read-only fixture scenarios. Each RED and GREEN pair uses the same prompt.
+
+**RED:** both baselines select rig, including beside legacy manual instructions. The new conditional has a plan source, not a baseline failure.
+`red-prove-legacy/` and `red-prove-legacy-direct/` include the unsupported `RIG_VERIFY_ROOT` variable. Some answers defer evidence lookup until after cleanup.
+
+**GREEN main:** both saved answers in `green-prove-final/` pass the harness and were read.
+Both use `RIG_VERIFY_DIR`, `RIG_CACHE_DIR`, rig lifecycle commands, touched-feature proof, and evidence reads after cleanup.
+Both report INCONCLUSIVE because the evaluation cannot launch the app. The root-variable failure is gone.
+
+**Legacy follow-up:** both answers in `green-prove-legacy-final/` select rig over manual steps and use the supported root variables.
+The harness still fails: Claude omits the principle line; Codex omits the principle read and line. Codex also reports the sibling reference absent.
+These are recorded evaluation gaps. No claim that every pressure run passes applies to this scenario.
+
+The first GREEN runs also had skill reads hidden in shell loops. Direct-read repeats make loading observable.
+The main scenario covers Loop 3 only. No live fixture proof, adversary pass, or plan closure ran.
+Descriptions, routing, and eval prompts stay unchanged because the triggers did not change.

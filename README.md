@@ -176,6 +176,8 @@ the same directory, and `ai/claude/.gitignore` keeps them out of git:
 `ai/bin/` holds helper tools. `pressure-run` and `routing-eval` test the skills
 under Claude Code and Codex. `plan-lint` checks plan files. `migration-drift`
 compares the Alembic heads of a repo with staging. Skills call them through
-`~/.agents/bin`. Their tests are in `ai/tests/`. Run them with
+`~/.agents/bin`. `rig` starts and drives local scratch apps from private
+configuration. `rewrite-refs` updates file references from a TSV map. Their tests
+are in `ai/tests/`. Run them with
 `uvx pytest -q ai/tests`. `ai/sources.lock` pins the upstream skill repos that
 some skills adapt.
