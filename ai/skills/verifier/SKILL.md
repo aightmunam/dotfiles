@@ -8,7 +8,7 @@ description: Use when a repo needs its own verify skill. Use when the user asks 
 ## Definitions
 
 - **Repo name:** the base name of the main checkout. Get it with `basename "$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")"`. A worktree gives the same name as its main checkout.
-- **Verify skill:** `~/.agents/verify/<repo name>/SKILL.md` plus `features/`. It is outside every repo. `~/.agents/verify` is a local git repo with no remote. In a monorepo, use `<repo name>-<package>`. You write it for an agent that never saw the app.
+- **Verify skill:** `~/.agents/verify/<repo name>/SKILL.md`, `rig.toml`, and `features/`. It is outside every repo. `~/.agents/verify` is a local git repo with no remote. In a monorepo, use `<repo name>-<package>`. You write it for an agent that never saw the app.
 - **Checkout under test:** the main checkout or the worktree that the agent runs from. Each command of the verify skill runs from its root.
 - **Evidence:** a response body, a DB row, a file, or an event that a second read shows. A log line, a status code, or a "saved" message alone is not evidence.
 - **Proven:** the verify skill ran end to end once in this session, and its evidence exists after cleanup.
@@ -19,8 +19,8 @@ description: Use when a repo needs its own verify skill. Use when the user asks 
 1. **Find the target.** If `~/.agents/verify/<repo name>/` exists, read `maintain.md` and do that pass. Else continue here.
 2. **Interview the repo.** Find each answer in the code. Ask the user only what the code cannot show. Surface: what the user touches (HTTP API, UI, CLI). Run: the repo command (just, make, compose, README). Drive: existing harnesses first, then plain HTTP. Observe: bodies, DB rows, events. Isolate: port, data dir, state dir. Find each running instance of the app. Never drive one that you did not launch.
 3. **Try the base.** Launch the app as-is. If it does not launch, fix the cause or report it exactly. Do not write a skill for a broken base.
-4. **Write.** Read `verify-template.md`. Write `SKILL.md` and `features/` from it. Use real commands, routes, and names from this repo. Leave no placeholder. Each helper gets the repo from `git rev-parse --show-toplevel` in the cwd. It stops with an error when the repo name is wrong. Put run state and evidence in `~/.cache/rig/<repo name>/`.
-5. **Prove.** Do the verify skill once: launch, doctor, drive one feature, capture evidence, clean up. Then read the evidence at its named path. After each failed try, run its cleanup, fix the skill, and try again.
+4. **Write.** Read `verify-template.md`. Write `SKILL.md`, `rig.toml`, and `features/` from it. Use real commands, routes, and names from this repo. Leave no placeholder. Use `rig.toml` for launch and drive configuration. Use `## Driving it with rig` in each feature file. Add a helper only for behavior that configuration cannot express. Call each helper from `rig.toml`. Use `{tree}` for the checkout and `{skill}` for helper paths. Put run state and evidence in `~/.cache/rig/<repo name>/`.
+5. **Prove.** Run `rig check` before the live proof. Run `rig up`, then `rig doctor`. Drive one feature with its rig commands and capture evidence. Record the path from `rig info evidence`. Run `rig cleanup`, then read the evidence at that path. After each failed try, run `rig cleanup`, fix the skill, and try again.
 6. **Hand over.** Commit the files in `~/.agents/verify` (`git -C ~/.agents/verify add <repo name> && git -C ~/.agents/verify commit`). Link the main checkout to it: `ln -s ~/.agents/verify/<repo name> <main checkout>/.claude/skills/verify`. Then run `git -C <main checkout> check-ignore -v .claude/skills/verify`. It must print a match. Fill each line of the report template. If you cannot write files or launch a process, put the full text of each file in your answer. Set `Status: draft`, and list the commands that prove it.
 
 ## Repo Rules

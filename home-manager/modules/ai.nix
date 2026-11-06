@@ -2,7 +2,7 @@
 # store in ~/.agents), herdr, and the runtimes MCP servers/skills depend on.
 # The non-Nix half (npx skills, hooks, Gemini/Codex fan-out) lives in
 # `make post-install` -> ai/*.sh.
-{ config, repoRoot, pkgs, ... }:
+{ config, repoRoot, pkgs, inputs, ... }:
 let
   # Link a repo-relative path into $HOME as a writable, out-of-store symlink.
   link = path: config.lib.file.mkOutOfStoreSymlink "${repoRoot}/${path}";
@@ -17,6 +17,7 @@ in
     pipx        # installs `headroom` (headroom MCP) in the post-install step
     python3
     gnupg
+    inputs.rig.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 
   home.file = {

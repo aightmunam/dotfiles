@@ -56,11 +56,33 @@
         "type": "indirect"
       }
     },
+    "rig": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793965472,
+        "narHash": "sha256-3aWZwRRnu0NOjyfIBHEuBXw2TpAZZJWJn2W202mZvgI=",
+        "ref": "refs/tags/v0.1.0",
+        "rev": "6e7c951e530349f2ee2513e156af36bb00151940",
+        "revCount": 21,
+        "type": "git",
+        "url": "ssh://git@github.com/aightmunam/rig"
+      },
+      "original": {
+        "ref": "refs/tags/v0.1.0",
+        "type": "git",
+        "url": "ssh://git@github.com/aightmunam/rig"
+      }
+    },
     "root": {
       "inputs": {
         "herdr": "herdr",
         "home-manager": "home-manager",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "rig": "rig"
       }
     },
     "rust-overlay": {

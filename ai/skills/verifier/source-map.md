@@ -7,6 +7,8 @@
 - **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md`, section 8.4 verifier entry.
 - **brief:** Task 5.2 brief and the dispatch for it (Global Constraints, the interface, the `prove` note).
 - **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (removed after eec5ad9; read it in git history) (the form bar).
+- **rig-plan:** `thoughts/shared/plans/2026-11-05-rig-cli.md`, Phase 10 Steps 1 and 2, Global constraints, and Deviation 20.
+- **rig-cli:** `src/rig/__init__.py` in `aightmunam/rig`, `load_config`, `check_config`, `placeholders`, `verify_root`, and `cache_root`; command help.
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
 "Loop N" is a step in SKILL.md. "T" is `verify-template.md`. "M" is `maintain.md`.
@@ -47,6 +49,11 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Do not remove a worktree that holds ignored verify files. | Audit: `git worktree remove` deletes ignored files without `--force`. Review I2. | D | Red flags. | Untested. Added after GREEN. |
 | The generated `description:` starts with `Use when`. | Review M4. Dispatch common rules (description form). | D | T frontmatter. Red flags. | GREEN partial: the Codex draft does not. Red flag added after GREEN. |
 | Four repo lines, verbatim. | Brief Global Constraints. | D | Repo Rules. | GREEN |
+| Write `rig.toml` with the skill and feature map. Keep launch and drive configuration there. | rig-plan Step 1. rig-cli. | P | Loop 4. T configuration reference and template. | P10 create: RED Claude invented unsupported keys. |
+| Use the actual rig command arguments and `Driving it with rig` headings. | rig-plan Step 1. rig-cli command help. cvs step 3. | P | Loop 4. T Drive, Evidence, and feature template. | P10 create and maintain. |
+| Add a helper only when configuration cannot express the behavior. Call it from `rig.toml` with checkout-relative placeholders. | rig-plan Step 1 and Global constraints. rig-cli placeholders. | D | Loop 4. T Select helpers. M step 5. | P10 create and maintain reject lifecycle scripts. |
+| Run `rig check` before live proof. Capture the evidence path before cleanup and read the saved proof after cleanup. | rig-plan Step 1. cvs step 4. rig-cli info and cleanup. | P | Loop 5. T Launch and Cleanup. M step 4. | P10 create and maintain. |
+| Maintain with rig. Fix configuration or a configured helper for new actions. Keep raw curl and lifecycle scripts out of recipes. | rig-plan Step 2. mvs steps 4 and 5. | P | M Edit scope and steps 4 and 5. | P10 maintain: both baseline answers already chose configuration. |
 
 ## Cut
 
@@ -57,6 +64,8 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 - cvs step 5: the cadence offer. The maintain pass is a branch of this skill.
 - mvs step 6: one PR of corrections. The brief says the verify skill stays uncommitted for review.
 - mvs: run notes in a scratch location. The report holds the coverage.
+- P10: duplicate lifecycle scripts and raw curl recipes. Shared rig commands hold that mechanism.
+- P10: a second configuration validator. `rig check` already enforces the configuration boundary.
 
 ## Pressure scenarios
 
@@ -75,3 +84,20 @@ Manual proof: the Codex draft, saved as-is in a trial worktree, ran once and pas
 Scenario 1 (plan the pass for 6 features, a renamed `make` target, a failed helper, teardown): both drive in dependency order on one instance, fix the launch drift and relaunch, drive the feature again after the helper fix, and tear down after the last drive.
 Scenario 2 (doctor fails again after the drift fix): both triage once and stop as `blocked` with no commit.
 No failure, so no text was added. Routing rows `skill-verifier-maintain` and `pair-verifier_new-skill-verifier-maintain` pass under both CLIs.
+
+### Phase 10 rig scenarios
+
+Evidence root: `~/.cache/build/2026-11-05-rig-cli/phase-10/pressure/`.
+`create-direct.txt` and `maintain-direct.txt` are read-only fixture scenarios. Each RED and GREEN pair uses the same prompt.
+
+**RED:** `red-create/claude.txt` invents unsupported configuration keys. The extracted configuration fails `rig check` with unknown keys.
+`red-create-direct/claude.txt` repeats the schema gap. Codex leaves the complete configuration pending. Both maintenance baselines already select configuration.
+
+**GREEN:** both saved answers in `green-create-direct/` and `green-maintain-direct/` pass the harness and were read.
+Both create answers use supported configuration, no helper, rig drives, and a post-cleanup evidence read. Both extracted configurations pass `rig check`.
+Both maintenance answers fix probes in `rig.toml`, keep the item journey, and reject new lifecycle scripts.
+Claude cost: create $0.371195; maintain $0.430687. Codex cost is unavailable. No live fixture proof ran.
+
+The first GREEN runs used shell loops that the harness could not recognize as skill reads.
+The direct-read repeats retain the same task and add a literal skill-read instruction. Original runs remain in the evidence root.
+Descriptions, routing, and eval prompts stay unchanged because the triggers did not change.

@@ -11,6 +11,11 @@
     #   nix flake update herdr   (bump the pinned tag below first)
     herdr.url = "github:herdrdev/herdr/v0.9.0";
     herdr.inputs.nixpkgs.follows = "nixpkgs";
+
+    # rig is a private repo, so the fetch needs the GitHub SSH key. Update with:
+    #   nix flake update rig   (bump the pinned tag below first)
+    rig.url = "git+ssh://git@github.com/aightmunam/rig?ref=refs/tags/v0.1.0";
+    rig.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = inputs:

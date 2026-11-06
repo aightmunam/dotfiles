@@ -1,0 +1,180 @@
+#!/usr/bin/env python3
+"""Rewrite file references from a literal or regex TSV map."""
+import argparse
+import difflib
+import hashlib
+import json
+import os
+import re
+import sys
+import tempfile
+from pathlib import Path
+
+
+class ReceiptError(ValueError):
+    pass
+
+
+def validate_template(pattern: re.Pattern, template: str) -> None:
+    pattern.sub(template, "")
+
+
+def rewrite_text(text: str, old: str, new: str) -> tuple[str, int, list[str]]:
+    if old.startswith("re:"):
+        pattern = re.compile(old[3:])
+        validate_template(pattern, new)
+        changes = 0
+        expansions = []
+
+        def replace(match: re.Match) -> str:
+            nonlocal changes
+            replacement = match.expand(new)
+            changes += replacement != match[0]
+            expansions.append(replacement)
+            return replacement
+
+        rewritten = pattern.sub(replace, text)
+        return rewritten, changes, expansions
+    expansions = [new] if old in text else []
+    if old == new:
+        return text, 0, expansions
+    return text.replace(old, new), text.count(old), expansions
+
+
+def replacement_present(text: str, old: str, new: str, observed: set[str]) -> bool:
+    if not old.startswith("re:"):
+        return new in text
+    tokens = re.compile(r"\\(?:0[0-7]{0,2}|[0-7]{3}|(g<[^>]+>|[1-9][0-9]?)|[\s\S])")
+    if any(token[1] is not None for token in tokens.finditer(new)):
+        return any(expansion in text for expansion in observed)
+    return re.match("", "").expand(new) in text
+
+
+def atomic_write(path: Path, text: str) -> None:
+    path = path.resolve()
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as staged:
+            temporary = Path(staged.name)
+            staged.write(text.encode("utf-8"))
+        temporary.chmod(path.stat().st_mode & 0o7777 if path.exists() else 0o600)
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
+def digest(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def receipt_path(map_text: str, files: list[Path]) -> Path:
+    identity = json.dumps([map_text, [str(path.resolve()) for path in files]])
+    root = Path(os.environ.get("REWRITE_REFS_CACHE_DIR", "~/.cache/rewrite-refs")).expanduser()
+    return root / (digest(identity) + ".json")
+
+
+def read_receipt(path: Path, file_count: int, row_count: int) -> dict | None:
+    if not path.exists():
+        return None
+    try:
+        prior = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(prior, dict) or not {"sources", "targets", "expansions"} <= prior.keys():
+            raise ValueError("expected an object with sources, targets, and expansions")
+        for field, size in (("sources", file_count), ("targets", file_count), ("expansions", row_count)):
+            values = prior[field]
+            if not isinstance(values, list) or len(values) != size:
+                raise ValueError(f"{field} must be an array of length {size}")
+        for field in ("sources", "targets"):
+            if any(not isinstance(value, str) or re.fullmatch(r"[0-9a-f]{64}", value) is None
+                   for value in prior[field]):
+                raise ValueError(f"{field} must contain SHA-256 hex strings")
+        if any(not isinstance(row, list) or any(not isinstance(value, str) for value in row)
+               for row in prior["expansions"]):
+            raise ValueError("expansions must contain arrays of strings")
+    except ValueError as exc:
+        raise ReceiptError(f"invalid receipt {path}: {exc}") from exc
+    return prior
+
+
+def rewrite_files(args: argparse.Namespace) -> int:
+    map_text = args.map.read_bytes().decode("utf-8")
+    rows = []
+    for number, line in enumerate(map_text.splitlines(), 1):
+        if line.count("\t") != 1:
+            raise ValueError(f"map row {number} needs old<TAB>new: {line}")
+        old, new = line.split("\t", 1)
+        if old in ("", "re:"):
+            raise ValueError(f"map row {number} has no old text, so it matches between each character: {line}")
+        rows.append([old, new])
+    by_target = {path.resolve(): path for path in reversed(args.files)}
+    args.files = [by_target[target] for target in sorted(by_target)]
+    texts = [path.read_bytes().decode("utf-8") for path in args.files]
+    originals = texts[:]
+    receipt = receipt_path(map_text, args.files)
+    sources = [digest(text) for text in texts]
+    prior = read_receipt(receipt, len(args.files), len(rows))
+    completed = [prior is not None and prior["targets"][i] == value
+                 for i, value in enumerate(sources)]
+    if all(completed):
+        print("total 0")
+        return 0
+    resuming = prior is not None and all(
+        value in (source, target)
+        for value, source, target in zip(sources, prior["sources"], prior["targets"]))
+    counts = [0] * len(texts)
+    observed = []
+    for number, (old, new) in enumerate(rows, 1):
+        try:
+            results = [(text, 0, []) if done else rewrite_text(text, old, new)
+                       for text, done in zip(texts, completed)]
+        except (re.error, IndexError) as exc:
+            raise ValueError(f"invalid map row {number}: {old}\t{new}: {exc}") from exc
+        expansions = set(prior["expansions"][number - 1]) if prior else set()
+        if not resuming and not any(matches for _, _, matches in results) and not any(
+                replacement_present(text, old, new, expansions) for text in texts):
+            print(f"error: map row matches nothing: {old}\t{new}", file=sys.stderr)
+            print("fix: check the map row and input files", file=sys.stderr)
+            return 1
+        expansions.update(value for _, _, matches in results for value in matches)
+        observed.append(sorted(expansions))
+        texts = [text for text, _, _ in results]
+        counts = [count + changes for count, (_, changes, _) in zip(counts, results)]
+    if not args.dry_run:
+        receipt.parent.mkdir(parents=True, exist_ok=True)
+        atomic_write(receipt, json.dumps({
+            "sources": sources, "targets": [digest(text) for text in texts], "expansions": observed}))
+    total = 0
+    for path, original, text, count in zip(args.files, originals, texts, counts):
+        if count:
+            if args.dry_run:
+                for line in difflib.unified_diff(
+                        original.splitlines(keepends=True), text.splitlines(keepends=True),
+                        fromfile=str(path), tofile=str(path)):
+                    print(line, end="" if line.endswith("\n") else "\n\\ No newline at end of file\n")
+            else:
+                atomic_write(path, text)
+            print(f"{path}: {count} changes")
+        total += count
+    print(f"total {total}")
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--dry-run", action="store_true", help="print unified diffs without writes")
+    parser.add_argument("map", type=Path, help="TSV map with old and new text")
+    parser.add_argument("files", nargs="+", type=Path, help="files to rewrite")
+    args = parser.parse_args(argv)
+    try:
+        return rewrite_files(args)
+    except (ValueError, OSError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        fix = ("repair the receipt before retrying; preserve its retry evidence"
+               if isinstance(exc, ReceiptError) else "check the map row and input files")
+        print(f"fix: {fix}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
