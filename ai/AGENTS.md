@@ -145,6 +145,20 @@ Each session reads the code again, and each turn sends the full context again.
 - Read the code again only for files that `git diff --stat <sha>..HEAD` shows.
 - Send bulk reading to subagents. Keep their conclusions in the main session, not the files.
 
+### Compact instructions
+
+When you compact this conversation, keep these items:
+
+- The task, its acceptance criteria, and the current phase.
+- The next step and the open questions.
+- Each decision, with its reason.
+- The paths of files that you read or changed, with line ranges.
+- Each `verified` claim, with its `path:line`.
+- The exact text of failing tests and errors.
+- The paths of handoff, plan and research files.
+
+Drop full file contents, long command output, and searches that found nothing.
+
 ## Principles
 
 Each line gives the file and the moment to read it. A skill step that needs a principle names the file.
