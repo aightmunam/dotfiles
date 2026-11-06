@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""UserPromptSubmit hook: remind the lead (and the user) to reset a large context.
+"""UserPromptSubmit hook: tell the lead (and the user) the real context size.
 
 Reads the token count of the last main-session API call from the transcript.
 At 100k+ it tells the lead; at 150k+ it also tells the user. It fires once per
@@ -50,12 +50,13 @@ def main():
     state.write_text(str(band))
     k = f"{tokens // 1000}k"
     out = {"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": (
-        f"Context is {k} tokens. Each turn sends all of it again. "
-        "At the next phase boundary, tell the user to /clear with a handoff file "
-        "or /compact with a focus. Do not compact in the middle of a phase.")}}
+        f"Context is {k} tokens. The smart zone is about 150k. Do not act on this in the "
+        "middle of a phase. At the next phase boundary, use this count for the list in "
+        "AGENTS.md 'Context and sessions'. Continue is a valid answer.")}}
     if tokens >= USER_AT:
-        out["systemMessage"] = (f"Context is {k} tokens. At the next phase boundary, "
-                                "/clear with a handoff or /compact with a focus.")
+        out["systemMessage"] = (f"Context is {k} tokens, past the ~150k smart zone. At the "
+                                "next phase boundary, the agent will suggest continue, /clear, "
+                                "handoff, subagent or /compact.")
     print(json.dumps(out))
 
 

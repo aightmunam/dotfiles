@@ -134,15 +134,20 @@ Not these. Use the kept skill and not a rework skill:
 
 ## Context and sessions
 
-Each session reads the code again, and each turn sends the full context again.
+Sources: Anthropic context engineering, Matt Pocock `PHASE-BOUNDARIES.md`, Addy Osmani `context-engineering`, pstack `guard-the-context-window`.
 
-- Keep research, brainstorm and make-plan for one change in one session.
-- Do not suggest a new session between these steps while the context is under about 150k tokens.
-- Change the context only at a phase boundary. Do not compact in the middle of a phase.
-- At a boundary, tell the user the next step: continue, `/clear` with a handoff file, or `/compact` with a focus.
+Decide only at a completed phase boundary, not at a token count. Do not compact in the middle of a phase. At each boundary, go down this list and stop at the first yes. Tell the user the move and the reason.
+
+1. **Continue.** The next phase needs this phase as a primary source, or the next phase fits in the smart zone (about 150k tokens). Research, brainstorm and make-plan for one change are the normal case.
+2. **`/clear`.** The next task does not need this context. An example is a new, unrelated task.
+3. **Handoff file.** The work moves to a new harness, a new repo, a colleague, or a side task. Use `handoff` only for these.
+4. **Subagent.** The task needs no steering, for example a review or a bulk read. Send it to a subagent and keep this session.
+5. **`/compact` with a focus.** The context is relevant, but the next phase does not fit. Give a focus, for example `/compact keep the endpoint design`.
+
+Other rules:
+
 - Start a fresh session for each build slice. Read the plan, the research doc and `git status` first.
-- Trust the `verified` claims of a research doc at its SHA.
-- Read the code again only for files that `git diff --stat <sha>..HEAD` shows.
+- Trust the `verified` claims of a research doc at its SHA. Read the code again only for files that `git diff --stat <sha>..HEAD` shows.
 - Send bulk reading to subagents. Keep their conclusions in the main session, not the files.
 
 ### Compact instructions
