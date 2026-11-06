@@ -69,7 +69,7 @@ def digest(text: str) -> str:
 
 
 def receipt_path(map_text: str, files: list[Path]) -> Path:
-    identity = json.dumps([map_text, [str(path.absolute()) for path in files]])
+    identity = json.dumps([map_text, [str(path.resolve()) for path in files]])
     root = Path(os.environ.get("REWRITE_REFS_CACHE_DIR", "~/.cache/rewrite-refs")).expanduser()
     return root / (digest(identity) + ".json")
 
@@ -103,7 +103,12 @@ def rewrite_files(args: argparse.Namespace) -> int:
     for number, line in enumerate(map_text.splitlines(), 1):
         if line.count("\t") != 1:
             raise ValueError(f"map row {number} needs old<TAB>new: {line}")
-        rows.append(line.split("\t", 1))
+        old, new = line.split("\t", 1)
+        if old in ("", "re:"):
+            raise ValueError(f"map row {number} has no old text, so it matches between each character: {line}")
+        rows.append([old, new])
+    by_target = {path.resolve(): path for path in reversed(args.files)}
+    args.files = [by_target[target] for target in sorted(by_target)]
     texts = [path.read_bytes().decode("utf-8") for path in args.files]
     originals = texts[:]
     receipt = receipt_path(map_text, args.files)

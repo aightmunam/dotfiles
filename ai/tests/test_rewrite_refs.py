@@ -282,6 +282,34 @@ class RewriteRefsTest(unittest.TestCase):
         self.assertEqual(result.stdout, "total 0\n")
         self.assertEqual(self.file.read_bytes(), b"run rig up\n")
 
+    def test_rejects_empty_old_text_before_writes(self):
+        self.map.write_text("\tX\n")
+        self.file.write_bytes(b"run a.sh up\n")
+        result = self.run_rewrite()
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("error:", result.stderr)
+        self.assertIn("fix:", result.stderr)
+        self.assertEqual(self.file.read_bytes(), b"run a.sh up\n")
+
+    def test_retry_with_other_names_for_same_files_changes_nothing(self):
+        self.map.write_text("verify.sh\tverify.sh --json\n")
+        real = self.root / "real"
+        real.mkdir()
+        alias = self.root / "alias"
+        alias.symlink_to(real)
+        first, second = real / "a.md", real / "b.md"
+        first.write_bytes(b"call verify.sh\n")
+        second.write_bytes(b"call verify.sh\n")
+        result = self.run_rewrite(first, second)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for files in ((second, first), (alias / "a.md", alias / "b.md")):
+            with self.subTest(files=files):
+                result = self.run_rewrite(*files)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout, "total 0\n")
+        self.assertEqual(first.read_bytes(), b"call verify.sh --json\n")
+        self.assertEqual(second.read_bytes(), b"call verify.sh --json\n")
+
     def test_preserves_line_endings_and_unicode(self):
         self.map.write_text("a.sh up\trig up\n", encoding="utf-8")
         self.file.write_bytes("café\r\na.sh up\r\nlast".encode("utf-8"))
