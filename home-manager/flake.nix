@@ -14,7 +14,7 @@
 
     # rig is a private repo, so the fetch needs the GitHub SSH key. Update with:
     #   nix flake update rig   (bump the pinned tag below first)
-    rig.url = "git+ssh://git@github.com/aightmunam/rig?ref=refs/tags/v0.1.0";
+    rig.url = "git+ssh://git@github.com/aightmunam/rig?ref=refs/tags/v0.1.1";
     rig.inputs.nixpkgs.follows = "nixpkgs";
   };
 
