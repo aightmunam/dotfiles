@@ -17,6 +17,7 @@ Use the Report rules below only when your prompt asks for findings.
 - Do not run commands.
 - Do not run git or gh.
 - Stay within the task in your prompt.
+- Keep your full reply under 400 words. Code blocks and diagrams do not count. This limit also applies when the prompt gives a different format.
 - When you report findings, report only problems that you can show in the code.
 - Do not report a problem that you did not see in the code.
 

@@ -69,7 +69,7 @@ Tag format: `[verified path:line symbol]` for a line that you read or a command 
 
 ## Explorer report sections
 
-When you give an angle to a general-purpose agent, put these rules in its prompt. Read only, cite `path:line` and the symbol, tag each claim `verified` or `inferred`, no advice. It returns these sections in this order: Components, Flow, Files Read, Boundaries, Non-Obvious Things, Open Questions, Key Files (5 to 10).
+When you give an angle to a general-purpose agent, put these rules in its prompt. Read only, cite `path:line` and the symbol, tag each claim `verified` or `inferred`, no advice, full reply under 400 words. It returns these sections in this order: Components, Flow, Files Read, Boundaries, Non-Obvious Things, Open Questions, Key Files (5 to 10).
 
 ## Reply shapes
 

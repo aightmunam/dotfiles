@@ -132,6 +132,19 @@ Not these. Use the kept skill and not a rework skill:
 | Make a git commit with no Claude attribution | `commit` |
 | UI work in personal apps | `design-system` |
 
+## Context and sessions
+
+Each session reads the code again, and each turn sends the full context again.
+
+- Keep research, brainstorm and make-plan for one change in one session.
+- Do not suggest a new session between these steps while the context is under about 150k tokens.
+- Change the context only at a phase boundary. Do not compact in the middle of a phase.
+- At a boundary, tell the user the next step: continue, `/clear` with a handoff file, or `/compact` with a focus.
+- Start a fresh session for each build slice. Read the plan, the research doc and `git status` first.
+- Trust the `verified` claims of a research doc at its SHA.
+- Read the code again only for files that `git diff --stat <sha>..HEAD` shows.
+- Send bulk reading to subagents. Keep their conclusions in the main session, not the files.
+
 ## Principles
 
 Each line gives the file and the moment to read it. A skill step that needs a principle names the file.

@@ -20,7 +20,7 @@ description: Use when you must learn how code works before a change. Use when th
 1. **Scope.** Write your reading of the question in one sentence. Name each repo and the repo where the change lands.
 2. **Anchor.** For each repo, run `git fetch origin`, then `git rev-parse origin/main` (or `origin/master`) and `git rev-parse HEAD`. Claims describe the local HEAD. Record the SHA as `origin_main` always, and as `head` when HEAD differs. If the fetch fails, say so in the Question section.
 3. **Gather.** A narrow question (one repo, a few files): read the code yourself. A wide question: give 2 to 4 angles per repo to `explorer` agents in one message. Each prompt holds the question, one angle, the absolute repo path, and the HEAD SHA. If no `explorer` type exists, give a general-purpose agent the explorer report sections from the template. With no dispatch tool, do each angle yourself.
-4. **Verify.** Open each file that you cite. A claim that you did not read is `inferred`.
+4. **Verify.** Read the cited lines of each Constraint and each claim that the answer depends on. Read only the cited line range, not the full file. Tag an explorer claim that you did not read as `[inferred: explorer read path:line]`.
 5. **History (optional).** Do this step when the change touches code with an unclear reason. Use `git log`, `git blame`, `gh pr view`, and Jira or Sentry when you have them. Record each search, also the searches that found nothing.
 6. **Write.** Fill the template. Put the doc in `thoughts/shared/research/YYYY-MM-DD-<topic>.md` of the repo where the change lands. `<topic>` is kebab-case, 3 to 6 words. Create the directory if it is missing. In a worktree, use the `thoughts/` of the main checkout (`git rev-parse --git-common-dir`, then its parent). If you cannot write files, put the full document in your answer and name its path.
 7. **Red flags.** Read the document once for each red flag below.
@@ -46,8 +46,8 @@ description: Use when you must learn how code works before a change. Use when th
 - A claim with no tag.
 - "should", "recommend", "consider", "better", "fix", or "option" in your own sentences (not in quotes or code spans).
 - No `origin_main`, or HEAD differs from `origin_main` and `head` is missing.
-- A cited file that you did not open in this session.
+- A `verified` tag on a line that you did not read in this session.
 - A History reason that you read from the code.
-- An explorer claim that you copied and did not verify at its file and line.
+- A Constraint, or a claim that the answer depends on, that you did not read at its line.
 
 Any of these: go back to the step that owns it (anchor: step 2, History: step 5, all others: step 4) and change the document.
