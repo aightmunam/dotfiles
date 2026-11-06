@@ -18,6 +18,7 @@ Grimoire parses this doc. Keep each rule below, or the doc does not render.
 ````markdown
 ---
 kind: self-review
+title: "<short title for the change>"
 date: <YYYY-MM-DD>
 reviewer: <your model>
 repo: <owner/name, or the directory name>
@@ -63,6 +64,10 @@ file: <repo-relative path>
 line: <integer>
 side: RIGHT
 ---
+```comment
+<brief comment for the author: the problem, its effect, and the requested change>
+```
+
 Command: `<exact command>`
 
 ```
