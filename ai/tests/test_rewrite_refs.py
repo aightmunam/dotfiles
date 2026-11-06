@@ -438,6 +438,17 @@ class RewriteRefsTest(unittest.TestCase):
         self.assertEqual(target.read_bytes(), b"rig up\n")
         self.assertEqual(target.stat().st_mode & 0o777, 0o751)
 
+    def test_rewrite_refs_has_no_repo_names(self):
+        verify = Path.home() / ".agents" / "verify"
+        if not verify.is_dir():
+            self.skipTest("no ~/.agents/verify")
+        names = [p.name for p in verify.iterdir() if p.is_dir() and not p.name.startswith(".")]
+        for path in (SCRIPT, Path(__file__).resolve()):
+            text = path.read_text(encoding="utf-8")
+            for name in names:
+                with self.subTest(path=path.name, name=name):
+                    self.assertNotIn(name, text)
+
 
 if __name__ == "__main__":
     unittest.main()

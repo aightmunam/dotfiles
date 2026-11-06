@@ -25,7 +25,7 @@
 - **bld:** `ai/skills/build/SKILL.md` Definitions (Deviation row: append-only, the evidence is a pointer).
 - **audit:** `.superpowers/sdd/2026-10-30-skill-rework/skill-audit.md` G8 (prove's adversaries Untested. Proposed red flag: only the inline fallback ran, write `adversary: inline`, not `done`).
 - **rig-plan:** `thoughts/shared/plans/2026-11-05-rig-cli.md`, Phase 10 Step 3, Global constraints, and Deviation 20.
-- **rig-cli:** `ai/bin/rig`, command help, `verify_root`, `cache_root`, `info`, and `cleanup`.
+- **rig-cli:** `src/rig/__init__.py` in `aightmunam/rig`, command help, `verify_root`, `cache_root`, `info`, and `cleanup`.
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output. "Loop N" is a step in SKILL.md. "T" is `review-template.md`. "R" is `roles.md`.
 

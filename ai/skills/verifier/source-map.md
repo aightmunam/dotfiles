@@ -8,7 +8,7 @@
 - **brief:** Task 5.2 brief and the dispatch for it (Global Constraints, the interface, the `prove` note).
 - **fcd:** `ai/skills/fact-constrained-debugging/SKILL.md` (removed after eec5ad9; read it in git history) (the form bar).
 - **rig-plan:** `thoughts/shared/plans/2026-11-05-rig-cli.md`, Phase 10 Steps 1 and 2, Global constraints, and Deviation 20.
-- **rig-cli:** `ai/bin/rig`, `load_config`, `check_config`, `placeholders`, `verify_root`, and `cache_root`; command help.
+- **rig-cli:** `src/rig/__init__.py` in `aightmunam/rig`, `load_config`, `check_config`, `placeholders`, `verify_root`, and `cache_root`; command help.
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
 "Loop N" is a step in SKILL.md. "T" is `verify-template.md`. "M" is `maintain.md`.

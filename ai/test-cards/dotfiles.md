@@ -5,7 +5,7 @@ Repo: `git -C ~/.agents/bin rev-parse --show-toplevel` (`~/dotfiles` by default)
 ## Touched tests
 
 `python3 -m unittest ai.tests.<module> -v`
-Modules: `test_skills_lint`, `test_plan_lint`, `test_commit_gate`, `test_rig`, `test_rewrite_refs`.
+Modules: `test_skills_lint`, `test_plan_lint`, `test_commit_gate`, `test_rewrite_refs`.
 
 ## Full suite
 
