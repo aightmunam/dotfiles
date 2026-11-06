@@ -63,16 +63,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1793977327,
-        "narHash": "sha256-326GlxRkd8pC70rFXjAEod1omjIq/s8UjnReUsxXYj4=",
-        "ref": "refs/tags/v0.1.2",
-        "rev": "3aa1271667683bd90e3ae09b065930f0c838c968",
-        "revCount": 24,
+        "lastModified": 1793982344,
+        "narHash": "sha256-rpTwK33kOM2UP8/jDPDeFJuyjByx0wCOuZx2vez8NIQ=",
+        "ref": "refs/tags/v0.1.3",
+        "rev": "fd1622225e581454a3c62aff0a0e93f5a8c4971b",
+        "revCount": 31,
         "type": "git",
         "url": "ssh://git@github.com/aightmunam/rig"
       },
       "original": {
-        "ref": "refs/tags/v0.1.2",
+        "ref": "refs/tags/v0.1.3",
         "type": "git",
         "url": "ssh://git@github.com/aightmunam/rig"
       }

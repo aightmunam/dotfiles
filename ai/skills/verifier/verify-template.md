@@ -26,6 +26,7 @@ The configuration has these keys:
 
 - `app` and each `setup` entry have `name`, an argv list `cmd`, and optional `cwd`.
 - `venv` is a checkout-relative path, or `poetry` for the checkout's Poetry environment.
+- `deps` has argv lists `check` and `sync`, and optional `cwd` (default `{tree}`). `rig up` runs `check`, and runs `sync` when `check` fails. `rig check` runs only `check`. These commands cannot use `{venv}`.
 - `compose` has `project`, `file`, and optional `services`. The file is relative to the skill directory.
 - `env` holds explicit app and setup values. Hosts in URLs are `127.0.0.1` or `localhost`.
 - `ready` is a probe or an array of probes. `doctor` is an array of probes.
