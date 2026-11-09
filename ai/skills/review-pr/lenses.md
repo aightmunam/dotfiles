@@ -137,7 +137,16 @@ Read ~/.agents/principles/model-the-domain.md before this step.
 
 ```
 Lens: code quality of the added or changed Python. Do not report what the project linters (ruff, mypy) catch.
-First read the project config: pyproject.toml, setup.cfg, ruff.toml, AGENTS.md, CLAUDE.md.
+Read applicable AGENTS.md and CLAUDE.md files.
+Read convention and architecture sections in the README.
+Include CONTRIBUTING.md and CODING_STANDARDS.md when present.
+Follow explicit references that apply to the changed files.
+Include shared standards named by applicable instructions.
+Read project configuration to identify checks that tooling already enforces.
+Cite the source file and rule for each documented violation.
+Label other quality findings as judgment calls.
+Apply repo-specific rules before generic quality preferences.
+Report conflicting rules instead of choosing silently.
 Check:
 - Code in the wrong layer: business logic in a route, a task, or a DB call. Logic that a pure function can hold.
 - Input checks inside trusted code, after the boundary already checked the data. Defensive checks for a None that the types do not allow.

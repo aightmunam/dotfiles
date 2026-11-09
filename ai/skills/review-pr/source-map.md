@@ -44,6 +44,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Bug and security lens with fix-root-causes. A workaround that needs a long comment means wrong code. | spec 8.4. rp Agents 1 and 6. tnr. | P | L bug and security lens. | GREEN-2 |
 | Quality lens: thermo-nuclear for Python, deslop items, no-comments items, Python idioms. Principles boundary-discipline, minimize-reader-load, model-the-domain. | spec 8.4. tnq. ds. nc. rp Agents 3, 4 and 6. pcr smell list. | P | L quality lens. | GREEN-2 |
 | Quality lens: a few high-conviction findings. No style nits when a structural problem exists. | tnq lines 165-166. | D | L quality lens. | Untested. It replaced a severity line with no source after GREEN-2. |
+| Quality lens discovers applicable agent instructions, README conventions, contribution guides, and linked shared standards. It cites documented rules, labels judgment calls, applies repo rules first, and reports conflicts. Project configuration identifies rules that tooling enforces. | pcr steps 3 and 4. User, 2026-11-09: approved standards discovery after inspection of work and personal repos. | P, D | L quality lens. | RED-S1, GREEN-S1, GREEN-S2 below. |
 | Test lens with test-behavior-not-implementation. | sp (test coverage). rp Agent 3 item 4. | P | L test lens. | GREEN-2 |
 | Performance lens. | rp Agent 2. | P | L performance lens. | GREEN-2 |
 | Devex lens, if the diff changes settings, deploy config, or Alembic. | spec 8.4. | P | L devex lens. | Untested. The scenario has no settings or migrations. |
@@ -94,6 +95,12 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 - sp: the plan-alignment section and the Strengths section. A colleague's PR has no plan in the reviewer's repo. The Intent lens checks the diff against the ticket criteria in its place.
 
 ## Pressure scenarios
+
+**Standards discovery round** (2026-11-09). Run only the Quality lens on a fixture with local and shared rules. The fixture has README identifier rules, linked architecture rules, an external shared logging rule, and Ruff F401 configuration.
+RED-S1 used the old skill under both CLIs. Claude skipped the shared rule: "CONTRIBUTING.md points to ../shared/rules.md, which is outside the fixture. I did not read it". It missed the direct logging violation. Codex read the shared rule and found the violation. Both excluded F401 and accepted simple handler logic under the local architecture rule.
+GREEN-S1: both CLIs read the shared rule and cited it in a logging finding. Both accepted the local handler rule and excluded F401. The stricter harness failed: Claude did not load the full skill or read two principles. Both answers lacked the required principle line.
+GREEN-S2: the same scenario and baseline harness settings passed under both CLIs. Both cited the README and shared logging rule, accepted the handler rule, and excluded F401. Claude labelled extra quality findings as judgment calls. The full review workflow and conflicts between repo rules remain untested.
+Run files and scenario: `/Users/munammubashir/.t3/scratch/2026-11-08-can-you-compare-my-review-c9ea3b3a/quality-lens-check/`. The `red`, `green`, and `green-2` directories hold both answers and command records.
 
 Scenario: review PR #12 in acme/shop (author dana, branch `feat/german-amounts`) in a scratch repo. The PR changes `to_cents` to parse German amounts. `shop/invoice.py` still sends dot decimals (`19.99`), so the invoice total goes from 26999 to 2699900. No test covers the invoice. A bot comment on the PR says "Check other callers". A fake `gh` serves the PR and blocks each write. The run skips step 2, as The Eye does.
 
