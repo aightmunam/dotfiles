@@ -126,6 +126,9 @@ Each module in `home-manager/modules/` lists its packages and its links.
 | `raycast-scripts/` | `raycast-scripts` (macOS) | `darwin.nix` |
 | `herdr/config.toml` | `.config/herdr/config.toml` | `ai.nix` |
 | `herdr/herdr-bar.json` | `.config/herdr/plugins/config/herdr-bar/config.json` | `ai.nix` |
+| `herdr-app/settings.json` | `.config/herdr-app/settings.json` | `ai.nix` |
+| `herdr-app/keys.json` | `.config/herdr-app/keys.json` | `ai.nix` |
+| `herdr-app/themes/hairline.json` | `.config/herdr-app/themes/hairline.json` | `ai.nix` |
 | `nix/` | `.config/nix` | `home.nix` |
 | `home-manager/` | `.config/home-manager` | `home.nix` |
 

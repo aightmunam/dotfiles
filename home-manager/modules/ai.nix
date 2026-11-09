@@ -38,5 +38,10 @@ in
     # --- herdr ---
     ".config/herdr/config.toml".source = link "herdr/config.toml";
     ".config/herdr/plugins/config/herdr-bar/config.json".source = link "herdr/herdr-bar.json";
+
+    # --- herdr-app (the desktop window; replaces herdr/config.toml) ---
+    ".config/herdr-app/settings.json".source = link "herdr-app/settings.json";
+    ".config/herdr-app/keys.json".source = link "herdr-app/keys.json";
+    ".config/herdr-app/themes/hairline.json".source = link "herdr-app/themes/hairline.json";
   };
 }
