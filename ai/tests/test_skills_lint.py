@@ -288,6 +288,20 @@ class SkillsLint(unittest.TestCase):
     def test_skill_md_length(self):
         self.each(lambda d: check_length(d / "SKILL.md"))
 
+    def test_pr_output_templates_exclude_private_evidence(self):
+        skill = (SKILLS_DIR / "pr" / "SKILL.md").read_text(encoding="utf-8")
+        output = skill.split("## Output Template\n", 1)[1].split("\n## ", 1)[0]
+        body = (SKILLS_DIR / "pr" / "description-template.md").read_text(encoding="utf-8")
+        templates = [output, *re.findall(r"```markdown\n(.*?)\n```", body, re.DOTALL)]
+        self.assertGreaterEqual(len(templates), 2, "PR output and body templates must exist")
+        private_evidence = (
+            r"(?i)\bprove[ _-]+(?:doc(?:ument)?|report)\b|\bdiff_hash\b"
+            r"|\bladder step\b|thoughts/shared/reviews"
+        )
+        for template in templates:
+            with self.subTest(template=template[:80]):
+                self.assertNotRegex(template, private_evidence)
+
     def test_source_map_present(self):
         self.each(check_source_map)
 

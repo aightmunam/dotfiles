@@ -15,10 +15,10 @@ description: Use when your own branch is ready for a PR and the user asks to ope
 ## The Loop
 
 1. **State.** Get the branch with `git branch --show-current`. On main or master, stop. Get the PR state. MERGED or CLOSED, with no OPEN PR: stop. Fill only `PR state` and `Question` in the output template. Do not create, edit, reopen or mark ready a PR.
-2. **Read.** Read `git log` and `git diff` from the merge base with the base branch. Find the prove doc. Check that it is fresh. Find the repo PR template: `.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE.md` or `thoughts/shared/pr_description.md`.
+2. **Read.** Read `git log` and `git diff` from the merge base with the base branch. Find the prove doc. Check that it is fresh. Read `api-contract.md` when an endpoint changes. Check its contract before the push. Find the repo PR template: `.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE.md` or `thoughts/shared/pr_description.md`.
 3. **Reviewability.** Look for noisy commits, a stale description, unrelated changes, mechanical changes mixed with logic changes, missing tests and an unclear entry point. If notes cannot make the PR easy to review, stop. Recommend a split. Name the commits for each part.
-4. **Deslop.** Look in the diff for a bare `except`, a `None` check on a value that a boundary already checked, and a narration comment. Report each hit with its `path:line`. Do not change code in this skill.
-5. **Write.** Read `description-template.md`. Fill the pr block. When the repo has a template, put the pr block content under its headings. Then run the unslop skill on the prose of the block. Keep each template heading and label as the template writes it.
+4. **Deslop.** Look in the diff for a bare `except`, a `None` check on a value that a boundary already checked, and a narration comment. Report each hit with its `path:line`. Do not fix these hits in this skill.
+5. **Write.** Read `description-template.md`. Draft what changed, why, and how in the pr block. Follow the repo template when present. Follow the drafting and `unslop` steps in `description-template.md`.
 6. **Show.** No PR: show the title and the full body. OPEN PR: keep the hand-written text. Replace the pr block, or add the pr block at the end. Show `diff -u` of the current body and the new body.
 7. **Red flags.** Read the result once for each red flag below.
 8. **Push and ask.** Run `git push -u origin <branch>`. A push to a feature branch needs no OK. If it fails, report it. Do not force. Use the output template. Ask one question. Give a recommended answer.
@@ -29,9 +29,9 @@ description: Use when your own branch is ready for a PR and the user asks to ope
 - **One-minute briefing.** A reviewer reads the body in one minute. Link logs, runs and tables. Do not paste them.
 - **No commands.** Only a runbook PR from `data-op` has commands in its body. Its commands are its content.
 - **No attribution.** Do not add a line that names a tool or a model as an author. Do not add a co-author trailer.
-- **`TL;DR` matches the diff.** Each claim in it has a file in the diff. List mechanical files (an Alembic revision, a generated client, a lockfile) apart from core files.
+- **Summary matches the diff.** Support each claim with the diff. Name a file only when it gives a useful review entry point.
 - **No hidden behavior change.** Do not put a behavior change under "cleanup", "refactor" or "chore".
-- **Evidence from the prove doc only.** Copy the `outcome:`, the safety fact with its ladder step, each check with its outcome word, and each finding with its ladder step. Keep each INCONCLUSIVE check and each finding. If the prove doc is missing or not fresh, write that in Evidence, and recommend `prove` in the question. Do not invent a run.
+- **Internal evidence.** Use the prove doc to check claims. Select body evidence with `description-template.md`. Keep findings and limitations in plain words. Keep the prove doc, its links, and its terms outside the PR body. If proof is missing or stale, tell the user outside the body. State the verification gap in the body. Never invent a run.
 - **Hand-written text stays.** Do not change, move or delete hand-written text. Write a full new body only when the user asks for it.
 - **Title, draft state, reviewers, labels.** On an OPEN PR, change them only after a separate OK.
 - **No history rewrite.** The default flow does not rebase, squash or force-push. Regroup commits only when the user asks for it. Then record `ORIGINAL_TREE=$(git rev-parse origin/<branch>^{tree})`, regroup in the order migration, core logic, wiring, API, tests, and compare `git rev-parse HEAD^{tree}` with it. If the trees differ, do not push. A force-push needs the user's explicit OK.
@@ -49,16 +49,16 @@ description: Use when your own branch is ready for a PR and the user asks to ope
 - A `gh pr create` or `gh pr edit` before the user's OK. Go back to step 8.
 - A hand-written line is missing or changed in the new body. Go back to step 6.
 - A new title, draft state, reviewer or label on an OPEN PR. Go back to step 6.
-- An Evidence line with no prove doc item behind it. Go back to step 5.
+- A validation claim lacks evidence, or the body names or links a prove doc. Go back to step 5.
 - A command, a pasted log, a table or a SHA list in a body that is not a runbook. Go back to step 5.
-- A template heading or label is missing or renamed (`**Door:**`, `**Blast radius:**`, `**Rollback:**`). Go back to step 5.
+- A repo template heading is missing, or the default body contains forced file lists or proof metadata. Go back to step 5.
+- The body omits Merge danger or its door, blast radius, or rollback field. Go back to step 5.
 - The output has no `Question:` line. Go back to step 8.
 
 ## Output Template
 
 ```
 PR state: <none | OPEN #<n> <url> | MERGED #<n> <url>, stopped | CLOSED #<n> <url>, stopped>
-Prove doc: <path>, <fresh, diff_hash <hash> | not fresh: reason | none>
 Repo template: <path | none>
 Push: <pushed | up to date | failed: reason | not run: reason>
 Reviewability:

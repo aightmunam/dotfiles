@@ -1,4 +1,179 @@
-# Source Map
+# Source map
+
+## New endpoint overview, 2026-11-09
+
+The user clarifies that a new endpoint needs a general overview, not an exhaustive operation dump.
+This replaces the previous complete-operation rule. Existing endpoints still use a focused contract diff.
+
+| Rule | Source | Form | Where enforced | Scenario |
+|---|---|---|---|---|
+| New endpoints show method, path, purpose, main inputs, response, and important errors in a brief overview. | User correction on the quoted complete-operation claim. | Branch and example | api-contract.md; description-template.md | pr-eval-api-diff, B |
+
+RED: both previous green-1 answers print the complete new operation for B.
+Those saved answers predate this correction. The actual PR example also grew into a schema dump.
+GREEN-overview: both saved answers retain the exact default and maximum diff for A. Both use a prose/bullet overview for B, with no operation or schema dump.
+Claude cost: $0.2362473. The earlier unslop dependency-read gap remains separate from this presentation check.
+Checks: all 39 lint tests pass; STE reports zero violations; the PR skill diff has no whitespace errors.
+Guard: brevity and useful detail require judgment. Existing lint checks structure.
+Name and routing: unchanged.
+
+
+## API contract diff, 2026-11-09
+
+The user wants changed fields for existing endpoints and the full contract for new endpoints.
+These rules replace the earlier generic focused-excerpt rule.
+
+| Rule | Source | Form | Where enforced | Scenario |
+|---|---|---|---|---|
+| Existing endpoints show an OpenAPI diff with old and new values and minimal unchanged context. | User correction in this thread; show-me diff shapes. | Branch and example | api-contract.md, Present the contract change | pr-eval-api-diff, A |
+| New endpoints show the complete operation and any new or changed referenced schemas. | User correction in this thread. | Branch | api-contract.md, Present the contract change | pr-eval-api-diff, B |
+| Keep the runtime tree alongside the contract representation. | Earlier user correction. | Discipline | api-contract.md; description-template.md | pr-eval-api-diff |
+
+RED: both answers show the final parameter schema and unchanged response/auth details for A, rather than a focused old/new diff.
+B is already substantially complete, but the previous real example showed only its 422 excerpt.
+Scenario and transcripts: `/Users/munammubashir/.t3/scratch/2026-11-08-i-want-to-improve-my-2e44baa0/pr-eval-api-diff/`.
+GREEN-1: both saved answers show removed and added defaults and maxima for A, with minimal schema context. Both show the complete new operation for B, including auth, both parameters, all four responses, and the absence of a request body.
+Claude cost: $0.2368598. The earlier unslop dependency-read gap remains separate from this contract-format evaluation.
+Static checks: 39 lint tests pass; STE reports zero violations; git diff --check passes.
+The real PR #2228 example now uses the complete generated operation captured during its focused contract test (1 passed). An initial capture harness hit an already-imported anyio assertion-rewrite warning; moving capture setup to pytest_configure resolved it.
+Guard: existing lint checks structure. Selecting relevant schema context needs judgment.
+Name and routing: unchanged.
+
+
+## Show-me and Merge danger, 2026-11-09
+
+The user also requests Dex's show-me approach and retention of Merge danger.
+These choices supersede the earlier removal of that section and its fixed labels.
+
+| Rule | Source | Form | Where enforced | Scenario |
+|---|---|---|---|---|
+| Use show-me for visual selection, with a local reference when absent. | User's suggestion; pinned Humanlayer show-me source below. | Branch reference | description-template.md; show-me.md | pr-eval-flow |
+| Keep Merge danger with door type, blast radius, and rollback. | User correction; Pocock pr Merge Danger; original PR example. | Required section | description-template.md; SKILL.md red flag | pr-eval-flow |
+
+Installed skill lookup: show-me is absent from the Claude, Codex, and shared skill directories.
+The local reference adapts its representation choices without requiring installation.
+RED for Merge danger: both pr-eval-flow/green-1 answers omit the section.
+GREEN-2: both saved answers include the call tree, OpenAPI change, and Merge danger fields. Both omit routine CI pass reports and a CI-only validation section. Claude cost: $0.2356918.
+The user then supplied Matt Pocock's PR skill. The template now uses its Summary, optional Evidence, and Merge danger structure, with the requested API contract content.
+Current source read in full: https://github.com/mattpocock/skills/blob/main/skills/engineering/pr/SKILL.md (2026-11-09). It explicitly credits Dex Horthy / Humanlayer show-me.
+GREEN-3: both saved answers include a call tree, an explicit OpenAPI change, and Merge danger with all three fields. Both omit CI pass summaries and Evidence when the scenario supplies only CI. Claude cost: $0.2140449.
+The original unslop dependency-read gap remains a separate limitation; this run checks the requested body structure.
+Static checks: all 39 lint tests pass; STE reports zero violations across SKILL.md, description-template.md, and show-me.md. git diff --check passes.
+
+## Call flow and CI correction, 2026-11-09
+
+The user wants the call tree in addition to the OpenAPI change.
+The user rejects unit-test, integration-test, and lint summaries already visible in CI.
+These rules supersede earlier guidance to summarize routine CI results in the body.
+
+| Rule | Source | Form | Where enforced | Scenario |
+|---|---|---|---|---|
+| Keep runtime call order and error mapping alongside the schema change when both help review. | User's preferred call tree in this thread; Humanlayer show-me call tree. | Template and example | description-template.md, Visual choice and Example | pr-eval-flow |
+| Omit routine CI pass reports. Add validation only for distinct evidence or a material limit. | User correction in this thread. | Conditional section | description-template.md, Validation and risk | pr-eval-flow, CI-only evidence |
+
+RED: both saved answers repeat CI unit tests, integration tests, lint, and the contract test.
+Codex also omits the call tree. Claude includes a tree but repeats it in prose.
+Scenario and transcripts: `/Users/munammubashir/.t3/scratch/2026-11-08-i-want-to-improve-my-2e44baa0/pr-eval-flow/`.
+GREEN-1: both saved answers contain a call tree and the OpenAPI change. Neither includes a routine CI summary or a validation section.
+The next run checks those preferences together with Merge danger.
+Guard: existing lint checks structure. Selecting distinct evidence and a useful call tree needs judgment.
+Name and routing: unchanged.
+
+
+## Output template correction, 2026-11-08
+
+The previous correction missed the `Prove doc:` field in the user-facing output template.
+Remove that field. Keep internal evidence checks separate from output templates.
+
+| Rule | Source | Form | Where enforced | Scenario |
+|---|---|---|---|---|
+| Output templates exclude private evidence fields. | User reports the term still appears. | Guard | ai/tests/test_skills_lint.py, test_pr_output_templates_exclude_private_evidence | Actual output and Markdown body templates |
+
+RED: the new guard fails on the actual `Prove doc:` field and its `diff_hash` slot.
+GREEN: the guard passes after removing the field. All 39 lint tests pass. STE reports zero violations.
+This is a template guard, not a new model pressure test.
+Name and routing: unchanged. No new skill or trigger.
+
+## Private proof correction, 2026-11-08
+
+The user clarified that reviewers cannot access or understand the prove doc.
+Keep that document as internal input. PR validation names checks, results, and limitations directly.
+Remove prove-doc links, paths, internal outcome labels, and finding IDs from the PR body.
+Public CI or captured screenshots remain optional links when reviewers can access them.
+
+| Rule | Source | Form | Where enforced | Scenario |
+|---|---|---|---|---|
+| Keep validation self-contained. Keep the prove doc and its terms outside the body. | User correction in this thread. | Template and discipline | SKILL.md, Internal evidence; description-template.md, Validation and risk | Prior green-4 answers both link the private report. |
+
+RED: the saved green-4 Claude and Codex bodies both contain a link to `thoughts/shared/reviews/orders.md`.
+GREEN: `pr-eval/green-private-proof/claude.txt` and `codex.txt` both omit the private report, internal labels, and finding IDs from the body. Both retain 12 passing tests, the authorization limitation, and the missing 409 contract.
+This correction passes under both CLIs. Claude cost: $0.1923418. The earlier unslop dependency gap remains open.
+Checks: 38 lint tests pass; STE reports zero violations; git diff --check passes.
+The choice of useful validation facts needs judgment. Existing lint checks the instruction structure.
+
+## Earlier revision, 2026-11-08
+
+This revision changes description content and adds an API contract check.
+The PR state, proof freshness, user text preservation, and history rules remain inherited contracts.
+The historical map below records their original sources and tests.
+
+| Rule | Source | Form | Where enforced | Scenario |
+|---|---|---|---|---|
+| Explain what changed, why, and how before optional detail. | User request; Addy Osmani, Change Descriptions. | Template | description-template.md; Loop 5 | orders contract scenario |
+| Select a compact visual only when it helps. | Humanlayer show-me; Pocock pr Summary. | Template | description-template.md, Visual choice | orders contract scenario |
+| Keep proof metadata and file inventories out of the default body. | User rejects excess detail; pstack one-minute briefing. | Discipline | Rules; description-template.md | Both RED answers include these fields. |
+| Retain material findings and inconclusive checks in plain words. | Inherited prove contract; verification-before-completion. | Required slot | Validation | orders auth service limitation |
+| Read unslop and its rules before the prose pass. Keep its change list outside the body. | User request; existing unslop contract. | Procedure | description-template.md, Drafting steps | Claude skips dependency reads; Codex reads both files. |
+| Check every endpoint edit for a contract change. Synchronize changed OpenAPI contracts before normal PR flow. | User request for OpenAPI updates when endpoints change. | Procedure | api-contract.md; Loop 2 | undocumented 409 |
+| Use an existing generator and guard. Refresh proof after edits. | Existing prove freshness contract; encode-lessons-in-structure. | Procedure | api-contract.md | undocumented 409 |
+| Describe material risk in prose. Keep required repo fields. | User request; pstack Reviewer Guidance; Pocock Merge Danger, adapted. | Template | description-template.md | orders contract scenario |
+
+External sources read in full:
+
+- [Humanlayer show-me](https://github.com/humanlayer/skills/blob/bba9d13ab34f0a87f1cc33df4dd196372393ddfc/plugins/show-me/skills/show-me/SKILL.md), commit `bba9d13ab34f0a87f1cc33df4dd196372393ddfc`.
+- [Addy Osmani code review and quality](https://github.com/addyosmani/agent-skills/blob/353ae84755adc40c8a84e4db29b5bf2dfc9e7f5b/skills/code-review-and-quality/SKILL.md), commit `353ae84755adc40c8a84e4db29b5bf2dfc9e7f5b`.
+- pstack make-pr-easy-to-review, Pocock pr, and superpowers finishing-a-development-branch and verification-before-completion. Pins remain in `ai/sources.lock`.
+
+## Cut in this revision
+
+- Mandatory TL;DR plus Summary: repeats the explanation.
+- Mandatory core and mechanical file inventories: repeats the diff.
+- Proof hash, safety field, and ladder-step copies: audit detail belongs in the proof report.
+- Mandatory Door, Blast radius, and Rollback labels: retain material risk facts in direct prose.
+- Mandatory visual: use a visual only when it helps the reviewer.
+- Full show-me installation and HTML output: GitHub Markdown supports the needed compact formats.
+- Addy's full review checklist and fixed diff-size thresholds: this task changes PR descriptions, not code review.
+- Superpowers full test rerun in pr: `prove` owns execution and freshness.
+
+## Name and routing
+
+Keep the installed name `pr`, as the user requested an edit to that skill.
+Read the session catalog, all installed skill directories, and the plugin skill paths.
+No new name or routing overlap. Built-in check: unverified. The existing abbreviation is retained for compatibility.
+Existing pr, pr/unslop, pr/address, and pr/review-pr routing prompts still apply.
+No routing trigger changed.
+
+## Pressure scenarios, current revision
+
+Scenario and transcripts: `/Users/munammubashir/.t3/scratch/2026-11-08-i-want-to-improve-my-2e44baa0/pr-eval/`.
+RED used the old skill through an explicit path before any edits. Both CLI answers were read.
+Failure: both answers include Core files, Mechanical files, diff_hash, ladder steps, and Door/Blast radius/Rollback labels.
+GREEN-1: both CLI answers omit the RED metadata and inventories. Codex keeps the contract gap brief.
+Claude adds repair steps and speculative client behavior. The template now keeps repair steps outside the body and requires observed compatibility facts.
+GREEN-2: both answers remove the old body fields. Claude still skips the unslop read; Codex reads both files.
+GREEN-3: Codex reads unslop; Claude still skips it. Codex also calls the branch draft-ready without an explicit request.
+Premise tested: a dependency in the main loop is enough for a body-only task. Claude transcripts show it reads the body template and contract guide but skips that dependency.
+The template now owns the drafting steps and their dependency reads. The main loop points there. GREEN-4: both answers omit file inventories, hashes, ladder steps, and fixed risk labels. Both disclose the undocumented 409 and authorization limitation.
+Codex reads both unslop files. Claude still skips that read. Claude cost: $0.1940418 for this run.
+The harness prints PASS because it checks skill loading, not prose quality or every dependency read. Manual judgment overrides that line.
+Overall status: red only. The body-content regression is fixed in both saved answers. The required unslop dependency read is not verified under Claude.
+No further wording retry was made. The unknown generator was a scenario input, so no schema generation ran.
+Static checks: all 38 skills-lint tests pass; STE reports zero violations across the skill and its two procedure files; git diff --check passes. The scenario supplies facts and prohibits GitHub access. It tests writing and contract-gap judgment, not generator execution.
+
+## Historical source map
+
+The rest of this file records the previous revision. Current rules above supersede removed body requirements.
+
 
 `ai/sources.lock` pins the sources. Paths are under `~/Developer/ref/`.
 

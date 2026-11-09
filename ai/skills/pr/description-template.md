@@ -1,60 +1,117 @@
-# PR Body Template
+# PR body template
 
-Fill the pr block below. Keep the two marker lines. GitHub does not show them. They tell a later run which text `pr` wrote.
+## Drafting steps
 
-When the repo has a PR template, keep its headings and their order. Put each part of the pr block under the nearest heading. Put a part with no heading at the end, inside the markers.
+1. Read `~/.agents/skills/unslop/SKILL.md` and `~/.agents/skills/unslop/rules.md`.
+2. Complete `api-contract.md` when an endpoint changes. Use its stop rule for an unresolved contract gap.
+3. Draft the body below from the verified facts.
+4. Apply `unslop` to the finished prose. Keep its change list outside the body.
+
+## Body
+
+Write a brief explanation for a reviewer who has not seen the chat.
+Use the repository terms. Explain the problem, the result, and the mechanism.
+Use two short paragraphs for a small change. Add detail when review needs it.
+
+Keep the markers. A later run uses them to preserve text written by the user.
+Keep repository template headings and their order when a template exists.
+Map the content below to those headings. Omit optional sections that add no useful fact.
 
 ```markdown
 <!-- pr:start -->
-## TL;DR
-
-<1 to 3 sentences: what changes and why. Each claim has a file in the diff.>
-
 ## Summary
 
-<one small visual, from the list below>
+<What changes and why it matters. Give a concrete before and after when useful.>
 
-Core files:
-- `<path>`: <what changes in it>
+<How the change works. Explain a decision the diff alone does not explain.>
 
-Mechanical files:
-- `<path>`: <generated client, lockfile or Alembic revision>, or none
+<Call-flow sketch when runtime order or error mapping needs explanation.>
 
-## Evidence
+<API contract section in the form required by `api-contract.md`.>
 
-Prove doc: `<path>`, outcome <VERIFIED | NOT VERIFIED | INCONCLUSIVE>, fresh at diff_hash `<hash>`. <or: no prove doc | prove doc not fresh: reason>
-- Safety fact: <the fact>, ladder step <n>.
-- <check name>: <VERIFIED | NOT VERIFIED | INCONCLUSIVE>. Before: <the test or behavior before>. After: <the test or behavior after>.
-- <finding ID> <finding title>: NOT VERIFIED, ladder step <n>.
+<Optional Evidence section under the conditions below.>
 
-## Merge Danger
+## Merge danger
 
-**Door:** <one-way | two-way>. <one sentence: why>
-**Blast radius:** <one word>. <the fact from the prove doc that makes the change safe, and who feels a break>
-**Rollback:** <revert the merge commit, or the steps for a one-way door>
+**Door:** <one-way or two-way, with the reason>
+
+**Blast radius:** <affected callers and behavior>
+
+**Rollback:** <the actual rollback path or its limit>
 <!-- pr:end -->
 ```
 
-## Summary Visual
+## Visual choice
 
-Use the smallest view that makes the key point clear. Use one visual. Use two only when one cannot show the point.
+Read `show-me.md` before choosing a visual. Use the installed `show-me` skill when available.
+The local reference keeps this workflow usable when that skill is absent.
 
-- Logic or an algorithm: pseudocode.
-- Runtime control flow: a call tree.
-- File responsibility or a broad refactor: a shallow file tree.
-- Interaction or data flow: a Mermaid diagram.
-- A change to a shape that exists: a `diff` block in the shape of the topic (call tree, file tree or control flow).
+Keep only the calls, files, states, and boundaries needed to understand the change.
+Label a sketch as conceptual when it is not the actual code.
+Use Markdown that GitHub can render. Keep HTML explainers outside the body.
+A visual must replace repeated prose.
+For endpoint changes, show call order and error mapping in a compact call tree when they matter.
+Keep that tree alongside the OpenAPI change. Each explains a different part.
+Use the actual call names. Keep annotations for validation, upstream calls, and shared helpers.
 
-Keep only the calls, files, states and boundaries that a reviewer needs.
+## Evidence and risk
 
-## Evidence
+Use an Evidence section only for a concrete before and after, or a material verification limit.
+Omit routine unit-test, integration-test, lint, build, and contract-test pass summaries and links.
+A useful note can show a staging flow, a manual reproduction, a measured result, or a missing check.
+Keep the note only when CI does not already show it.
+State the observed behavior. Make the note self-contained.
+Omit Evidence when routine CI results are the only evidence.
+Keep a failed check or a material coverage gap visible even when CI reports it.
+Use the prove doc as internal input. Keep its name, path, links, and terminology outside the PR body.
+Keep each unresolved finding and inconclusive check visible in plain words.
+Distinguish observed behavior from a test run. Never invent a before run.
+Translate internal outcome labels and finding IDs into plain descriptions.
+Keep proof hashes, ladder steps, safety fields, and full check tables outside the body.
+Add screenshots for visual changes only when captured evidence exists.
+Link screenshots or specific diagnostic evidence only when reviewers can access them. Never invent an upload URL.
+Keep each material limitation in the body. A private document cannot replace that explanation.
 
-- Each line comes from one prove doc item: the safety fact, a row of `# Automated checks`, or a finding. Copy the outcome word from the Notes cell of a check. A finding is always NOT VERIFIED. Copy its ladder step from its italic line.
-- Before and after: name the test or the behavior. Show a test in pseudocode, not as a command.
-- Do not paste the prove doc output. Link to the doc.
+Read `api-contract.md` for the API section. Use its existing, new, or removed endpoint branch.
+Describe migration order, affected consumers, or rollback limits when they affect the merge decision.
+State observed compatibility changes. Do not invent client behavior.
+Keep repair instructions and generator discovery steps outside the body.
+Name the unresolved contract gap in the body.
+Keep the Merge danger section. State the door type, affected callers, and the rollback path.
+A two-way door is reversible. A one-way door includes changes that a code revert cannot undo.
+Keep these fields and labels through `unslop`. Use concrete facts instead of a generic risk rating.
+Name an important file when it helps review. Omit a full file inventory.
+Keep required repository template fields, even when the default would omit them.
 
-## Merge Danger
+## Example
 
-- **Two-way door:** a revert undoes the change.
-- **One-way door:** a destructive action or a decision that is hard to reverse, for example a data migration, a deleted column or a public API change.
-- **Blast radius:** think about all consumers. Examples: callers in other modules, API clients, jobs, dashboards.
+This example combines a call tree with an OpenAPI change. Routine CI results need no section.
+
+The summary explains why the endpoint exists. The tree explains its runtime behavior.
+The API note explains the schema change that a caller needs.
+
+Adds a GET route so the planning app can open a saved heizbruder version with its project document.
+
+```text
+GET .../heizbruder/projects/{bv}/versions/{id}     (path patterns -> 422 before any upstream call)
+  HeizbruderProjectUseCase.get_version
+    _resolve_project_id(bv)          GET {heizbruder}/projects?reference_number=  (none -> 404 project)
+    HeizbruderClient.get_version     GET {heizbruder}/projects/{project_id}/versions/{id}  (404 -> 404 version)
+    _version_detail                  shared with submit; bad JSON -> 502
+  version_detail_response            shared with POST .../versions
+```
+
+This GET is a new endpoint. Give a brief overview using `api-contract.md`.
+Summarize its main inputs, response, and important errors. Keep the detailed schema in the spec.
+
+The Merge danger section for this example:
+
+```markdown
+## Merge danger
+
+**Door:** two-way. Adds a read route with no data migration.
+
+**Blast radius:** new GET callers and the existing submit route, which now shares response and error mapping.
+
+**Rollback:** revert the PR to remove the GET and restore the previous submit implementation.
+```
