@@ -175,10 +175,13 @@ Lens: tests for the added or changed behavior.
 
 ## Performance lens (always)
 
+Add the absolute path of `../performance/SKILL.md`, resolved from this skill directory, to the prompt.
+
 ```
 Lens: performance of the added or changed code.
-Check: N+1 queries, a query in a loop, unbounded loops or results, no pagination, a new filter column with no index, expensive work in a hot path, files or sessions that stay open, large payloads.
-Give the impact: how often the path runs and how large the data is.
+Read <absolute path of performance/SKILL.md>. Use assessment mode.
+Keep this review's finding format and evidence ladder.
+Report supported defects. Keep unknown workload assumptions separate from findings.
 ```
 
 ## Devex lens (if the diff changes settings, docker-compose, Cloud Run config, justfile, Makefile, or alembic/)

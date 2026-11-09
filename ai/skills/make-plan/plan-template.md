@@ -35,6 +35,23 @@ phases:
 
 - <A project-wide rule from the spec, one line, with the exact value copied.>
 
+## Spec coverage
+
+| Requirement and source | Owner phase | Observable result and check |
+|---|---|---|
+| <Exact requirement, with source path and line or user message> | P<n> | <Expected behavior and named test or command> |
+
+**Added work:** <Work not stated in the spec, with the concrete risk that requires it, or none>.
+
+## Review decisions
+
+Use `review-checks.md`. Give each angle a row. An inapplicable angle gives its reason.
+Keep standards evidence separate from spec coverage. Reference failure-mode rows instead of copying them.
+
+| Angle | Evidence | Decision | Owner phase | Verification |
+|---|---|---|---|---|
+| <Angle> | <Source path and line, repo rule, or observed baseline> | <Concrete choice, or inapplicable with reason> | P<n> | <Named test, command, or inspection with expected result> |
+
 ## Before -> After
 
 ### Before
@@ -130,8 +147,9 @@ Grimoire renders the plan from the manifest and flags each drift. `plan-lint` pr
 
 Do these checks after you write the plan. Fix each gap in the plan. Do not review again.
 
-1. **Spec coverage.** For each requirement in the spec, point to its phase. Add a phase for each requirement with none.
+1. **Spec coverage.** Trace each requirement to its phase and observable result. Fix missing, partial, or incorrect behavior. Cut extra work with no requirement or concrete risk.
 2. **Step scan.** Each step lets the builder write exactly one reasonable thing. Fix a line that decides nothing. Cut a body that the signature and the tests already fix.
 3. **Name match.** Each name, type, and signature in a later phase matches its first use in an earlier phase.
 4. **Failure modes.** Each row in Failure modes has an owner phase and a test in that phase.
 5. **Proportion.** A plan that is much longer than the spec is a copy of the code. Replace bodies with signatures, test names, and assertions.
+6. **Review decisions.** Each angle has a decision with evidence, an owner phase, and verification, or an inapplicable reason. Each applicable decision appears in its phase.

@@ -20,12 +20,14 @@
 - **ia:** pstack-claude `plugins/pstack/skills/interrogate/SKILL.md`, lines 26-30 (verify each finding by its command, drop the rest).
 - **do:** `ai/skills/data-op/SKILL.md` line 36 (`lock_timeout`, data before DDL) and `data-op/paths.md` "Alembic data migration". **fmc:** `ai/skills/fix-merge-conflicts/SKILL.md` line 22 (heads from `revision` and `down_revision`).
 - **audit:** `.superpowers/sdd/2026-10-30-skill-rework/skill-audit.md`, items 1, 2, 3 and 10 (G1, G12), round 2.
+- **performance-assessment:** `ai/skills/performance/SKILL.md` and `assessment.md`, broadened at the user's request on 2026-11-09.
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
 "Loop N" is a step in SKILL.md. "L" is `lenses.md`. "T" is `review-template.md`. "A" is `api-checklist.md`.
 
 | Rule | Source | Form | Where enforced | Scenario |
 |---|---|---|---|---|
+| Use the shared performance assessment in the Performance lens. Give its absolute skill path to the lens agent. Keep review findings and evidence rules. | performance-assessment. User request for broad performance reasoning in planning and review. | P | L Performance lens. | performance/source-map.md Broad assessment scenario and routing evals. Full review orchestration after this change is not pressure-tested. |
 | Arguments: URL, number, or `user:branch`. With no argument, write the forms and stop. | rp Initial Response. | P | Loop intro. | Untested. The scenario gives a number. |
 | 7 steps with the old numbers and names. `report_progress` at each step, total 7. | rp Process Steps. eye review_play (total=7, step names). | P | Loop. | Untested. No run had a `report_progress` tool. |
 | Never wait for input. No follow-up step. | spec 8.4 (no input waits). eye review_play. | D | Loop intro. | Forced by the scenario ("Nobody will answer"), not GREEN. |

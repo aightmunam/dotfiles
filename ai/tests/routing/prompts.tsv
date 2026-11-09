@@ -8,6 +8,14 @@ skill-debug	debug		The nightly sync job crashes with a KeyError and I do not kno
 skill-prove	prove		My change to the quote rounding is done. Show with real runs that it works before I open a PR.
 skill-verifier	verifier		This repo has no scripted way to launch the app and check a change. Make one so agents can verify their work here.
 skill-performance	performance		I think my new query cache made the dashboard faster. Measure whether that is true.
+skill-performance-assessment	performance		Assess the performance risks of this proposed invoice export before we write an implementation plan. No benchmarks yet.
+skill-performance-python-concurrency	performance		Before implementation, assess the concurrency risks in this Python order job, including overlapping requests and worker processes. Give planning decisions, not a full implementation plan.
+pair-make-plan_performance-make-plan	make-plan	make-plan/performance	The export spec is approved. Write ordered implementation phases, including performance decisions and tests.
+pair-make-plan_performance-performance	performance	make-plan/performance	Assess work growth and resource costs in this export design. Give decisions for a later planner, not an implementation plan.
+pair-review-pr_performance-review-pr	review-pr	review-pr/performance	Review my colleague's PR 482 for correctness, security, quality, and performance. Keep the full review local.
+pair-review-pr_performance-performance	performance	review-pr/performance	Assess only the performance risks in this code change, including connection lifetime and async scheduling. No full PR review.
+pair-debug_performance-debug	debug	debug/performance	Our export latency spiked after deploy. We do not know the cause. Here are the traces. Find the cause.
+pair-debug_performance-performance	performance	debug/performance	Before implementation, assess how this batch design scales with input size and concurrency. Nothing is broken and no timing claim is made.
 skill-pr	pr		My branch is ready. Open the PR with a proper description.
 skill-reply	reply		Write the text of a reply to this review comment: "Why not use a dict here?" No code change is needed.
 skill-address	address		The reviewer asked me to rename the helper and add a null check on my PR. Work through the comments.

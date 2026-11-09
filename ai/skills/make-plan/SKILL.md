@@ -16,7 +16,7 @@ You own the plan, not the code. Do not implement.
 
 ## The Loop
 
-**First, read `plan-template.md`.** Your plan fills it in order. Steps 3 to 6 each name one principle file. Read all four files in full, also when a step does not apply. Read each file with its own read command, and write its full path in that command. Do not use a loop or a variable for the path. The transcript must show each read.
+**First, read `plan-template.md` and `review-checks.md`.** Your plan fills the template in order. Steps 3 to 6 each name one principle file. Read all four files in full, also when a step does not apply. Read each file with its own read command, and write its full path in that command. Do not use a loop or a variable for the path. The transcript must show each read.
 
 1. **Read.** Read the design doc or spec in full. Copy its exact values (names, limits, paths). For one or two files with an obvious approach, say so, name `tdd`, and stop. For several independent subsystems, write one plan for each.
 2. **Explore.** Read the code that the spec touches. Read the test card `~/.agents/test-cards/<repo>.md`. If it is missing, take the test commands from the repo config and say so. List the entry points: HTTP routes, events, jobs, test endpoints, and other consumers. For a wide spec, give 2 to 4 angles to `explorer` agents. With no dispatch tool, do each angle yourself. If a run can answer a question, run it. Find the base branch. Use the branch that the user or the spec names. Otherwise use the repo default branch from `git symbolic-ref refs/remotes/origin/HEAD`. Write the branch and its source in the plan header.
@@ -24,7 +24,7 @@ You own the plan, not the code. Do not implement.
 4. **Order.** Get the data structures right before you write logic. Read ~/.agents/principles/foundational-thinking.md before this step. Phase 1 is the scaffold and the check harness, with a baseline from the code before the change. Then put the riskiest unknown first. Cut the rest into phases as in Definitions. Each phase has its `Blocked by` line.
 5. **Wide changes.** When work is not trivial, build the tool that does it. Do not do it by hand. Read ~/.agents/principles/build-the-lever.md before this step. A change across many files has three steps. Add the new form. Move the callers in batches with a script or codemod. Then remove the old form. The script is a file in the plan.
 6. **Failure modes.** When actors might write the same state, first remove the sharing. Read ~/.agents/principles/separate-before-serializing-shared-state.md before this step. For each write path, write a row for each of five modes: transaction scope, side effects before commit, retries, idempotency, and shared state. Shared state includes Postgres row contention and parallel workers. Add a row for each other input or failure that the spec implies. Each row names the phase and the test that pins it. Two phases are parallel when neither one blocks the other, directly or through a chain. The manifest `files` lists of two parallel phases do not share a path.
-7. **Write.** Fill the template. Put the plan in `thoughts/shared/plans/YYYY-MM-DD-<topic>.md` of the repo where the change lands, with `status: draft`. In a worktree, use the main checkout (`git rev-parse --git-common-dir`, then its parent). If you cannot write files, put the full plan in your answer, from its first `---` line, and name its path.
+7. **Write.** Apply `review-checks.md` before you fix the phases. Fill the template. Put the plan in `thoughts/shared/plans/YYYY-MM-DD-<topic>.md` of the repo where the change lands, with `status: draft`. In a worktree, use the main checkout (`git rev-parse --git-common-dir`, then its parent). If you cannot write files, put the full plan in your answer, from its first `---` line, and name its path.
 8. **Check.** Do the self-review in the template. Run `~/.agents/bin/plan-lint <plan>`. It exits 1 when line 1 of the file is not `---` or the frontmatter has no `kind: plan`. It also exits 1 for a test step with no test name or no literal value. It exits 1 for a code step with no signature or no file path. Exit 1: fix each line that it prints, and run it again. Exit 2 is a setup error. Stop. Do not run it again. Put the exit code and the message in the handoff. With exit 2, no file, or no script on disk, check the manifest rules by hand and say so in the handoff.
 9. **Hand off.** Use the handoff template. Ask only decisions. Reversible work does not wait for an answer.
 
@@ -65,6 +65,7 @@ When the user answers, put each answer into the plan and set `status: approved`.
 - A question asks for a fact that code, a file, or a run can show. Go back to step 2.
 - A check has no baseline, or the riskiest unknown comes late. Go back to step 4.
 - The plan edits many files by hand. Go back to step 5.
+- A review decision has no evidence, owner phase, or check. Go back to step 7.
 - Two parallel phases touch the same file, row, or key. Go back to step 6.
 - plan-lint printed a line that you did not fix. Go back to step 8.
 - You trust exit 0 on a file whose line 1 is not `---` or that has no `kind: plan` manifest. Go back to step 7.

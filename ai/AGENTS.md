@@ -80,7 +80,7 @@ Pick the skill from this table by the situation. Read the skill before you act. 
 | Something is broken and the cause is not known | `debug` |
 | Your own change is done and runs must show it works before a PR | `prove` |
 | A repo needs its own verify skill | `verifier` |
-| A claim that a change is faster or slower, or a measured regression | `performance` |
+| Assess performance or concurrency risks in a design, plan, or code change, or check latency, throughput, memory, resource use, or a speed claim | `performance` |
 | Your branch is ready for a PR, or your PR body needs an update | `pr` |
 | Write the text of a reply to a review comment | `reply` |
 | A reviewer asked for changes on your PR and at least one needs a code change | `address` |
@@ -114,7 +114,10 @@ Tie-break lines, one per set:
 - rephrase / catch-up: restate one message, `rephrase`. Catch up on many changes, `catch-up`.
 - rephrase / unslop: say the last message again in plain words, `rephrase`. Clean a given finished text, `unslop`.
 - recall / what-did-i-get-done: catch up so you can keep working, `recall`. A standup summary of finished work, `what-did-i-get-done`.
-- prove / verifier / performance: show that your own change works, `prove`. Build a repo's own verify skill, `verifier`. A speed claim or a measured regression, `performance`.
+- prove / verifier / performance: show that your own change works, `prove`. Build a repo's own verify skill, `verifier`. Assess performance risks or check a measured claim, `performance`.
+- make-plan / performance: ordered implementation tasks, `make-plan` (uses performance assessment). Performance assessment alone, `performance`.
+- review-pr / performance: full colleague PR review, `review-pr` (uses performance assessment). Performance assessment alone, `performance`.
+- debug / performance: a failure or regression with an unknown cause, `debug`. Assess expected resource costs or check a measured claim, `performance`.
 - verifier / new-skill: a scripted way to launch, drive and prove one repo's app, `verifier`. Any other skill to write or change, `new-skill`.
 - pr / unslop: write or update a PR body, `pr`. Clean a text that you already wrote, `unslop`.
 - pr / address: reviewer comments that need a code change, `address`. Only the PR body changes, `pr`.

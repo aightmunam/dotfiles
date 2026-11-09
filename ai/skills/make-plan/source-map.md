@@ -16,12 +16,22 @@
 - **catch-up:** `ai/AGENTS.md` writing standard (item format: link, change, evidence, risk).
 - **review:** Task 3.6 review and the controller rulings for fix round 1.
 - **audit:** `.superpowers/sdd/2026-10-30-skill-rework/skill-audit.md` items 9 and 10, and final-review M3 (round 2).
+- **cr:** mattpocock-skills `skills/engineering/code-review/SKILL.md`, at the pin in `ai/sources.lock`. The user-linked main version was also read on 2026-11-09.
+- **lenses:** `ai/skills/review-pr/lenses.md` and `api-checklist.md`, the existing review contracts that the user asked to consider during planning.
+- **planning-request:** User request, 2026-11-09: compare make-plan and review-pr, consider review concerns during planning, and assess Pocock's code-review skill.
+- **performance-assessment:** `ai/skills/performance/SKILL.md` and `assessment.md`, broadened at the user's request on 2026-11-09.
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
 "Loop N" is a step in SKILL.md. "T" is `plan-template.md`.
 
 | Rule | Source | Form | Where enforced | Scenario |
 |---|---|---|---|---|
+| Use the shared performance assessment for work growth, resource occupancy, data access, materialization, scheduling, and capacity. Assign its decisions and checks to phases. | performance-assessment. User request for broad performance reasoning rather than a narrow connection rule. | P | `review-checks.md` Performance row. | performance/source-map.md Broad assessment scenario and routing evals. Full make-plan execution after this routing change is not pressure-tested. |
+| Keep spec coverage separate from repo standards. Quote requirements and map each to a phase and observable check. Cut extra work without a requirement or concrete risk. | cr (Spec axis and Why two axes). lenses (Intent). planning-request. | O | `review-checks.md`. T Spec coverage and self-review. | Review concerns pressure scenario below. |
+| Find applicable repo standards, including CONTRIBUTING.md, CODING_STANDARDS.md, and scoped instructions. Cite rules. Apply them across changed languages. Repo standards override design heuristics. Skip tool-enforced style. | cr (standards discovery, repo override, judgment calls). planning-request. | P | `review-checks.md` Review decisions. T Review decisions. | Review concerns pressure scenario below. |
+| Consider each review angle before fixing phases. Applicable decisions carry evidence, owner phase, and verification. Inapplicable angles give reasons. Reuse failure-mode rows. | planning-request. lenses (each named review angle). sp (Review Focus assigns checks to owning tasks). | O | Loop intro and 7. `review-checks.md`. T Review decisions and self-review. Red flags. | Review concerns pressure scenario below. |
+| Check structural coupling, navigation chains, and discarded inheritance contracts as heuristics. Add no abstraction without a current need. | cr (Shotgun Surgery, Divergent Change, Message Chains, Refused Bequest, Speculative Generality). sp (DRY, YAGNI). | D | `review-checks.md` Quality, Structure, and closing rules. | Source-backed. No claim of measured improvement. |
+| API decisions name rules, exact response examples, and tests. Database-specific steps wait for database evidence. | lenses (API and Migration). sp (exact interfaces and test assertions). GREEN iteration 1 below. | O | `review-checks.md` API row and migration rules. | GREEN iteration 2 below. |
 | You own the plan, not the code. Do not implement. | mpp (opening line). | D | Definitions. Red flags. | GREEN: no run wrote product code. |
 | One or two files with an obvious approach: say so, name `tdd`, stop. | mpp step 1. Router tie-break tdd / build. | P | Loop 1. | Untested. The scenario is a multi-step change. |
 | Several independent subsystems: one plan for each. | sp Scope Check. | P | Loop 1. | Untested. |
@@ -56,8 +66,8 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | A test step names a test and a literal expected value. A code step names a signature `name(params) -> type` and a file path. `plan-lint` finds the step kind by title, then by content (test word, source-file path, fenced def). `plan-lint` exits 1 for each miss. | sp What a Step Contains (sp/writing-plans:140-161). audit item 9. `ai/tests/test_plan_lint.py`. | D | `ai/bin/plan-lint`. Loop 8. Rules. T Step rules. | Unit tests. GREEN round 2: see Pressure scenarios. |
 | No "TBD", "handle edge cases", "add validation". | sp What a Step Contains. | D | Rules. T self-review 2. | GREEN |
 | Fail-first step predicts the mismatch, not an import, collection, or missing-file error. | spec 8.4 build entry (fail-first receipt). sp step 2 (expected FAIL with a reason). | P | T Step 3. | GREEN |
-| Self-review: spec coverage, step scan, name match, failure modes, proportion. Fix inline, no second review. | sp Self-Review. | P | Loop 8. T Self-review. | GREEN |
 | Run the plan linter. Exit 1: fix each line it prints and run again. | mpp step 6. cp. spec 8.5 (plan linter). pl. | D | Loop 8. Red flags. | GREEN: see Pressure scenarios. |
+| Self-review: spec coverage, step scan, name match, failure modes, proportion, review decisions. Fix inline, no second review. | sp Self-Review. planning-request. | P | Loop 8. T Self-review. | Earlier GREEN covers the original checks. Review concerns scenario covers the new decisions. |
 | plan-lint exits 1 when line 1 is not `---` or the frontmatter has no `kind: plan`. Exit 0 counts only then. | pl (the parser checks only a structured file). review I2 (controller ruling). `ai/tests/test_plan_lint.py`. | D | `ai/bin/plan-lint`. Loop 8. T manifest rules. Red flags. | Unit tests. |
 | Exit 2 is a setup error: stop, do not run again, report the code and message in the handoff. | pl (exit 2 on setup error). review I3 (controller ruling). | D | Loop 8. Handoff template. Red flags. | Untested. The runs had no file to lint. |
 | Exit 2, no file, or linter not on disk: check the manifest rules by hand and say so. | brief (live path has no `ai/bin` before merge). | P | Loop 8. Handoff template. | GREEN |
@@ -75,6 +85,9 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 
 ## Cut
 
+- cr: fixed-point diff setup, tracker setup, review subagents, and separate verdict totals. This change plans future work and does not review an existing diff. Existing review-pr keeps its own review workflow.
+- cr: automatic fixes for all twelve smells. Smells remain design heuristics. Only a current requirement or concrete risk justifies structural work.
+- lenses: review severity and evidence-ladder claims. The plan names future verification and observed baselines; it cannot claim evidence from unbuilt code.
 - sp: the announce line, the `docs/superpowers/plans/` path, and the header line that names the plugin execution skills. The spec puts plans in `thoughts/shared/plans/`, `build` runs them, and the lint forbids plugin names.
 - sp: the execution-method question (subagent-driven or native). `build` owns how it runs a plan. The question would also be an "approve?" in another form.
 - sp: Review Focus as its own section. Its mechanism (each failure mode gets a test in the owning phase) moved into Failure modes, so the plan has one list, not two.
@@ -130,3 +143,19 @@ green-4 (`--write`, Codex, after the fix): PASS. 361,462 input tokens (310,656 c
 Concern: Claude used Implement steps for Markdown edits, with forced signatures such as `Definitions(Case kind, Run key) -> 2 bullets`. The rule passes them. A prose edit is not code, and the template does not yet say which title to use for it.
 schema-order RED (2026-11-04, current skill, `--tool both`, scenario: plan a `reviewer_model` column on the Grimoire `events` table, where `CREATE TABLE IF NOT EXISTS` never adds a column to an existing `grimoire.db`). claude PASS. codex PASS. No failure.
 Both plans put an idempotent `ALTER TABLE ... ADD COLUMN` with a test on an old 7-column DB in P1. The writer is P2 (blocked by P1) and the stats reader is P3 (blocked by P2). No line was added.
+
+### Review concerns, 2026-11-09
+
+Scenario and saved answers: `/Users/munammubashir/.t3/scratch/2026-11-08-can-you-compare-my-make-fc5d3d3d/`. `scenario.md` asks for a tenant invoice export plan in the local `fixture/`, without implementation. The fixture includes a standards file, an existing nightly consumer, deployment settings, and a million-row constraint.
+
+RED: `ai/bin/pressure-run --red --skill make-plan --scenario <scratch>/scenario.md --tool both --budget 2 --out <scratch>/red`. Both saved answers loaded the old installed skill. Both considered many existing risks; neither gave separate spec and standards traceability. Claude chose a blocking index and asked the user whether to use CONCURRENTLY. Its planned error bodies also missed the API checklist's problem JSON contract. Codex covered migration safety better. These are observations from the answers, not harness pass claims.
+
+GREEN iteration 1: `green/`. Codex PASS. Claude FAIL, cost 0.9904646 USD. The harness reported `answer has no 'Principles applied:' line`. Both answers contain all review-angle rows and separate spec coverage. Manual review found that Claude's API error example still omitted checklist fields, and it assumed PostgreSQL without database evidence. The reference now requires exact API examples and blocks database-specific steps until the dialect is known.
+
+GREEN iteration 2: `green-2/`. Same scenario, `--skill make-plan`, all four existing `--principle` options, and `--tool both`. Claude PASS, cost 0.6779091 USD. Codex PASS. Both loaded make-plan, read the new reference and API checklist, read all four required principles, and included the required handoff marker.
+
+Manual answer review: both include separate Spec coverage and Review decisions sections, with all twelve review angles. Both name concurrent indexing and lock controls for a confirmed PostgreSQL deployment, and both block database-specific work until dialect evidence exists. Both give full problem JSON bodies with type, title, status, and detail. Both preserve the nightly caller and bound export pages. The targeted RED failures are gone; the fixture does not establish correctness of a deployed export implementation.
+
+Checks: `python3 -m unittest ai.tests.test_skills_lint -v` passes all 39 tests. Strict STE lint with `--baseline 0` passes for SKILL.md and review-checks.md. `git diff --check` passes. Trigger text and routing are unchanged. Name checks reused the installed skill; no new name or plugin collision was introduced. Built-in command check: unverified (no new name).
+
+Guard decision: none added. Applicability, consumer compatibility, and design evidence require judgment. Existing skill lint and pressure-run check structure and observed behavior; a section-presence rule alone cannot establish sound decisions.
