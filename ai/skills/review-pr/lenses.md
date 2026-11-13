@@ -36,7 +36,7 @@ Return four parts, in this order:
 a) TL;DR: 2 to 4 plain sentences. What can a user do now that they could not do before?
 b) Before / After table: | Scenario | Before this PR | After this PR |, one row for each changed behavior.
 c) User flow: one mermaid flowchart of the main user journey through the new behavior. Add " (new)" to new steps. For a request lifecycle, use a sequenceDiagram.
-d) Surface changes: at most 6 bullets, only UI, API, CLI, and config changes, and items that the PR body shows.
+d) Surface changes: only UI, API, CLI, and config changes, and items that the PR body shows.
 ```
 
 ## Walkthrough: How brief (always)
@@ -50,7 +50,7 @@ a) Architecture: one mermaid flowchart of the modules that the PR touches. Use s
 b) Primary flow: one mermaid sequenceDiagram of the main flow, with real function and module names.
 c) Reading order table: | # | File | What to look at |
 d) Data model and contracts: a mermaid erDiagram, or the line "No data-model or contract changes."
-e) Design notes: at most 8 bullets. New dependencies, design choices, trade-offs.
+e) Design notes: New dependencies, design choices, trade-offs.
 ```
 
 ## Mermaid rules

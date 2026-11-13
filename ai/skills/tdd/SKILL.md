@@ -60,7 +60,7 @@ Runs inline. When `build` runs you for a slice, the approved plan confirms the s
 ## Question Template
 
 ```
-<1 to 3 lines: the seams, each with what it catches and misses, and the facts with their sources>
+<the seams, each with what it catches and misses, and the facts with their sources>
 **Decision:** <one question, worded so that yes accepts the recommendation>?
 **Recommended:** <seam and first case, for example "POST /orders, subtotal 120.00 gives total 108.00">. <one reason>.
 Principles applied: <name> -> <choice it changed>

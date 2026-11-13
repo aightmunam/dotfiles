@@ -28,7 +28,7 @@ Keep this turn read-only. Do not change code, start a job, start an app, or post
 
 - **One opening sentence.** It names what waits on the user, or it says that nothing does. If nothing happened and nothing waits, say so and stop.
 - **Plain words.** Say what changed for the user, not how you did it. Leave out hashes, file paths, commands, and test counts unless the user needs one to act. Name each PR, branch, or agent with a name that the user knows.
-- **Short story.** "What happened" has at most 100 words, and fewer when less happened. Give one line for each thing that the user asked for: what came of it, and done, running, failed, or not checked. Name each bug that you found and fixed. Each line must stay true when read alone. Leave out work that changed nothing for the user.
+- **Short story.** "What happened" stays short, and shorter when less happened. Give one line for each thing that the user asked for: what came of it, and done, running, failed, or not checked. Name each bug that you found and fixed. Each line must stay true when read alone. Leave out work that changed nothing for the user.
 - **Never shrink an item.** Give each action item about 30 words. Do not replace an item with a count or a link.
 - **One call, many items.** When items share a call, write the call and your pick once. Then give each item its own line, riskiest first.
 - **Options.** For a call between options, give each option that the work weighed: its current state, its gain, and its cost. Do not add an option that the work did not weigh. The costs are the risk. Do not add a `Risk:` field.
@@ -54,7 +54,7 @@ Keep this turn read-only. Do not change code, start a job, start an app, or post
 - A one-item call has no `Risk:` field. A call between options has a `Risk:` field, or an option has no cost. Go back to step 5.
 - An option was not weighed in the work. Go back to step 5.
 - A number in the reply does not match its record. Go back to step 3.
-- "What happened" has more than 100 words. Go back to step 6.
+- "What happened" has a line that changes nothing for the user. Go back to step 6.
 - The reply has no `Principles applied:` line. Go back to step 6.
 
 ## Output Template

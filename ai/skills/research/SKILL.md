@@ -24,7 +24,7 @@ description: Use when you must learn how code works before a change. Use when th
 5. **History (optional).** Do this step when the change touches code with an unclear reason. Use `git log`, `git blame`, `gh pr view`, and Jira or Sentry when you have them. Record each search, also the searches that found nothing.
 6. **Write.** Fill the template. Put the doc in `thoughts/shared/research/YYYY-MM-DD-<topic>.md` of the repo where the change lands. `<topic>` is kebab-case, 3 to 6 words. Create the directory if it is missing. In a worktree, use the `thoughts/` of the main checkout (`git rev-parse --git-common-dir`, then its parent). If you cannot write files, put the full document in your answer and name its path.
 7. **Red flags.** Read the document once for each red flag below.
-8. **Reply.** Runs inline by default. If a caller dispatched you as a fresh agent, reply with the document path and at most 5 bullets. Use the reply shapes in the template, and nothing else. The last line of each reply is `Principles applied: none`, or one `<name> -> <choice it changed>` for each principle file that you read.
+8. **Reply.** Runs inline by default. If a caller dispatched you as a fresh agent, reply with the document path and the findings that the caller needs to act. Use the reply shapes in the template, and nothing else. The last line of each reply is `Principles applied: none`, or one `<name> -> <choice it changed>` for each principle file that you read.
 
 ## Repo Rules
 

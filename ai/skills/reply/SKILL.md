@@ -19,7 +19,7 @@ description: Use when the user asks for the text of a reply to a PR review comme
 
 1. **Classify.** Mark each thread as fix, decline or answer. One thread can need two classes.
 2. **Check facts.** List the given facts for each thread. A fix with no SHA is a gap. Ask the user about one gap in each message. Give a recommended answer.
-3. **Draft.** Write the outcome in the first sentence. Use 1 to 3 sentences. One sentence is often enough. Use only given facts.
+3. **Draft.** Write the outcome in the first sentence. Write the shortest reply that gives the outcome and the facts that the reviewer needs. One sentence is often enough. Use only given facts.
 4. **Unslop.** Run the unslop skill on each draft. Use its cleaned text as the new draft.
 5. **Red flags.** Read each draft once for each red flag below.
 6. **Reply.** Use the output template. Write nothing before it or after it.
@@ -47,7 +47,7 @@ description: Use when the user asks for the text of a reply to a PR review comme
 ## Red Flags
 
 - A draft thanks the reviewer. Go back to step 3.
-- A draft has more than 3 sentences, or a list. Go back to step 3.
+- A draft has a sentence that adds no fact, or a list. Go back to step 3.
 - A fix has no SHA. Go back to step 2.
 - A SHA is not in backticks. Go back to step 3.
 - "Good catch" with no run. Go back to step 3.
@@ -63,7 +63,7 @@ description: Use when the user asks for the text of a reply to a PR review comme
 ```
 Thread <n> (<reviewer>, `<path>:<line>`)
 
-<outcome sentence>. <0 to 2 more sentences>
+<outcome sentence>. <more sentences only when a fact needs them>
 
 Unslop changes:
 - <one unslop change line, as unslop wrote it, or none, or unslop file not found>

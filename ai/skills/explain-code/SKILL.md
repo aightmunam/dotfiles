@@ -17,7 +17,7 @@ description: Use when the user asks you to explain code, a change, or a subsyste
 1. **Purpose.** Write the purpose and the takeaways for yourself. Put the depth where the question is. Skip what the user already knows.
 2. **How.** Narrow question (one repo, a few files): read the code yourself. Wide question: send 2 to 4 angles to `explorer` agents in one message. Open each file that you cite.
 3. **Why.** Run `git log --follow --oneline -- <file>` and `git blame -L <lines> <file>` on the lines that the question names. Run `git show` or `gh pr view` on each commit that added them. Record each search, also a search that found nothing.
-4. **Answer.** Write the smallest complete answer first: one or two sentences that answer the question for the purpose. Then stop or go on to step 5.
+4. **Answer.** Write the smallest complete answer first: a short opening that answers the question for the purpose. Then stop or go on to step 5.
 5. **Build.** Give the plain name of the idea and what it is in general. Then tie it to this code and give the mechanism. For three or more parts, draw a series of diagrams. Each diagram redraws the last one and adds one part.
 6. **Reasons.** Write each reason in the words of its tier (see the rules). Name each search that found nothing.
 7. **Unslop.** Read `~/.agents/skills/unslop/rules.md`. Apply each rule to your draft yourself.
@@ -38,7 +38,7 @@ description: Use when the user asks you to explain code, a change, or a subsyste
 
 - A reason with "because", "designed to", or "the format depends on" and no commit, PR, or doc next to it. Go back to step 3.
 - No git command ran for a why question. Go back to step 3.
-- The first paragraph has more than three sentences. Go back to step 4.
+- The first paragraph does more than answer the question. Go back to step 4.
 - One diagram holds all of three or more parts. Go back to step 5.
 - A diagram in a series that does not repeat the diagram before it. Go back to step 5.
 - A header or a bold label line for a part of the answer, or a framing label. Go back to step 7.

@@ -29,13 +29,13 @@ Each thread line starts with exactly one tag. Run the check before you write the
 State: <repo> on <branch> at <short HEAD SHA>[; <repo> on <branch> at <short HEAD SHA>]..., <YYYY-MM-DD HH:MM zone>
 
 ## Capsule
-- <at most 5 bullets: what this work is and where it stands overall>
+- <short bullets: what this work is and where it stands overall>
 
 ## Threads
 - <tag> <thread in one line>. Evidence: <evidence>.
 
 ## Problems
-- <at most 5: a symptom that recurs, or a fix that shipped and was reverted, with the reason>. Source: <evidence>.
+- <each symptom that recurs, or a fix that shipped and was reverted, with the reason>. Source: <evidence>.
 
 ## Next move
 <one concrete action: the command, file, or skill, and the thread that it moves>
@@ -46,9 +46,9 @@ Principles applied: prove-it-works -> <the tag or claim that a check changed>
 ## Rules
 
 - Order: Capsule, Threads, Problems, Next move. Put more detail below them, or cut it.
-- Capsule: at most 5 bullets.
+- Capsule: short bullets.
 - Threads: one line each. Each line has exactly one tag and its evidence.
-- Problems: at most 5. Put each reverted fix here with its reason, so the next attempt starts where the last attempt failed.
+- Problems: each one that the next session must know. Put each reverted fix here with its reason, so the next attempt starts where the last attempt failed.
 - Next move: one action. Not a list.
 - An adjacent feature or ticket stays out, unless it blocks this work.
 - When the capsule and the thread lines are longer than one screen, cut detail. Do not cut threads.

@@ -21,7 +21,7 @@ Describe what the code does now. Do not recommend changes.
 - Use `verified` only for a claim that you read in the code.
 - Use `inferred` for a claim that you concluded but did not read.
 - Do not write advice, opinions, or fixes.
-- Keep your full reply under 400 words. Code blocks and diagrams do not count. This limit also applies when the prompt gives a different format.
+- Keep the reply short enough for the caller to act on in one read. Give each claim once, with its tag. This also applies when the prompt gives a different format.
 
 ## Report
 

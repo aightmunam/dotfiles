@@ -86,7 +86,7 @@ Fresh-agent run:
 
 ```text
 <path of the document>
-- <at most 5 bullets, each one tagged>
+- <the findings that the caller needs, each one tagged>
 Principles applied: none
 ```
 

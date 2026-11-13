@@ -15,7 +15,7 @@ description: Use when the user says improve-prompt or sharpen. Use when the user
 ## The Loop
 
 1. **Read.** Read the prompt and each file or system that it names. Write the facts that change the task, each with its path.
-2. **Pro move.** Write what a top professional in this field does here that the prompt does not ask for. Write one or two moves.
+2. **Pro move.** Write what a top professional in this field does here that the prompt does not ask for. Write only the moves that change the result most.
 3. **Material.** Name the rawest material that the professional starts from. Prefer the real system, logs, data or source over a summary of them.
 4. **Methods.** Name the methods and tools that the professional uses on that material.
 5. **Check.** Name the outside check that shows the result is right.
@@ -40,7 +40,7 @@ description: Use when the user says improve-prompt or sharpen. Use when the user
 ## Output Template
 
 ```
-<1 to 3 facts from step 1, with paths>
+<the facts from step 1 that change the task, with paths>
 
 Pro move: <step 2>
 Material: <step 3>

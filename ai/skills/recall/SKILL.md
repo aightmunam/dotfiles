@@ -60,5 +60,5 @@ description: Use when a session starts and you must rebuild the working state fr
 - You did not read ~/.agents/principles/prove-it-works.md in this session. Go back to step 5.
 - A Problems line with no `Source:`. Go back to step 6.
 - "Never recorded" with no search of the places that the project rules name. Go back to step 4.
-- Capsule over 5 bullets, Problems over 5 lines, or not exactly one next move. Go back to step 6.
+- Not exactly one next move. Go back to step 6.
 - No `Principles applied:` line at the end. Go back to step 6.
