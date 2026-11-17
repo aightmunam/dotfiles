@@ -112,6 +112,25 @@ A workaround that needs a long comment to explain it means that the code is wron
 A high or critical finding needs ladder step 3: trace the path from the input to the failure.
 ```
 
+## State and failure lens (always)
+
+```
+Lens: what the system holds after a failure, a retry, or a later state change. Read only.
+List each write to an external system (Salesforce, CRM, a queue, a bucket, another service) and each write to shared state (a sequence, a reservation, a flag, a derived field).
+For each write, answer these questions with file:line:
+a) Partial failure: the call succeeds and a later step fails. What stays in the other system? What does the next attempt find there?
+b) Retry: what does the next attempt reuse, and what does it write again? Name each field that stays as the failed attempt wrote it.
+c) Blocked retry: can a leftover record (a reservation, a lock row, a used number) make every later retry fail? Trace it.
+d) Lifecycle: can a found or reused record be canceled, superseded, deleted, or owned by a different parent? Does the code check that state?
+e) Derived value: a flag or a copy that the code computes once. Which later change makes it wrong, and what recomputes it?
+f) Reporting: for each exception on these paths, name its outcome. Outcomes: retry, drop, user error (4xx), or crash (5xx). Name its log level and if Sentry gets it. An expected retry that logs an error each time is a finding. A catch that is too narrow (a sibling exception becomes a 500) or too wide (an auth or config fault becomes a warning) is a finding.
+g) Silent change: a path that failed loudly before and now skips, logs a warning, or returns a default. Report it, also when it looks intended, and ask if it is intended.
+h) Downstream limits: a value that the other system rejects (field range, length, required field), or code that matches its error message text.
+For c), trace each later event that removes the owner of a leftover record (a rollback, a delete, a cancel), not only the rollback.
+Return one line for each letter a to h: the finding, or "safe" with the file:line that makes it safe. A letter with no line means that the lens is not done.
+Category: correctness.
+```
+
 ## Blast-radius lens (always, read-only)
 
 ```
@@ -121,6 +140,8 @@ Lens: who depends on the code that this PR changes. Read only.
 3. For each caller, read it and decide: still correct, or broken. A broken caller is a finding at ladder step 3. Name the caller and the input that breaks it.
 4. Report tests that the PR deletes, skips, or makes weaker.
 5. Report a change to a contract that a different repo uses (API response, event, file format).
+6. Report stored or running data in the old shape: DB rows, process instances, queued events, snapshots. Name what each does with the new code. Report each environment that runs a different version of a dependency (stage vs prod).
+7. Report a rule that config checks at deploy time (Terraform validation, settings) and code checks at runtime, when the two do not agree.
 Name each caller. Do not write "something may use this".
 ```
 
@@ -136,7 +157,7 @@ Put the real domain in a data structure. Do not scatter it over conditionals.
 Read ~/.agents/principles/model-the-domain.md before this step.
 
 ```
-Lens: code quality of the added or changed Python. Do not report what the project linters (ruff, mypy) catch.
+Lens: code quality of the added or changed code, in each language of the diff (Python, Apex, Terraform, BPMN, CI and Renovate config). Do not report what the project linters catch.
 Read applicable AGENTS.md and CLAUDE.md files.
 Read convention and architecture sections in the README.
 Include CONTRIBUTING.md and CODING_STANDARDS.md when present.
@@ -154,9 +175,13 @@ Check:
 - Extra layers: a wrapper or helper with one caller that adds nothing. Hidden state: module globals, mutable defaults, side effects at import time.
 - A "# noqa" or "# type: ignore" that hides a real rule. Report the code under the suppression.
 - Comments that tell what the code does, or that explain a workaround. Bad names.
-- Copies of code that already exists in the repo. Give the path of the existing code.
+- Copies of code that already exists in the repo. Give the path of the existing code. Sibling code that does the same job in a different way (a mapper that returns "DE" where the others return None). Give the sibling path.
+- Text that the change makes false: a docstring, a comment, a doc under docs/, a function name, or a claim in the PR body. Grep each changed name and each changed behavior in docs/ and in comments. Quote the false text.
+- A port of a reference implementation (an old calculator, another service): a result that differs from the reference, or that breaks a physical or business order (an inner room loses more heat than an outer room). Name the reference.
+- Infra and config: access granted to a person, not to a team. A repo setting that copies an org preset. A setting that adds CI runs for each merge.
+- Unrelated churn in the diff: line endings, whitespace, or reformat of lines the change does not need.
 - Code smells, as judgment calls (a repo standard wins): mysterious name, duplicated code, feature envy, data clumps, primitive obsession, repeated switches, speculative generality, middle man.
-- Python idioms that the repo uses: logging with %s and lazy arguments, pathlib, dataclass or pydantic style, type hints on new public functions.
+- For Python, idioms that the repo uses: logging with %s and lazy arguments, pathlib, dataclass or pydantic style, type hints on new public functions.
 Report a small number of high-conviction findings. Do not add style nits when a larger structural problem exists.
 ```
 

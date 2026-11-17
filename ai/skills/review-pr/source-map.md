@@ -140,3 +140,23 @@ GREEN-C1 (step 6 only scenario: three merged findings from that review, doc in t
 RED-W1 (the skill at dc8fc41): both PASS the old checks. Failure: neither `# Summary` leads with the verdict, and both write the failure path of M1 as prose (Claude 3 paragraphs, Codex 7) with the fix last.
 GREEN-W1: claude PASS, codex PASS. Both start `# Summary` with the verdict list and write M1 as a labelled list with 6 and 7 numbered hops. Both docs parse in Grimoire with `warnings []`, `is_structured True`, 3 findings, 3 comment fences. Gap: Codex put a counts paragraph and a doc path paragraph before `## Lens runs`.
 GREEN-W2 (after "Put nothing else before `## Lens runs`"): claude PASS, codex PASS. Both Summaries stop after 4 and 4 sentences. Gap: Codex writes `Fix:` as a statement, not an instruction.
+
+## Review-gap audit (2026-11-17)
+
+Source: 47 human review comments on the author's last 100 PRs (mamghaderi, ubohyiD, berken-bayat-thermondo, hopeman15, pcrock-thmdo, ext-luissantos-thermondo). User request, 2026-11-17: cover what reviews flag and the skills miss.
+
+| Rule | Source | Form | Where enforced | Scenario |
+|---|---|---|---|---|
+| State and failure lens, always: partial failure, retry reuse, blocked retry (rollback, delete, cancel), lifecycle, derived value, reporting outcome and log level, silent change, downstream limits. One line per letter, finding or "safe" with file:line. | Audit: fp#2077 (5 comments), fp#2073:160/227, fp#2045:246, fp#2273:175, heizbruder#3:73, sf#4190:222/224, sf#4192:63, sf#4122, fp#2115:103, crm-adapter#820:317. | P, O | L State and failure lens. | RED-G1, GREEN-G1, GREEN-G2. |
+| Blast-radius: stored or running data in the old shape, environment version skew, config-time vs runtime rules. | Audit: camunda#746 (stage 0.3.0 vs prod 0.4.5, instances before 2026-10-21), heizbruder#3 infra/variables.tf:61. | P | L blast-radius items 6, 7. | Untested. PR #2077 has neither. |
+| Quality lens covers each language of the diff, not only Python. | Audit: 9 of 47 comments on Apex, Terraform, BPMN, Renovate. | P | L quality lens. | Untested. |
+| Quality: sibling inconsistency, text that the change makes false (docs, comments, names, PR body), reference parity, infra conventions, unrelated churn. | Audit: crm-adapter#820:79, heizbruder#44, heizbruder#58 (x3), fp#2115:241, fp#2273:184, fp#2114, camunda#746 PR body, infra#1978, iot#195, sf#4524. | P | L quality lens. | Untested. |
+
+### Pressure scenarios (review-gap audit)
+
+Scenario: fulfillment-platform PR #2077 at a3958fd45 (the commit mamghaderi reviewed), one lens brief with the common header and reviewer rules. Score: the 5 inline comments of mamghaderi.
+
+**RED-G1** (old bug and security lens, both CLIs, 2026-11-17): Claude 2/5 (unique-violation scope, stale `internal_project_id`). Codex 1/5 (stale `internal_project_id`). Both missed the canceled CRM project, the reservation that blocks each retry after a delete, and the Sentry error on each lost-race retry.
+
+**GREEN-G1** (State and failure lens, Claude): 4/5. Cleared the blocked retry from the rollback trace only. Fix: trace delete and cancel too, and return one line per letter.
+**GREEN-G2** (both CLIs): Claude 5/5, plus a duplicate create on POST timeout. Codex 3/5 (stale fields, reservation left by a delete, Sentry and log level). It missed unique scope, and it checked cancel on the local project, not on the CRM project. RED failure gone in both.

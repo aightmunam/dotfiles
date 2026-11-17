@@ -159,3 +159,21 @@ Manual answer review: both include separate Spec coverage and Review decisions s
 Checks: `python3 -m unittest ai.tests.test_skills_lint -v` passes all 39 tests. Strict STE lint with `--baseline 0` passes for SKILL.md and review-checks.md. `git diff --check` passes. Trigger text and routing are unchanged. Name checks reused the installed skill; no new name or plugin collision was introduced. Built-in command check: unverified (no new name).
 
 Guard decision: none added. Applicability, consumer compatibility, and design evidence require judgment. Existing skill lint and pressure-run check structure and observed behavior; a section-presence rule alone cannot establish sound decisions.
+
+## Review-gap audit (2026-11-17)
+
+Source: 47 human review comments on the author's last 100 PRs. User request, 2026-11-17: cover what reviews flag and the skills miss. The review-pr source map has the comment list.
+
+| Rule | Source | Form | Where enforced | Scenario |
+|---|---|---|---|---|
+| Failure-mode rows for partial failure, lifecycle, blocked retry, and reporting. Each external call, each reused record, each leftover record, each exception. | Audit: fp#2077 (5 comments), fp#2073, fp#2045, fp#2273, sf#4190, crm-adapter#820. | O | T Failure modes. | Plan-RED, Plan-GREEN-1, Plan-GREEN-2. |
+| Review angles: stored data and env version skew, downstream limits, reference parity, docs truth, config agreement, silent change. | Audit: camunda#746, sf#4190:222, heizbruder#58 (x3), crm-adapter#820:79, heizbruder#3, fp#2115. | O | `review-checks.md` angle table. | Untested. The #2077 scenario has none of them. |
+
+### Pressure scenarios (review-gap audit)
+
+Scenario: plan the CRM project reuse of fulfillment-platform PR #2077 at 90992301f (before the change). Score: the 5 inline comments of mamghaderi on the built change.
+
+**Plan-RED** (old skill, both CLIs, 2026-11-17): Claude's plan had no canceled-state check, no list of stale fields, no leftover-reservation check, and no outcome or log level for each exception. Codex is not scored: it read local `main`, which has the fix. The GREEN scenario adds "Plan against the checked-out commit only."
+**Plan-GREEN-1** (both CLIs): PASS. Both plans have the four new rows. Codex: "Do not reactivate cancelled records", and an existing reservation must not block. Claude named the canceled CRM project but kept today's behavior ("reused, then set to START"). Fix: a reuse of a canceled or deleted record needs a decision in the handoff, and today's behavior is not a reason. The partial-failure row now asks for each field value after a retry.
+**Plan-GREEN-2** (both CLIs, after the fix): PASS. Codex: a canceled, deleted, or superseded record is rejected and never reset to `start`. The retry accepts its own reservation. Info and warning log levels for each outcome. Claude: the canceled CRM project is now handoff decision 3, with a recommendation and a risk. Claude chose a seeded reference number whose row a rollback drops, so it cleared the leftover reservation in its Transaction scope row. It wrote no Blocked retry row and did not trace a delete. Open: the self-review does not check that each template row is present.
+**Plan-GREEN-3** (both CLIs, 2026-11-17): PASS. User request, same day: the self-review is a technical audit that makes the plan sound (retry idempotency, index usage), not a check of the plan's form. The self-review now has 10 audit checks. Claude: a canceled CRM project is not reused (skip with conflict, decision 1). A reference that another local project owns is a conflict. Stale operator and location fields are named and accepted with a reason. The rolled-back code row is traced. Concurrent deliveries are traced. Codex: stale `internal_project_id` and operators repaired, cancelled or progressed records rejected without a state PATCH, an existing reservation is success, and reuse logs at info. RED failures gone in both. Checks 5 (queries and indexes) and 6 (external calls) are untested: the scenario has no new query.

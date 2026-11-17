@@ -42,6 +42,12 @@ Reference existing failure-mode rows instead of copying them.
 | Deployment | Name settings, defaults, config files, tools, and manual steps. Plan activation and rollback or fail-forward. |
 | Flags | List every route, task, consumer, and UI entry point. Define enabled, disabled, and missing-flag behavior. |
 | API | Read the Rules and Codebase conventions sections of `../review-pr/api-checklist.md`. Record rule numbers, exact response examples, and tests. |
+| Stored data | Name data in the old shape that the change meets: DB rows, running process instances, queued events, snapshots. Name the version of each dependency in each environment (stage vs prod). Plan what each one does. |
+| Downstream limits | For each external write, name the limits of the other system (field range, length, required field, one combined update that fails as a whole). Do not match its error message text. |
+| Reference parity | For a port of a reference implementation, name the reference and plan fixtures with its outputs. Name the physical or business order that results must keep. |
+| Docs truth | Grep each changed name and behavior in `docs/`, comments, and docstrings. Name each text that the change makes false, and the phase that fixes it. |
+| Config agreement | Name each rule that config checks at deploy time and code checks at runtime. Plan one source, or a test that they agree. |
+| Silent change | Name each path that fails loudly today. Keep it loud, or record the decision to make it quiet. |
 
 For migrations, check old-code and new-code compatibility with existing rows.
 Use checks for the actual database dialect to check lock and index behavior.

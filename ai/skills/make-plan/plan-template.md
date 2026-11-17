@@ -84,6 +84,10 @@ flowchart LR
 | <path> | Retry | <what a second run does> | P<n> | `<test id>` |
 | <path> | Idempotency | <the key or the state check> | P<n> | `<test id>` |
 | <path> | Shared state | <row, file, key, or branch that two actors write, and how the plan removes the sharing> | P<n> | `<test id>` |
+| <path> | Partial failure | <for each external call: what stays in the other system when a later step fails. List each field that the next attempt does not write again, and its value after a retry. A field whose value differs between attempts (a new generated id, a lookup that failed the first time) is stale.> | P<n> | `<test id>` |
+| <path> | Lifecycle | <each record that the code finds or reuses: its canceled, deleted, superseded, or other-owner state, and what the code does for each. Reuse of a canceled or deleted record, or a state change that brings it back, needs a decision in the handoff. Today's behavior is not a reason.> | P<n> | `<test id>` |
+| <path> | Blocked retry | <each leftover record (reservation, number, lock row) whose owner is gone after a rollback, a delete, or a cancel, and why a later retry still passes> | P<n> | `<test id>` |
+| <path> | Reporting | <each exception: retry, drop, 4xx, or 5xx, and its log level. An expected retry logs a warning and does not reach Sentry> | P<n> | `<test id>` |
 | <path or input> | <Other input or failure that the spec implies> | <what happens> | P<n> | `<test id>` |
 
 ## Phase 1: <Scaffold and check harness>
@@ -145,11 +149,22 @@ Grimoire renders the plan from the manifest and flags each drift. `plan-lint` pr
 
 ## Self-review
 
-Do these checks after you write the plan. Fix each gap in the plan. Do not review again.
+The self-review is a technical audit. Its goal is a plan that is sound before the build starts.
+Walk the planned code and the code that it touches. Do not check the form of the plan.
+Fix each issue in a phase, with a test or a check in that phase. Do not review again.
 
-1. **Spec coverage.** Trace each requirement to its phase and observable result. Fix missing, partial, or incorrect behavior. Cut extra work with no requirement or concrete risk.
-2. **Step scan.** Each step lets the builder write exactly one reasonable thing. Fix a line that decides nothing. Cut a body that the signature and the tests already fix.
-3. **Name match.** Each name, type, and signature in a later phase matches its first use in an earlier phase.
-4. **Failure modes.** Each row in Failure modes has an owner phase and a test in that phase.
-5. **Proportion.** A plan that is much longer than the spec is a copy of the code. Replace bodies with signatures, test names, and assertions.
-6. **Review decisions.** Each angle has a decision with evidence, an owner phase, and verification, or an inapplicable reason. Each applicable decision appears in its phase.
+1. **Requirements.** Trace each requirement to its phase and observable result. Find missing, partial, or incorrect behavior. Cut work with no requirement or concrete risk.
+2. **Retry and idempotency.** For each write path, walk one failed attempt and then its retry.
+   - Find what stays in the other system, and each field that is stale after the retry.
+   - Find each leftover record that blocks the retry after a rollback, a delete, or a cancel.
+   - Name the idempotency key or the state check. Find what a second delivery of the same event does.
+3. **Transactions and concurrency.** Find each side effect before the commit. Find each row, key, or file that two workers write. Name the lock or the unique constraint, or give each row one writer.
+4. **Lifecycle.** Find what the code does with a canceled, deleted, or superseded record that it finds or reuses.
+5. **Queries and indexes.** For each new or changed query, name the index that it uses on the real database dialect.
+   - Find N+1 loops, result sets with no limit, and full scans on large tables.
+   - A migration names its lock, its lock timeout, and its effect on existing rows.
+6. **External calls.** For each call, name the timeout, the retry policy, and the limits of the other system. Find what happens when a call times out after the other system wrote the record.
+7. **Errors and reporting.** For each exception, name its outcome: retry, drop, 4xx, or 5xx. An expected retry logs a warning and does not reach Sentry. Find each path that fails loudly today and becomes quiet.
+8. **Data and deploy.** Find stored rows, running process instances, and queued events in the old shape. Find version skew between stage and prod. Find each rule that config checks at deploy time and code checks at runtime.
+9. **Contracts.** Each name, type, and signature in a later phase matches its first use. Find each caller of a changed signature, schema, or event. Find doc text and comments that the change makes false.
+10. **Tests.** Each risk above has a test that fails without its fix. A test pins behavior, not call order.
