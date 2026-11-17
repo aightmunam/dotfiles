@@ -8,12 +8,12 @@ description: Use when a data change touches a real database or a live system. Us
 ## Definitions
 
 - **Prod write:** any change to prod data. The user has no direct write access to prod. Only a deployed path writes to prod.
-- **Deployed path:** an API-driven CLI, an Alembic data migration in the release, or a one-off script in the release Cloud Run job.
+- **Deployed path:** a local script that calls the prod API, or an Alembic data migration in the release. A one-off script in the release Cloud Run job is also a deployed path. The job is only for a DB migration that may be too long or too big for the release.
 - **Target:** the table and the rows to change. Name the entity file, the constraints, and the cascades.
 - **Invariant:** a count that you read before the change and assert after it.
 - **Pure read:** a statement that takes no row lock. `SELECT ... FOR UPDATE` and a rolled-back `DELETE` are not pure reads.
 
-You build the tool and run it on staging. A staging run proceeds without a question. The user runs each prod step. You read prod only through read paths: Metabase and read APIs. For Salesforce prod data, give the user the read query. You run no command against a prod org.
+You build the tool and run it on staging. A staging run proceeds without a question. The user runs each prod step. You read prod with pure reads, through a read-only DB connection, a read endpoint, or Metabase. For Salesforce prod data, give the user the read query. You run no command against a prod org.
 
 ## The Loop
 
@@ -30,7 +30,7 @@ You build the tool and run it on staging. A staging run proceeds without a quest
 
 ## Rules That Shape the Op
 
-- **No prod write connection.** No command that you run holds a prod connection string, a prod `DATABASE_URL`, or a prod write token.
+- **No prod write connection.** No command that you run holds a prod write connection, a prod write token, or a statement that is not a pure read.
 - **Scope is explicit.** Target IDs or a filter are inline in the script. Rows in progress or completed stay out unless the user asks.
 - **A revert path comes first.** State the downgrade, the revert file, the backup table, or fail-forward before the first write.
 - **Bound the lock time.** Set `lock_timeout`. Put data statements before DDL.
@@ -46,7 +46,7 @@ You build the tool and run it on staging. A staging run proceeds without a quest
 
 ```
 Target: <table>, <entity file>, <row rule as SQL count>, <count or "not read" and why>.
-Path: <A | Alembic | B>. Row: <path table row>. Reason: <fact>.
+Path: <A | Alembic | B>. Row: <path table row>. Reason: <fact: the endpoint that makes it, the systems that must see it, the row count, or a timing>.
 Files: <each file and its purpose>.
 Invariant: <count before, assertion after>. Revert: <path>.
 Rerun: twice <answer>. crash <answer>. converges <answer>.
@@ -60,7 +60,8 @@ Principles applied: <name> -> <choice it changed>, only for each principle file 
 
 - A command that you run connects to prod with write access. Go back to step 6.
 - The prod dry run on a busy table takes row locks. Go back to step 3.
-- An Alembic migration for a busy table. Go back to step 2.
+- You picked path B, and no count or timing shows that the migration may be too long or too big for the release. Go back to step 2.
+- You picked Alembic, and a count or timing shows that the migration may be too long or too big for the release. Go back to step 2.
 - The target is not in the repo, or you guessed the store. Go back to step 1.
 - A step says "passed" from output that you did not read. Go back to step 7.
 - You did not read a principle file that a step names. Go back to that step.
