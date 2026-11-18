@@ -48,7 +48,7 @@ Dispatch independent subagents of the same role together, in one message, so the
 
 **Returns:** each finding with the fact ID it rests on, or "nothing found" with the list of what was checked.
 
-**You then:** any finding sends you back to the step it names. A row a reviewer adds goes to a new eliminator; a cell a reviewer disputes goes back to an eliminator with the reviewer's cited fact. The matrix only holds cells an eliminator returned.
+**You then:** any finding sends you back to the step it names. A row a reviewer adds goes to a new eliminator; a cell a reviewer disputes goes back to an eliminator with the reviewer's cited fact. The matrix only holds cells an eliminator returned. Exception: the one inline row of the loop step 4 fast path (section 2).
 
 ## 4. Repro runner (loop step 1 and step 8, and when the input gives steps to reproduce or offers a repro)
 

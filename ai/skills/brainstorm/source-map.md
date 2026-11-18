@@ -2,7 +2,7 @@
 
 `ai/sources.lock` pins the sources. Paths are under `~/Developer/ref/`.
 
-- **sp:** superpowers `skills/brainstorming` (SKILL.md, builder-check-prompt.md, visual-companion.md).
+- **sp:** superpowers `skills/brainstorming` (SKILL.md, builder-check-prompt.md, visual-companion.md). The Approaches row cites 2ce8aa1 and 22f0b46. These SHAs are newer than the pin in `ai/sources.lock` (bb92a77). The pin did not move. The cited text is not in bb92a77.
 - **grill:** mattpocock-skills `skills/productivity/grilling/SKILL.md`.
 - **proto:** pstack-claude `plugins/pstack/skills/poteto-mode/playbooks/prototype.md`.
 - **pm:** pstack-claude `plugins/pstack/skills/poteto-mode/SKILL.md` line 143 (settle a fork by observing it instead of asking the human).

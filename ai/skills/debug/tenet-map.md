@@ -14,7 +14,7 @@ Sources (pinned in `ai/sources.lock`, paths under `~/Developer/ref/` unless note
 - **audit:** `.superpowers/sdd/2026-10-30-skill-rework/skill-audit.md` in the skill-rework worktree, G4 and G5 and Top-10 items 4 and 5. **siblings:** research:24 (Sentry "when you have them"), staging:22 (`gcloud logging read`), data-op:16 (prod only through read paths: Metabase and read APIs).
 - **old-debug:** the old `ai/skills/debug/SKILL.md` (read-only look at local logs, DB state and git history).
 - **atp / frc:** `ai/principles/attack-the-premise.md`, `ai/principles/fix-root-causes.md` (spec 8.7).
-- **bug-fix:** pstack-claude origin/main 2044f18 plugins/pstack/skills/poteto-mode/playbooks/bug-fix.md. This SHA is newer than the pin in `ai/sources.lock` (22b5e13). The pin did not move, because a bump moves the reference of about 20 other source maps. Table 4 cites the SHA in each row.
+- **bug-fix:** pstack-claude origin/main 2044f18 plugins/pstack/skills/poteto-mode/playbooks/bug-fix.md. This SHA is newer than the pin in `ai/sources.lock` (22b5e13). The pin did not move, because a bump moves the reference of 27 other source maps. Table 4 cites the SHA in each row.
 - **spec:** `thoughts/shared/specs/2026-10-30-skill-rework-design.md` section 8.4 debug entry. **brief:** the Task 4.3 brief and its dispatch.
 
 "Loop N" and "Rules" refer to SKILL.md. "TN" refers to section N of investigation-template.md. In Table 1, "G" items are the fcd GREEN checks against three pressure scenarios (export latency, webhook duplicates, mobile sync spinner). They ran with the skill passed by path, so description-based discovery is untested there. Table 2 rows cite the Task 4.3 scenario (flaky tag order).
