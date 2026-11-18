@@ -38,7 +38,7 @@ status: review_complete
 
 # What was done
 
-<2 to 4 sentences: what the diff changes, also the part that the diff does not show>
+<what the diff changes, also the part that the diff does not show, short enough to read before the findings>
 
 ## Safety fact
 

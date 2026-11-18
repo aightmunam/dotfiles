@@ -38,7 +38,7 @@ Nothing gets built until the user approves the design doc. This gate stays when 
 ## Question Template
 
 ```
-<1 to 3 lines: the facts that you found, with paths>
+<only the facts that you found that change the design, with paths>
 
 **Decision:** <one question, worded so that yes accepts the recommendation>?
 **Recommended:** <your answer>. <one reason>.

@@ -11,7 +11,7 @@ Grimoire and The Eye parse this doc. Keep each rule below, or the doc does not r
 - The next line is the italic summary. It starts with the ladder step: `_Ladder step <n>: <what breaks and when, in plain words>_`. Write it to the author in one sentence of at most 25 words. No rule numbers, no paths.
 - Then the `~~~finding` block: a YAML head, a line that is only `---`, then the comment fence, then the detail. `line` is an integer on the right side of the diff. Put a fix in a `suggestion` fence after the detail. Never put `~~~` in the body. Never start a body line with `# `, also in a fence. Grimoire reads that line as a new H1 section. Indent a Python comment, or remove it.
 - No other `###` heading goes in `# Review findings`.
-- The comment fence is the text that Grimoire posts on the PR line. The detail stays in the doc. Write the comment to the author, as one colleague to another, in 1 to 3 sentences. Say what is wrong and the fix. Ask a question when the fix is a choice for the author. Start a low finding with `nit: `. Do not put ladder steps, lens names, severity words, or `Evidence:` in the comment. Do not put a fence inside it. The suggestion fence gives the code.
+- The comment fence is the text that Grimoire posts on the PR line. The detail stays in the doc. Write the comment to the author, as one colleague to another, brief enough to read at a glance. Say what is wrong and the fix. Ask a question when the fix is a choice for the author. Start a low finding with `nit: `. Do not put ladder steps, lens names, severity words, or `Evidence:` in the comment. Do not put a fence inside it. The suggestion fence gives the code.
 - Each comment obeys the unslop rules (`~/.agents/skills/unslop/rules.md`). Grimoire warns about a finding with no comment fence and about an em dash in a comment.
 - Severity is `critical`, `high`, `medium`, or `low`. Put an info item in `low`.
 - In `# Automated checks`, the Status cell is `pass` or `fail`. Use a different word, for example `not run`, when the check did not finish. Never put `|` in a table cell. Grimoire drops that row with no warning.
@@ -27,7 +27,7 @@ Grimoire and The Eye parse this doc. Keep each rule below, or the doc does not r
 
 The user reads the doc to understand the PR. Only the comment fences go to the author. Apply `~/.agents/skills/technical-writing/layers.md` to the rest.
 
-- **The verdict comes first.** `# Summary` starts with the verdict list from the template. Then write 2 to 4 sentences: what the PR does and what is solid. Put nothing else before `## Lens runs`. The severity counts and the doc path go in the reply.
+- **The verdict comes first.** `# Summary` starts with the verdict list from the template. Then write what the PR does and what is solid, short enough that the author reaches the findings in one read. Put nothing else before `## Lens runs`. The severity counts and the doc path go in the reply.
 - **One mode for each H1.** `# What was done` is explanation. `# How it was done` is reference and follows the order of the code. `# Review findings` and `# Automated checks` are reference. `# Questions for author` is a list.
 - **The finding detail is a list, not paragraphs.** Grimoire renders markdown with `breaks: false`, so two label lines with no list marker merge into one paragraph. Use the labels in the template. Put each hop of a traced failure path on its own numbered line, with its `file:line`. Leave out `Failure path:` when the finding traces no path.
 - **The fix has its own label.** Do not put the severity reason or the author's context in `Fix:`.
@@ -55,7 +55,7 @@ status: review_complete
 - **Fix before merge:** <finding ids, or "none">
 - **Not checked:** <each check that did not run, or "none">
 
-<2 to 4 sentences: what the PR does and what is solid>
+<what the PR does and what is solid, before any finding>
 
 ## Lens runs
 
@@ -114,15 +114,15 @@ line: <integer>
 side: RIGHT
 ---
 ```comment
-<1 to 3 sentences to the author: what is wrong and the fix, or a question. Low: start with "nit: ">
+<to the author, only what they need to act: what is wrong and the fix, or a question. Low: start with "nit: ">
 ```
 
-- **Problem:** <what is wrong, in 1 or 2 sentences>
+- **Problem:** <what is wrong, one problem only>
 - **Failure path:**
   1. `<file:line>`: <what happens at this hop>
   2. `<file:line>`: <the next hop, up to the visible failure>
 - **Severity:** <why this level, and the author's context if it lowers it>
-- **Fix:** <the change, in 1 or 2 sentences>
+- **Fix:** <the change that fixes it>
 - **Lenses:** <lens names>. **Source:** <"review", or "comment by @<login>">
 - **Evidence:** <for critical or high: the command and exit code, or the file:line hops that you read>
 
