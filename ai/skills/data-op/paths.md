@@ -2,7 +2,7 @@
 
 Fact: the user has no direct write access to prod. Every prod write goes through a deployed path. The agent never opens a write connection to a prod DB and never writes to SF prod.
 
-Reads: prod DB read access exists. Read prod data with pure reads through a read-only DB connection, a read endpoint, or Metabase. Any of them is fine.
+Reads: prod DB read access exists. Read prod data with pure reads through a read-only DB connection (psql with the GCP IAM role), a read endpoint, or Metabase. Any of them is fine.
 
 ## Path table
 

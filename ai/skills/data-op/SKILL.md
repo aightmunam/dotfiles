@@ -13,7 +13,7 @@ description: Use when a data change touches a real database or a live system. Us
 - **Invariant:** a count that you read before the change and assert after it.
 - **Pure read:** a statement that takes no row lock. `SELECT ... FOR UPDATE` and a rolled-back `DELETE` are not pure reads.
 
-You build the tool and run it on staging. A staging run proceeds without a question. The user runs each prod step. You read prod with pure reads, through a read-only DB connection, a read endpoint, or Metabase. For Salesforce prod data, give the user the read query. You run no command against a prod org.
+You build the tool and run it on staging. A staging run proceeds without a question. The user runs each prod step. You read prod with pure reads, through a read-only DB connection (psql with the GCP IAM role), a read endpoint, or Metabase. For Salesforce prod data, give the user the read query. You run no command against a prod org.
 
 ## The Loop
 
