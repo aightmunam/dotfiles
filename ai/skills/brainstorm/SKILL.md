@@ -16,7 +16,7 @@ description: Use when an idea is vague and needs a design before a plan. Use whe
 
 1. **Explore.** Before your first question, find the code and the files that the idea touches. If the user names a system, search `~/Developer` for its repo. Read what exists now. Write each fact with its path. If the idea is several independent projects, say so. Ask which project comes first, with a recommended order. Then do the loop for one project at a time. Then sharpen the idea for yourself. Write what a top professional does here that the user did not ask for. Name the rawest material that they start from and their methods. Name the outside check that shows the result is right. A professional move that adds scope is a decision for step 3.
 2. **Split.** List the open points. Mark each point as a fact or a decision. Get each fact yourself. Read the code, or run a command. A throwaway script in a scratch directory outside the repo is also exploration. To keep it is a new request through the hard gate. Ask the user only for decisions.
-3. **Ask.** Use the question template. Ask about one decision. Pick the decision that most other decisions depend on. Before you recommend, think of several options privately. Drop each option that is weak or that fights the user's why. Wait for the answer.
+3. **Ask.** Use the question template. Ask about one decision. Pick the decision that most other decisions depend on. Before you recommend, think of several options privately. Drop each option that is weak or that fights the user's why. Wait for the answer. Once you know what the user wants and why, ask the approach as its own decision before step 5. Sketch the two or three real ways to build it from the code. Give each one its trade-off, and recommend one. With one sensible way, say so and why the others do not fit.
 4. **Play back.** When you understand one part, describe it back in a short playback that the user can check in one read. Mark each guess as your guess. Write "Correct any part of this." Then put the next question from step 3 at the end. Then do step 3 again for the next part.
 5. **Write.** When no decision is open, write the design doc from the template below. Put it in `thoughts/shared/specs/YYYY-MM-DD-<topic>-design.md` with `status: draft`. Use the `thoughts/` of the repo where the change lands. In a worktree, use the main checkout (`git rev-parse --git-common-dir`, then its parent). If you cannot write files, do the builder check yourself first. Then put the full doc in your answer and name its path.
 6. **Builder check.** Read `builder-check.md`. Give it to a fresh agent. With no dispatch tool, read the doc as the builder yourself. Put each "answered" and "minor" result into the doc. Ask each "theirs" question with step 3, one per message. Put each answer into the doc.
@@ -57,6 +57,7 @@ topic: <topic>
 ## Goals, non-goals, anti-goals
 ## Constraints        (facts, each with its path)
 ## Outside check      (what, other than you or the user, shows the result is right)
+## Approaches         (the two or three ways considered, each with its trade-off; the one picked, and why)
 ## Decisions          (each: question, answer, "user" or "your call")
 ## Left to the builder
 ```
