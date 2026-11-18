@@ -15,10 +15,10 @@ description: Use when your own branch is ready for a PR and the user asks to ope
 ## The Loop
 
 1. **State.** Get the branch with `git branch --show-current`. On main or master, stop. Get the PR state. MERGED or CLOSED, with no OPEN PR: stop. Fill only `PR state` and `Question` in the output template. Do not create, edit, reopen or mark ready a PR.
-2. **Read.** Read `git log` and `git diff` from the merge base with the base branch. Find the prove doc. Check that it is fresh. Read `api-contract.md` when an endpoint changes. Check its contract before the push. Find the repo PR template: `.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE.md` or `thoughts/shared/pr_description.md`.
+2. **Read.** Read `git log` and `git diff` from the merge base with the base branch. The base branch is the open PR's `baseRefName` (`gh pr view --json baseRefName`). Without a PR, it is the branch this one was cut from, else the default branch. A stacked branch diffs against its parent, not main. Include uncommitted changes. Find the prove doc. Check that it is fresh. Read `api-contract.md` when an endpoint changes. Check its contract before the push. Find the repo PR template: `.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE.md` or `thoughts/shared/pr_description.md`.
 3. **Reviewability.** Look for noisy commits, a stale description, unrelated changes, mechanical changes mixed with logic changes, missing tests and an unclear entry point. If notes cannot make the PR easy to review, stop. Recommend a split. Name the commits for each part.
 4. **Deslop.** Look in the diff for a bare `except`, a `None` check on a value that a boundary already checked, and a narration comment. Report each hit with its `path:line`. Do not fix these hits in this skill.
-5. **Write.** Read `description-template.md`. Draft what changed, why, and how in the pr block. Follow the repo template when present. Follow the drafting and `unslop` steps in `description-template.md`.
+5. **Write.** Read `description-template.md`. Draft what changed, why, and how in the pr block. Follow the repo template when present. Follow the drafting and `unslop` steps in `description-template.md`. Write the pr block to a file. Run `~/.agents/bin/pr-body-lint <file>`. Fix each finding until it exits 0.
 6. **Show.** No PR: show the title and the full body. OPEN PR: keep the hand-written text. Replace the pr block, or add the pr block at the end. Show `diff -u` of the current body and the new body.
 7. **Red flags.** Read the result once for each red flag below.
 8. **Push and ask.** Run `git push -u origin <branch>`. A push to a feature branch needs no OK. If it fails, report it. Do not force. Use the output template. Ask one question. Give a recommended answer.
@@ -26,7 +26,7 @@ description: Use when your own branch is ready for a PR and the user asks to ope
 
 ## Rules That Shape The Body
 
-- **One-minute briefing.** A reviewer reads the body in one minute. Link logs, runs and tables. Do not paste them.
+- **One-minute briefing.** A reviewer reads the body in one minute. Write bullets with the fewest words. Keep each crucial detail: each API change and its status codes, each verification gap, the merge danger, and each prod step. Cut the rest. Link logs, runs and tables. Do not paste them.
 - **No commands.** Only a runbook PR from `data-op` has commands in its body. Its commands are its content.
 - **No attribution.** Do not add a line that names a tool or a model as an author. Do not add a co-author trailer.
 - **Summary matches the diff.** Support each claim with the diff. Name a file only when it gives a useful review entry point.
@@ -50,9 +50,9 @@ description: Use when your own branch is ready for a PR and the user asks to ope
 - A hand-written line is missing or changed in the new body. Go back to step 6.
 - A new title, draft state, reviewer or label on an OPEN PR. Go back to step 6.
 - A validation claim lacks evidence, or the body names or links a prove doc. Go back to step 5.
-- A command, a pasted log, a table or a SHA list in a body that is not a runbook. Go back to step 5.
+- A command, a pasted log, a table or a SHA list in a body that is not a runbook, or `pr-body-lint` did not exit 0. Go back to step 5.
 - A repo template heading is missing, or the default body contains forced file lists or proof metadata. Go back to step 5.
-- The body omits Merge danger or its door, blast radius, or rollback field. Go back to step 5.
+- The body omits Merge danger, its door, blast radius or rollback field, or a prod step. Go back to step 5.
 - The output has no `Question:` line. Go back to step 8.
 
 ## Output Template

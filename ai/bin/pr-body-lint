@@ -1,0 +1,131 @@
+#!/usr/bin/env python3
+"""pr-body-lint FILE: check that a PR body is terse bullets, not prose.
+
+Checks the text between <!-- pr:start --> and <!-- pr:end -->, or the
+whole file when it has no markers. Code blocks, headings, tables and
+HTML comments are not prose. A section may open with one lead line;
+any other paragraph is prose.
+A line of at most 10 words that ends with ":" may introduce a code
+block or a list.
+Findings:
+  - a second prose paragraph in a section: write it as bullets
+  - a lead line over 25 words
+  - a bullet (with its wrapped lines) over 25 words: split it
+Prints "FILE:LINE: finding" for each. Exit 0 clean, 1 findings, 2 setup.
+"""
+import re
+import sys
+
+MAX_WORDS = 25
+MAX_INTRO_WORDS = 10
+BULLET = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s+")
+
+
+def words(text):
+    return len(re.findall(r"\S+", text))
+
+
+def short(text):
+    text = " ".join(text.split())
+    return text if len(text) <= 60 else text[:57] + "..."
+
+
+def lint(lines):
+    start, end = 0, len(lines)
+    for i, line in enumerate(lines):
+        if "<!-- pr:start -->" in line:
+            start = i + 1
+        elif "<!-- pr:end -->" in line:
+            end = i
+    findings = []
+    fence = None
+    item = None  # [line number, kind, text]
+    seen_lead = False
+    intro = None  # a short "...:" line, allowed only before a block or a list
+
+    def close():
+        nonlocal item, intro
+        if item is None:
+            return
+        no, kind, text = item
+        n = words(BULLET.sub("", text, count=1))
+        if kind == "bullet" and n > MAX_WORDS:
+            findings.append((no, f"bullet has {n} words, max {MAX_WORDS}: split it"))
+        elif kind == "lead" and n > MAX_WORDS:
+            findings.append((no, f"lead line has {n} words, max {MAX_WORDS}"))
+        elif kind == "prose" and text.endswith(":") and n <= MAX_INTRO_WORDS:
+            intro = (no, text)
+        elif kind == "prose":
+            findings.append((no, f"prose paragraph, write it as bullets: {short(text)}"))
+        item = None
+
+    def settle(introduces):
+        nonlocal intro
+        if intro is not None and not introduces:
+            no, text = intro
+            findings.append((no, f"prose paragraph, write it as bullets: {short(text)}"))
+        intro = None
+
+    for no in range(start, end):
+        line = lines[no].rstrip("\n")
+        stripped = line.strip()
+        marker = re.match(r"^\s*(```+|~~~+)", line)
+        if stripped and not fence and item is None:
+            settle(bool(marker) or bool(BULLET.match(line)))
+        if fence:
+            if marker and marker.group(1)[0] == fence[0] and len(marker.group(1)) >= len(fence):
+                fence = None
+            continue
+        if marker:
+            close()
+            settle(True)
+            fence = marker.group(1)
+            seen_lead = True
+            continue
+        if not stripped:
+            close()
+            continue
+        if stripped.startswith("#"):
+            close()
+            seen_lead = False
+            continue
+        if stripped.startswith("<!--") or stripped.startswith("|"):
+            close()
+            continue
+        if BULLET.match(line):
+            close()
+            settle(True)
+            item = [no + 1, "bullet", stripped]
+            seen_lead = True
+            continue
+        if item is not None and (item[1] != "bullet" or line[:1].isspace()):
+            item[2] += " " + stripped
+            continue
+        close()
+        item = [no + 1, "prose" if seen_lead else "lead", stripped]
+        seen_lead = True
+    close()
+    settle(False)
+    return sorted(findings)
+
+
+def main(argv):
+    if len(argv) != 2 or argv[1] in ("-h", "--help"):
+        print("usage: pr-body-lint FILE", file=sys.stderr)
+        print(__doc__.split("\n", 2)[2], file=sys.stderr)
+        return 2
+    path = argv[1]
+    try:
+        with open(path, encoding="utf-8") as f:
+            lines = f.readlines()
+    except OSError as error:
+        print(f"pr-body-lint: {error}", file=sys.stderr)
+        return 2
+    findings = lint(lines)
+    for no, text in findings:
+        print(f"{path}:{no}: {text}")
+    return 1 if findings else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

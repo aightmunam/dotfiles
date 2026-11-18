@@ -1,5 +1,27 @@
 # Source map
 
+## Terse bullet bodies, 2026-11-09
+
+The user asked "why is the PR description so wordy. I would rather use simpler descriptions", then "make it easier to read by using bullet points and as little words as possible. Simplicity most important without losing crucial details", then "I would also like to update the /pr skill to do this" (heizbruder PR #20: the prose body was 949 words, the bullet rewrite 421).
+
+| Rule | Source | Form | Where enforced | Scenario |
+|---|---|---|---|---|
+| Bullets, not prose: one lead line for each section, the rest bullets, each bullet at most 25 words. | User words; tw "Cut every word that does no work", "split sentences longer than about 25"; pocock "keep prose brief". | Guard | `ai/bin/pr-body-lint` (tests `ai/tests/test_pr_body_lint.py`); SKILL.md step 5 and red flag | pr-terse |
+| A line of at most 10 words that ends with ":" may introduce a block or a list. | tw "Introduce a list with a complete sentence"; show-me "label conceptual sketches"; GREEN-1 Codex. | Guard | `pr-body-lint` | pr-terse green-1 codex |
+| Keep each crucial detail: each API change and its status codes, each verification gap, the merge danger, each prod step. | User words ("without losing crucial details"); memory terse-pr-bodies. | Discipline | SKILL.md One-minute briefing; description-template.md Body | pr-terse |
+| Each prod step is its own sub-bullet under **Prod:**, not inside Blast radius. | RED: both answers put the prod steps inside Blast radius. | Template slot and red flag | description-template.md; SKILL.md red flag | pr-terse |
+| On an update, rewrite the pr block from current facts and replace stale lines. Do not append. | User correction on PR #20 (rounds of appended sentences made it 949 words). | Discipline | description-template.md Body | not pressure-tested (needs an OPEN PR scenario) |
+| unslop keeps the bullets and field labels. | RED/GREEN: unslop runs last and can merge bullets into prose. | Procedure | description-template.md drafting step 4 | pr-terse |
+
+Guard first: a script can see prose paragraphs and long bullets. It cannot judge which detail is crucial, so that part stays text.
+
+### Pressure scenarios
+
+Scenario: `/private/tmp/claude-502/-Users-munammubashir-Developer-heizbruder/84e6e46a-802c-4947-8ca2-e99d0dc90150/scratchpad/pr-terse/scenario.txt` with facts `/private/tmp/claude-502/-Users-munammubashir-Developer-heizbruder/84e6e46a-802c-4947-8ca2-e99d0dc90150/scratchpad/pr-terse/facts.md` (the PR #20 facts). Draft a new PR body, no GitHub, no files.
+RED (old skill, `/private/tmp/claude-502/-Users-munammubashir-Developer-heizbruder/84e6e46a-802c-4947-8ca2-e99d0dc90150/scratchpad/pr-terse/red/`): Claude 600 words, Codex 371. Both wrote Summary and Evidence as paragraphs and put the prod steps inside Blast radius. `pr-body-lint`: 10 and 8 findings.
+GREEN-1 (`/private/tmp/claude-502/-Users-munammubashir-Developer-heizbruder/84e6e46a-802c-4947-8ca2-e99d0dc90150/scratchpad/pr-terse/green-1/`): harness PASS both (Claude cost in claude.jsonl). Both bodies are bullets with a **Prod:** sub-list. `pr-body-lint` exit 0 for both (Codex after the intro-line rule). Claude block 510 words, Codex 482: Codex grew because RED had dropped the evidence details into one sentence.
+Neither run executed `pr-body-lint`, because the scenario forbids checks and file writes. The guard applies in real runs.
+
 ## New endpoint overview, 2026-11-09
 
 The user clarifies that a new endpoint needs a general overview, not an exhaustive operation dump.

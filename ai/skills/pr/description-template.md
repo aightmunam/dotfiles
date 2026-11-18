@@ -5,13 +5,22 @@
 1. Read `~/.agents/skills/unslop/SKILL.md` and `~/.agents/skills/unslop/rules.md`.
 2. Complete `api-contract.md` when an endpoint changes. Use its stop rule for an unresolved contract gap.
 3. Draft the body below from the verified facts.
-4. Apply `unslop` to the finished prose. Keep its change list outside the body.
+4. Apply `unslop` to the finished draft. Keep the bullets and the field labels. Keep its change list outside the body.
 
 ## Body
 
-Write a brief explanation for a reviewer who has not seen the chat.
-Use the repository terms. Explain the problem, the result, and the mechanism.
-Use two short paragraphs for a small change. Add detail when review needs it.
+Write for a reviewer who has not seen the chat. Simplicity comes first.
+Each section opens with at most one lead line. Write everything else as bullets.
+Put one fact in each bullet. Fragments are fine. Split a bullet over 25 words.
+Use nested bullets for the parts of one item, such as the field rules of one endpoint.
+Use the repository terms. Cut a word when the bullet keeps its meaning without it.
+Keep each crucial detail: each API change and its status codes, each verification gap,
+the merge danger, and each prod step. Do not cut these to save words.
+State a fact once. A flow block that shows the status codes needs no bullet that repeats them.
+A small change can be one lead line and three bullets.
+
+On an update, rewrite the pr block from the current facts. Replace each stale line.
+Do not append a sentence about the newest change to an older line.
 
 Keep the markers. A later run uses them to preserve text written by the user.
 Keep repository template headings and their order when a template exists.
@@ -21,9 +30,9 @@ Map the content below to those headings. Omit optional sections that add no usef
 <!-- pr:start -->
 ## Summary
 
-<What changes and why it matters. Give a concrete before and after when useful.>
+<One lead line: what changes. Add the before when it explains why.>
 
-<How the change works. Explain a decision the diff alone does not explain.>
+- <How it works, one fact per bullet. Include a decision the diff alone does not explain.>
 
 <Call-flow sketch when runtime order or error mapping needs explanation.>
 
@@ -33,11 +42,10 @@ Map the content below to those headings. Omit optional sections that add no usef
 
 ## Merge danger
 
-**Door:** <one-way or two-way, with the reason>
-
-**Blast radius:** <affected callers and behavior>
-
-**Rollback:** <the actual rollback path or its limit>
+- **Door:** <one-way or two-way, with the reason>
+- **Blast radius:** <affected callers and behavior>
+- **Rollback:** <the actual rollback path or its limit>
+- **Prod:** <each step or risk of the prod deploy as a sub-bullet, or omit when there is none>
 <!-- pr:end -->
 ```
 
@@ -78,6 +86,7 @@ State observed compatibility changes. Do not invent client behavior.
 Keep repair instructions and generator discovery steps outside the body.
 Name the unresolved contract gap in the body.
 Keep the Merge danger section. State the door type, affected callers, and the rollback path.
+Put each prod step in its own sub-bullet under **Prod:**, not inside Blast radius.
 A two-way door is reversible. A one-way door includes changes that a code revert cannot undo.
 Keep these fields and labels through `unslop`. Use concrete facts instead of a generic risk rating.
 Name an important file when it helps review. Omit a full file inventory.
@@ -102,16 +111,14 @@ GET .../heizbruder/projects/{bv}/versions/{id}     (path patterns -> 422 before 
 ```
 
 This GET is a new endpoint. Give a brief overview using `api-contract.md`.
-Summarize its main inputs, response, and important errors. Keep the detailed schema in the spec.
+Give its main inputs, response, and important errors as bullets. Keep the detailed schema in the spec.
 
 The Merge danger section for this example:
 
 ```markdown
 ## Merge danger
 
-**Door:** two-way. Adds a read route with no data migration.
-
-**Blast radius:** new GET callers and the existing submit route, which now shares response and error mapping.
-
-**Rollback:** revert the PR to remove the GET and restore the previous submit implementation.
+- **Door:** two-way. Adds a read route. No data migration.
+- **Blast radius:** new GET callers, and submit, which now shares the response and error mapping.
+- **Rollback:** revert the PR.
 ```

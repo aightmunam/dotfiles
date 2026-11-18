@@ -43,7 +43,7 @@ State the effect on callers when the diff alone does not explain it.
 For a new endpoint, state its method, path, and purpose.
 Summarize the main inputs and the success response.
 Mention auth, constraints, or important errors when callers need them.
-Use short prose, a few bullets, or a small contract sketch.
+Use bullets or a small contract sketch.
 Keep full schema dumps and exhaustive field lists outside the PR body.
 Point to the OpenAPI spec for full details when it is accessible to reviewers.
 Expand a schema detail only when it explains an important caller decision.
