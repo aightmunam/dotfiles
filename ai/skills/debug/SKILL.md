@@ -16,21 +16,23 @@ description: Use when something is broken and the cause is not known. Use when a
 
 **First, read `investigation-template.md`.** Your answer fills all of its sections in order. A section that does not apply says why.
 
-**If you have a subagent dispatch tool, also read `subagent-roles.md`.** Give each role to a subagent. Do this also when the sources are small. Isolation from your context is the point. With no dispatch tool, do each role yourself.
+**If you have a subagent dispatch tool, also read `subagent-roles.md`.** Give each role to a subagent. Do this also when the sources are small. Only the step 4 fast path changes this, and only for the eliminators. Isolation from your context is the point. With no dispatch tool, do each role yourself.
 
 1. **Red loop.** Build the red loop before you write a hypothesis or a fix. Build it from the test command and the symptom. Do not read the suspect code yet. Run the loop on the unchanged code, and show its red output, before any patch. For a flaky bug, pin the random input (seed, hash seed, clock, order), or run the trigger many times. Record the red rate. The loop output is fact F1. If real attempts give no loop, list the attempts. Then mark each cause and each fix `UNCONFIRMED (no loop)`.
 2. **Facts** (gatherers). Gather read-only, and do it yourself. Prefer facts from the environment where the bug occurred. Ask a human only for a source that you cannot get to, and write each ask in the intervention log.
-   - Local sources: run output, logs, local DB state, configs, and `git status`, `git log` and `git diff`.
+   - Local sources: run output, logs, local DB state, configs, and `git status`, `git log` and `git diff`. From a config, read only the fields that you need with a filter command, such as `grep`, `jq` or `yq`. Do not open the full file.
    - Prod sources, reads only: Sentry (issue, events, release) when you have it. Cloud Logging: `gcloud logging read` with a time window and a service filter. Prod data only through read paths: Metabase and read APIs. Camunda read tools for process state. Deploy history: `gh api repos/<owner>/<repo>/deployments`, with the owner and the repo from `git remote get-url origin` (do not guess them), `gh run list` for the deploy workflow, and `gcloud run revisions list`.
    - First, list the tools that you have. Query each source that applies. Write each source that you cannot get to as a gap in template section 1. An empty result is a fact.
 3. **Variable and control.** Use the best control in the data, and write its weakness.
 4. **Matrix** (eliminators). Give a row to each candidate in the input, each failed fix, and each of yours. Make each fact a column. A `Y` needs no unproven mechanism.
+   - **Fast path.** Use it only when all of these are true. The step 2 facts alone show one cause in one subsystem. The fix changes no contract from step 10. A cheap regression test exists. No competing explanation stays. Then run steps 4 to 7 as one inline matrix row. Gatherers and reviewers still run as subagents. Write the facts that permit the skip in the Dispatch line of the intervention log. Steps 1 and 8 to 13 still run. If a condition fails later, go back to step 4. The size of the patch or of the repo never permits the skip.
 5. **Read it.** The strongest signal is the column with the fewest `Y`. Any `N` discards a row.
 6. **No row survives.** Do the tactics in order (template section 4).
 7. **Too many rows survive, or the signals are weak.** Stop the hypotheses. Get the one fact that splits the rows, one layer down, cheapest first.
 8. **Replay the survivor.** Run its path through the red loop against the real code, one step for each action. The loop must go red on that path, and green when you remove the cause. If not, suspect the hypothesis until you show that it is right. Then validate the survivor against every fact, noise included.
 9. **Attack the premise.** When two fixes that share one premise fail the same gate, test the premise. Do not write a third fix. Count the failed fixes in the input too. Write the premise in one sentence. Look at how the failures spread, not only at their size. Read ~/.agents/principles/attack-the-premise.md before this step.
 10. **Pick the fix.** Fix the fault, not the place where it showed. Ask if the state that caused the symptom is legitimate. A failure only after a restart points at saved state first. Find each place with the same fault. Name a cheap log or metric that shows the cause at first look. Read ~/.agents/principles/fix-root-causes.md before this step.
+   - **Contract fix.** A fix can change a contract: an interface, ownership, a schema, a migration, concurrency or transaction behavior, or a deploy or routing contract. This applies inside one function too. Then stop. Write the cause and the fix shape, not the patch. Hand off to `make-plan`, or to `brainstorm` when the design is open. Name that skill as the next step in the answer.
 11. **Fix.** Write the regression test at the real seam. Watch it fail. Make one change. Run the test and the red loop again.
 12. **Eliminate adversarially.** Use the Signals and Hypotheses reviewers always. Use the Validation reviewer when a row survives. Ask them for facts that contradict, never for agreement.
 13. **Close** with the required outputs. The last line is `Principles applied:` with each principle and the choice that it changed.
@@ -40,7 +42,7 @@ description: Use when something is broken and the cause is not known. Use when a
 - **Cite or label.** Each claim names its fact ID. A link that only code or reasoning supports gets the label `UNCONFIRMED (code-only)`. It ranks below rows that facts support.
 - **Minorities are constraints.** An outlier report must fit too, or it is your strongest signal.
 - **A repro is a hypothesis** until it shows the strongest real signal, line by line.
-- **Redact.** Quote only the lines that carry the signal. Replace each secret, token, and item of customer personal data (names, emails, phone numbers, addresses) with `<REDACTED>`. Do this before the text goes into the answer, a subagent prompt, or a reply. Keep a credential in an env var, not in a command that you show. If the redacted text cannot show the signal, write that as a gap.
+- **Redact.** Quote only the lines that carry the signal. Replace each secret, token, and item of customer personal data (names, emails, phone numbers, addresses) with `<REDACTED>`. Do this before the text goes into the answer, a subagent prompt, or a reply. Keep a credential in an env var, not in a command that you show. From a config or a service response, select only the fields that you need. Never print a full config or environment. If the redacted text cannot show the signal, write that as a gap.
 - **One change at a time.** Never put two fixes in one run.
 - **Fix or mitigation.** Mitigate first if necessary. A fix with open `?` cells stays open and does not close the report.
 - **Decisions belong to the user.** Give each option with its tradeoffs. Reversible work, such as a local fix or a test, needs no question. A merge or push to main/master, or a production write, needs the user's OK.
@@ -62,9 +64,13 @@ description: Use when something is broken and the cause is not known. Use when a
 - The control is "the other users", with no reason to trust it. Go back to step 3.
 - A prod source applies, but the answer does not show it as a fact or as a gap. Go back to step 2.
 - Quoted text holds a secret, a token, or customer personal data. Replace it with `<REDACTED>`. Go back to step 13.
+- You opened a full config, environment or service response. Go back to step 2.
 - Agreement, "it reproduces", or a deadline does the work of a fact. Go back to step 4.
 - You read code when you needed the splitting fact. Go back to step 7.
 - You plan a third fix on the same premise. Go back to step 9.
 - You had a dispatch tool, but you did a gatherer or reviewer job yourself. Go back to that step.
-- You did the roles yourself because the repo, the sources or the budget is small. Size is not a reason. Go back to that step.
+- You did the roles yourself because the repo, the sources or the budget is small. Size is not a reason. Only the fast path facts permit a skip, and only of the eliminators. Go back to that step.
+- You took the fast path, and the Dispatch line has no fact for each of its four conditions. Go back to step 4.
+- You took the fast path, and the step 12 reviewers did not run. Go back to step 12.
+- The fix changes a contract from step 10, and you wrote the patch inline or named no next skill. Go back to step 10.
 - Your answer ends with a question, and no user is present. Go back to step 13.

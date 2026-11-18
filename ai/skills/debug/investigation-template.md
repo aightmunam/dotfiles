@@ -54,6 +54,7 @@ Your answer is this template, filled in, with these seven numbered headings in t
 - `N` cells cite the fact. `?` cells name the fact needed.
 - `Y` needs no unconfirmed mechanism; if it does, write `?` and name the mechanism. Same standard on every row.
 - Every cell is one an eliminator returned. A row added after review gets its own eliminator; a cell a reviewer disputes goes back to an eliminator with the reviewer's cited fact. You never change a cell yourself, and you never drop a fact column from the reading to get around inconsistent cells: re-send every disputed row.
+- Fast path (loop step 4): one inline row, with cells that you fill. The Dispatch line in section 7 names the facts that permit it. Without those facts, the rule above applies.
 - Strongest signal (column with fewest `Y`): ...
 
 **Failed fixes** (from the input and from you): each fix, the gate it failed, and the premise it assumed. Two failed fixes on one premise: test the premise before a third fix (loop step 9).
@@ -94,11 +95,13 @@ Layers, shallow to deep: report and metrics, then request logs and traces, then 
 - **Conclusion:** confirmed cause with fact citations, or the surviving rows and the fact that would decide between them.
 - **Decision points for a human:** every option (mitigate, fix, roll back, escalate) with tradeoffs and what each assumes. Note any decision that should become standing policy.
 - **Fix status:** confirmed, or unconfirmed with its open `?` cells. A confirmed fix shows the replay: the red loop red before the change, green after it, and the regression test at the real seam.
+  - **Contract fix** (loop step 10): the fix shape, not the patch, and the next skill (`make-plan`, or `brainstorm` when the design is open).
 - **Root cause:** the first place the system did something wrong, whether that state is legitimate, and each other place with the same fault.
 - **Verification:** how the winning signal becomes a check, as signal parity against a known-good run, not just pass/fail.
 - **Emit the signal:** what to log or measure at the shallowest layer so the next investigation sees this signal without descending.
 - **Intervention log:** every point where a human had to supply a fact, a control, or a correction, and what would have let you do it yourself.
   - **Assumptions:** with no user present, each assumption you made in place of a question, and the option you went ahead with. Never end the answer with a question that waits.
   - **Dispatch:** each role run as a subagent (role, scope, verdict), and each role done inline with the reason.
+- **Live status:** only when a deploy is part of the task. State what was fixed (the SHA), what was published (the SHA or the image digest), and what the runtime served. Read the served version as the `staging` skill reads serving state: the image digest of the revision that takes the traffic. A SHA label, a `GIT_SHA` env value or a health version is not the image. Missing or contradictory evidence keeps the incident open.
 
 The last line of the answer is `Principles applied: <name> -> <choice it changed>`, one entry for each principle file that you read. Write `Principles applied: none` if you read none.

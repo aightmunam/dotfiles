@@ -17,6 +17,7 @@ Dispatch independent subagents of the same role together, in one message, so the
 2. The output contract below.
 3. "Report what the source shows. Do not explain it, do not guess causes, do not suggest fixes."
 4. "Write `<REDACTED>` in place of each secret, token, and item of customer personal data (names, emails, phone numbers, addresses)."
+5. "From a config or a service response, read only the fields that you need with a filter command. Do not open the full file."
 
 **Returns:** rows of `fact | source | how gathered | instances`. "How gathered" says exactly how the gatherer got it (file read, query text, sorted or unsorted, sampled or complete). Anything odd about the source itself (gaps, ordering, truncation) is its own row.
 
@@ -24,7 +25,7 @@ Dispatch independent subagents of the same role together, in one message, so the
 
 ## 2. Hypothesis eliminator (one per matrix row)
 
-**When:** after you build the matrix (step 4), once per row not already discarded by a cited `N`. Also for every candidate from the input you think is irrelevant.
+**When:** after you build the matrix (step 4), once per row not already discarded by a cited `N`. Also for every candidate from the input you think is irrelevant. Exception: on the loop step 4 fast path, you fill the one row inline, and the Dispatch line names the facts that permit it.
 
 **Prompt contains, in order:**
 1. The full fact table.
