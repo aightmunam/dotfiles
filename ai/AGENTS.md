@@ -19,6 +19,18 @@ for any skill that asks.
   them. Elsewhere use `git worktree add ~/wt/<repo>/<name> -b <branch>`.
 - Use `/` -> `+` in names derived from branches (`feat/x` -> `feat+x`).
 
+## Repo scope
+
+Edit only the repos that the task covers: the repo the session started in,
+and each repo that the user names in the task.
+
+- A task that spans several repos: before the first edit, list the repos that
+  you will change. The user can then change the list once.
+- A fix that needs a repo outside that list: stop before the edit. Name the
+  repo, the file and the reason, and ask. A shared infra repo is never in
+  scope by default.
+- Reads in any repo are fine.
+
 ## Context7 for library docs
 
 Use the Context7 MCP to fetch current documentation whenever the user asks about
