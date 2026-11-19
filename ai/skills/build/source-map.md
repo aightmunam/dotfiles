@@ -18,6 +18,7 @@
 - **review:** Task 4.1 review, fix round 1, with the controller rulings.
 - **audit:** `.superpowers/sdd/2026-10-30-skill-rework/skill-audit.md` items 6 to 8 (G6 to G9), round 2 of the skill rework.
 - **sdd-rev:** superpowers `skills/subagent-driven-development/SKILL.md:308-314` (never skip the task review; it needs spec compliance and quality; the implementer's self-review never replaces it) and `task-reviewer-prompt.md` (inputs: brief, report, diff file; read-only; no subagents; do not pre-judge).
+- **user-ledger:** the user's words, 2026-11-19: "build should also use thoughts. It can add the same folder like sdd/".
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
 "Loop N" is a step in SKILL.md. "Brief" is `brief-template.md`.
@@ -58,6 +59,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Principle pointers: separate-before-serializing-shared-state at dispatch, boundary-discipline at review. The brief names both plus laziness-protocol. | spec 8.7 (table and layer 3). PRINCIPLE_TARGETS in `ai/tests/test_skills_lint.py`. | D | Loop 3. Loop 4. Loop 5. Brief Principles. Output template. | GREEN-4 (harness PASS on both CLIs). |
 | An answer with no `Principles applied:` line goes back to step 8. | tdd Red Flags (the same red flag). review Important 2. | D | Red flags. | GREEN-4: both CLIs gave the line. |
 | Four repo lines, verbatim. | Brief Global Constraints. | D | Repo Rules. Brief Hard rules. | Untested. |
+| Ledger: each brief, report, diff file, and reviewer brief of a run goes in `thoughts/shared/sdd/<plan>/` next to the plan. No skill file names `.superpowers/` as a path. | user-ledger. | P | Definitions (Ledger). Brief intro. Guard: `test_no_superpowers_paths` in `ai/tests/test_skills_lint.py`. | GREEN-ledger: both CLIs put all four files in `thoughts/shared/sdd/<plan>/`. |
 
 ## Cut
 
@@ -91,6 +93,13 @@ Claude ($0.40) took the ImportError (P1) and the TypeError (P2) as red. It wrote
 - GREEN-2 (Claude $0.48, Codex 255k): Codex PASS. Claude read both files with one shell loop, which the harness did not count then. The harness was fixed in dece90d to count shell reads, so the skill names no read method.
 - GREEN-3 (Claude $0.47, Codex 140k): Claude PASS. Codex kept the behavior of GREEN-1 (receipts, D1 to D4 append-only, full suite once, `prove`) and named each principle with the choice it changed. But its heading was "The principles change the execution as follows:", not the `Principles applied:` line, so the harness check failed. Open: the iteration cap (3) is reached. A candidate fix is "End with the output template, also in a dry run", and it is not tested.
 - GREEN-4 (fix round 1, Claude PASS, Codex PASS, one run on one text): the fixes removed the sentence that named a read method and added the `approved` check, the `Assumed:`/`Open:` report slots, the receipt in the plan by the implementer, the no-tick rule, and the `Principles applied:` red flag. Both CLIs kept the behavior of GREEN-1 (stub to the assertion, receipts `expected 1190 got 1000` and `expected 2380 got 2000`, D1 for `add_vat` against `gross_cents`, full suite once, `prove`). Both said that `prove` ticks the boxes and sets `done`. Codex read the principle files plus test-behavior-not-implementation and prove-it-works, and named all five. Runs: `scratch-4.1/green-4/`.
+
+**Ledger in thoughts** (2026-11-19). Scenario: an approved two-phase `discount` plan in a read-only scratch dir. The run cannot write, so it gives the path of each phase 1 run file and the phase 1 brief.
+RED (`--red`, both CLIs): the user-level `build` skill with the old text was still visible. Claude put all four files in `~/wt/shop/feat+discount/.superpowers/sdd/2026-11-19-discount/` (0.47 USD). Codex put all four in `.superpowers/sdd/2026-11-19-discount/`.
+RED old text (`--skill build`, worktree before the change, harness PASS on both CLIs): Claude put all four in `~/wt/shop/discount/.superpowers/sdd/2026-11-19-discount/` (0.48 USD). Codex put all four in `.superpowers/sdd/2026-11-19-discount/`.
+Failure: the ledger goes to `.superpowers/sdd/<plan>/`, outside the thoughts tree.
+GREEN-ledger (`--skill build --principle boundary-discipline`, both CLIs): claude PASS (0.29 USD). codex PASS. Both put the brief, the report, the diff file, and the reviewer brief in `thoughts/shared/sdd/2026-11-19-discount/`.
+Guard: `test_no_superpowers_paths` failed on `build/brief-template.md` and `recall/SKILL.md` before the change, and passes after it. Its self-check is `LintSelfCheck.test_superpowers_path`.
 
 ## Round 2 pressure scenarios
 

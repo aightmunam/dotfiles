@@ -59,6 +59,10 @@ POINTER_RE = re.compile(r"~/\.agents/principles/([A-Za-z0-9_-]+)\.md")
 PLUGIN_MARKERS = ("superpowers:", "agent-skills:", "feature-dev:", "plugins/cache")
 # Agent files and AGENTS.md may not name superpowers at all. Skill source maps may cite it.
 STRICT_MARKERS = PLUGIN_MARKERS + ("superpowers",)
+# A skill may not tell an agent to write into the superpowers plugin folder.
+# Run files go under thoughts/shared/. History maps may cite old run files.
+LEDGER_MARKERS = (".superpowers/",)
+HISTORY_MAPS = ("source-map.md", "tenet-map.md")
 NEW_AGENTS = {"reviewer", "explorer"}
 # The four Repo Rules lines, verbatim (ai/skills/debug/SKILL.md). Every PLANNED skill
 # except the text-only ones carries them in SKILL.md (final review I3, M7).
@@ -348,6 +352,11 @@ class SkillsLint(unittest.TestCase):
         errors += check_plugin_refs(agent_files(), STRICT_MARKERS)
         self.assertEqual(errors, [], "\n".join(errors))
 
+    def test_no_superpowers_paths(self):
+        paths = [f for f in skill_md_files() if f.name not in HISTORY_MAPS]
+        errors = check_plugin_refs(paths, LEDGER_MARKERS)
+        self.assertEqual(errors, [], "\n".join(errors))
+
     def test_no_plugin_references_in_agents_md(self):
         errors = check_plugin_refs([AGENTS_MD], STRICT_MARKERS)
         self.assertEqual(errors, [], "\n".join(errors))
@@ -505,6 +514,12 @@ class LintSelfCheck(unittest.TestCase):
         p = self.skill("see superpowers `using-git-worktrees`\n")
         self.assertEqual(check_plugin_refs([p]), [])
         self.assertTrue(check_plugin_refs([p], STRICT_MARKERS))
+
+    def test_superpowers_path(self):
+        p = self.skill("Put the brief in `.superpowers/sdd/<plan>/phase-1-brief.md`.\n")
+        self.assertTrue(check_plugin_refs([p], LEDGER_MARKERS))
+        p = self.skill("Put the brief in `thoughts/shared/sdd/<plan>/phase-1-brief.md`.\n")
+        self.assertEqual(check_plugin_refs([p], LEDGER_MARKERS), [])
 
 
 if __name__ == "__main__":
