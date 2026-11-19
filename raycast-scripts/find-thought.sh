@@ -8,10 +8,10 @@
 # Optional parameters:
 # @raycast.icon :brain:
 # @raycast.argument1 { "type": "text", "placeholder": "search query", "optional": true }
-# @raycast.packageName HumanLayer
+# @raycast.packageName Thoughts
 
 # Documentation:
-# @raycast.description Fuzzy search HumanLayer thoughts
+# @raycast.description Fuzzy search ~/thoughts notes
 # @raycast.author Munam Mubashir
 
 query="${1:-}"
