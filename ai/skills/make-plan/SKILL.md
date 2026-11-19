@@ -35,7 +35,7 @@ You own the plan, not the code. Do not implement.
 - **No empty lines.** "TBD", "handle edge cases", and "add validation" decide nothing. Replace each with the decision.
 - **Tests per phase.** Each phase runs only its touched tests. The full suite runs once, in the last phase.
 - **An empty section says why.** Entry points and failure modes are always present.
-- **No old-tool residue.** No ticket ids such as `ENG-XXXX`, no `thoughts/allison`, no `npm` commands in a repo without npm, and no `humanlayer` command except `humanlayer thoughts sync`.
+- **No old-tool residue.** No ticket ids such as `ENG-XXXX`, no `thoughts/allison`, no `npm` commands in a repo without npm, and no `humanlayer` command.
 
 ## Handoff Template
 

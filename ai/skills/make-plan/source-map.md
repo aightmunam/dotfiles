@@ -72,7 +72,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | Exit 2 is a setup error: stop, do not run again, report the code and message in the handoff. | pl (exit 2 on setup error). review I3 (controller ruling). | D | Loop 8. Handoff template. Red flags. | Untested. The runs had no file to lint. |
 | Exit 2, no file, or linter not on disk: check the manifest rules by hand and say so. | brief (live path has no `ai/bin` before merge). | P | Loop 8. Handoff template. | GREEN |
 | An empty section says why. Entry points and failure modes are always present. | fcd (empty section says why). spec 8.4. | D | Rules. T intro. | GREEN |
-| No humanlayer command except `humanlayer thoughts sync`. | spec 8.4 (remove ENG-XXXX, thoughts/allison, npm). audit item 10 (one rule across skills: review-pr runs `humanlayer thoughts sync`, so make-plan allows it). | D | Rules. | Untested. Edited in round 2. No run used a humanlayer command. |
+| No humanlayer command. | spec 8.4 (remove ENG-XXXX, thoughts/allison, npm). audit item 10 (one rule across skills: review-pr runs `humanlayer thoughts sync`, so make-plan allows it). rig thoughts spec decision 3. | D | Rules. | Untested. Edited in round 2. No run used a humanlayer command. |
 | Handoff: numbered questions, each with a recommended answer. No "approve?". | spec 8.4. brief (same ruling as brainstorm). tt step 4 (numbered breakdown, quiz). | O | Loop 9. Handoff template. Red flags. | RED: Claude ended "please review the plan there". |
 | Each question in item form: link, change, evidence, risk. | spec 8.4. catch-up. | O | Handoff template. | GREEN |
 | Drop a question that a run can answer. | spec 8.4. mpp step 2. | D | Definitions. Loop 9. Red flags. | GREEN |
