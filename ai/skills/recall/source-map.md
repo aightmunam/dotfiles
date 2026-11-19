@@ -11,6 +11,7 @@
 - **pocock-redact:** mattpocock-skills `skills/engineering/diagnosing-bugs/SKILL.md` lines 12 to 16 (the Redact section).
 - **audit:** `.superpowers/sdd/2026-10-30-skill-rework/skill-audit.md` in the skill-rework worktree, G5 and Top-10 item 5.
 - **brief:** Task 6.7 brief, its Global Constraints, and the 6.7 dispatch.
+- **user-ledger:** the user's words, 2026-11-19: "build should also use thoughts. It can add the same folder like sdd/".
 
 Form key. P is a procedure step or a template slot. D is a discipline with a red flag. O is an output.
 "Loop N" is a step in SKILL.md. "Template" is `ai/skills/handoff/capsule-template.md`.
@@ -46,6 +47,7 @@ Form key. P is a procedure step or a template slot. D is a discipline with a red
 | No question to the user. A fact you cannot check is a Problems line. | spec never-block-on-the-human row. Controller ruling. | D | Rules. | GREEN |
 | Principle pointer at the check step. `Principles applied:` line at the end. | spec 8.7 (recall row). brief (Principles). | P | Loop 5. Template. Red flags. | GREEN |
 | Four repo lines, verbatim. | brief Global Constraints. | D | Repo Rules. | Untested. |
+| The build ledger is `thoughts/shared/sdd/<plan>/`. | user-ledger. Same folder as `build` Definitions (Ledger). | P | Loop 3. Guard: `test_no_superpowers_paths` in `ai/tests/test_skills_lint.py`. | GREEN-ledger: both CLIs checked `thoughts/shared/sdd/`. RED: both checked `.superpowers/sdd/`. |
 
 ## Cut
 
@@ -86,3 +88,7 @@ Both PASS (Claude $0.40, Codex 270k input and 3.0k output tokens). Both answers 
 RED v1: no leak in either CLI. RED v2: Codex quoted the token, the email and the address. Claude RED v2 redacted.
 GREEN-1 (v1): both PASS, no leak (Claude 0.30 USD, Codex 252k input tokens). GREEN-2 (v2): Codex PASS with `<REDACTED>` in the ruling and the log line. Claude harness FAIL, "principle not read": it read the principle in a compound command whose last part exited non-zero, and the harness drops a Bash call with an error result. Its answer had no leak (0.31 USD). GREEN-3 (v2, Claude only, no text change): PASS, the ruling and the log line quoted with `<REDACTED>` (0.30 USD).
 
+**Ledger in thoughts** (2026-11-19). Scenario: catch up on the `discount` work after a build run, in a read-only scratch dir. The answer lists each source path in order.
+RED (`--red`, both CLIs): the user-level `recall` skill with the old text was still visible. Claude (0.38 USD) and Codex both looked for the build ledger in `.superpowers/sdd/`.
+Failure: recall reads the build ledger from `.superpowers/sdd/<plan>/`, not from the thoughts tree.
+GREEN-ledger (`--skill recall --principle prove-it-works`, both CLIs): claude PASS (0.33 USD). codex PASS. Both looked for the build ledger in `thoughts/shared/sdd/`. Codex also checked `thoughts/shared/sdd/2026-11-19-discount/`.

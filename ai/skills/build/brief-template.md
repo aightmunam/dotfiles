@@ -1,6 +1,6 @@
 # Brief Template
 
-`build` fills one brief for each phase and gives it to one fresh implementer. The brief stands alone. It holds the goal, the scope, how to verify, and what to report. Replace each `<...>` slot. Keep each heading. Put the brief in a file next to the plan run, for example `.superpowers/sdd/<plan>/phase-<n>-brief.md`, and give the implementer its path.
+`build` fills one brief for each phase and gives it to one fresh implementer. The brief stands alone. It holds the goal, the scope, how to verify, and what to report. Replace each `<...>` slot. Keep each heading. Put the brief in the ledger as `thoughts/shared/sdd/<plan>/phase-<n>-brief.md`. Give the implementer its path.
 
 ````markdown
 # Brief: Phase <n> of `<plan path>`

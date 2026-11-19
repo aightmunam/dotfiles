@@ -9,6 +9,7 @@ description: Use when a written plan is ready to execute. Use when the user asks
 
 - **Plan:** a `make-plan` plan in `thoughts/shared/plans/`. Each phase has its files, its interfaces, and its touched tests.
 - **Brief:** the file that one implementer reads for one phase. You fill `brief-template.md`.
+- **Ledger:** the folder `thoughts/shared/sdd/<plan>/` next to the plan. `<plan>` is the plan file name without `.md`. Put each brief, report, diff file, and reviewer brief of the run in the ledger.
 - **Red:** the new test fails on its assertion with the value that you predicted. An import error, a collection error, a syntax error, or a wrong argument count is not red.
 - **Receipt:** one line under the phase in the plan: `Fail-first: <test id> expected <x> got <y>`.
 - **Deviation:** one row in `## Deviations` at the end of the plan, for each decision that the plan did not make. Rows are append-only. A wrong row gets a new row that replaces it. The evidence is a pointer (SHA, `file:line`, PR number), not prose.
